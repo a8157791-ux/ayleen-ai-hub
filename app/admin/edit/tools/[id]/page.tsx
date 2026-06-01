@@ -15,7 +15,7 @@ export default function EditToolPage() {
 
   useEffect(() => {
     // fetch single item via list and filter
-    fetch('/api/tools').then(r => r.json()).then((data: {id: number}[]) => {
+    fetch('/api/tools').then(r => r.json()).then((data: any[]) => {
       const item = data.find(t => t.id === Number(id))
       if (item) setForm(item as typeof form)
       setLoading(false)
