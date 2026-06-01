@@ -1,0 +1,103 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AiNews {
+  id          Int      @id @default(autoincrement())
+  title       String
+  summary     String?
+  url         String   @unique
+  source      String?
+  category    String?  // design / code / video / 3d / plan / research
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ai_news")
+}
+
+model StudyNote {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String?
+  category    String?  // image / design / video / 3d / plan
+  tool        String?
+  prompt      String?
+  mediaUrl    String?
+  tags        String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("study_notes")
+}
+
+model AiTool {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  url         String?
+  category    String?  // image / video / 3d / code / plan / music
+  pricing     String?  // free / freemium / paid
+  rating      Float?
+  review      String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ai_tools")
+}
+
+model PromptItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  body        String
+  category    String?  // image / video / text / system
+  tool        String?
+  resultUrl   String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("prompt_items")
+}
+
+model SavedLink {
+  id          Int      @id @default(autoincrement())
+  title       String?
+  url         String
+  linkType    String?  // youtube / instagram / article / news
+  category    String?
+  memo        String?
+  createdAt   DateTime @default(now())
+
+  @@map("saved_links")
+}
+
+model Reference {
+  id          Int      @id @default(autoincrement())
+  title       String?
+  url         String
+  refType     String?  // website / portfolio / tool / article / inspiration
+  category    String?
+  desc        String?
+  faviconUrl  String?
+  createdAt   DateTime @default(now())
+
+  @@map("references")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@map("admins")
+}
