@@ -12,7 +12,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('news')
   const [collecting, setCollecting] = useState(false)
   const [toast, setToast] = useState('')
-  const [items, setItems] = useState<Record<string, unknown>[]>([])
+  const [items, setItems] = useState<Record<string, any>[]>([])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/admin/login')
