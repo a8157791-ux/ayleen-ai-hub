@@ -14,7 +14,7 @@ export default function EditPromptPage() {
   const set = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
   useEffect(() => {
-    fetch('/api/prompts').then(r => r.json()).then((data: {id: number}[]) => {
+    fetch('/api/prompts').then(r => r.json()).then((data: any[]) => {
       const item = data.find(t => t.id === Number(id))
       if (item) setForm(item as typeof form)
       setLoading(false)
