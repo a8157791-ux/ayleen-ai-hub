@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -7,6 +7,16 @@ export default async function StudyDetailPage({
 }: {
   params: Promise<{ id: string }> | { id: string }
 }) {
+  if (!databaseEnabled) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Study Note</div>
+        <h1 className="hero-title">데이터베이스 연결이 필요합니다</h1>
+        <div className="hero-meta">DATABASE_URL을 설정하면 스터디 노트를 볼 수 있습니다.</div>
+      </div>
+    )
+  }
+
   const resolved = await Promise.resolve(params)
   const note = await prisma.studyNote.findUnique({ where: { id: Number(resolved.id) } })
   if (!note || !note.published) notFound()

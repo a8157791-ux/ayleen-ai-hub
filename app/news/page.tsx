@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 
 const catLabel: Record<string, string> = {
   design: 'Design', code: 'Coding', video: 'Video',
@@ -20,6 +20,16 @@ export default async function NewsPage({
 }: {
   searchParams: Promise<{ cat?: string }> | { cat?: string }
 }) {
+  if (!databaseEnabled) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">News</div>
+        <h1 className="hero-title">데이터베이스 연결이 필요합니다</h1>
+        <div className="hero-meta">DATABASE_URL을 설정하면 뉴스 목록을 볼 수 있습니다.</div>
+      </div>
+    )
+  }
+
   const resolved = await Promise.resolve(searchParams)
   const cat = resolved.cat
 

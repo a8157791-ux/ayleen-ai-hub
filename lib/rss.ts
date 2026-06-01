@@ -43,7 +43,7 @@ async function parseRSSFeed(feed: typeof RSS_FEEDS[0]): Promise<NewsItem[]> {
     const text = await res.text()
     const items: NewsItem[] = []
 
-    const itemMatches = text.matchAll(/<item>([\s\S]*?)<\/item>/g)
+    const itemMatches = Array.from(text.matchAll(/<item>([\s\S]*?)<\/item>/g))
     for (const match of itemMatches) {
       const block = match[1]
 

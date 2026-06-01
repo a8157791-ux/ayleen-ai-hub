@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 import Link from 'next/link'
 
 const catLabel: Record<string, string> = {
@@ -12,6 +12,16 @@ export default async function StudyPage({
 }: {
   searchParams: Promise<{ cat?: string }> | { cat?: string }
 }) {
+  if (!databaseEnabled) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Study Room</div>
+        <h1 className="hero-title">데이터베이스 연결이 필요합니다</h1>
+        <div className="hero-meta">DATABASE_URL을 설정하면 스터디 기록을 볼 수 있습니다.</div>
+      </div>
+    )
+  }
+
   const resolved = await Promise.resolve(searchParams)
   const cat = resolved.cat
   const where = { published: true, ...(cat ? { category: cat } : {}) }

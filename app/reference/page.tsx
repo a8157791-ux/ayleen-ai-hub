@@ -1,8 +1,18 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 
 export const revalidate = 60
 
 export default async function ReferencePage() {
+  if (!databaseEnabled) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Reference</div>
+        <h1 className="hero-title">데이터베이스 연결이 필요합니다</h1>
+        <div className="hero-meta">DATABASE_URL을 설정하면 레퍼런스를 불러올 수 있습니다.</div>
+      </div>
+    )
+  }
+
   const refs = await prisma.reference.findMany({ orderBy: { createdAt: 'desc' } })
 
   return (

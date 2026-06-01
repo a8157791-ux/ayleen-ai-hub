@@ -1,8 +1,18 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 
 export const revalidate = 60
 
 export default async function SavedPage() {
+  if (!databaseEnabled) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Saved Links</div>
+        <h1 className="hero-title">데이터베이스 연결이 필요합니다</h1>
+        <div className="hero-meta">DATABASE_URL을 설정하면 저장된 링크를 볼 수 있습니다.</div>
+      </div>
+    )
+  }
+
   const links = await prisma.savedLink.findMany({ orderBy: { createdAt: 'desc' } })
   const typeColor: Record<string, string> = {
     youtube: 'var(--color-pink)', instagram: 'var(--color-purple)',

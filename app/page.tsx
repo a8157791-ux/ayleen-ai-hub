@@ -16,7 +16,21 @@ function timeAgo(date: Date): string {
 
 export const revalidate = 1800
 
+const hasDatabase = Boolean(process.env.DATABASE_URL)
+
 export default async function HomePage() {
+  if (!hasDatabase) {
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Daily Digest</div>
+        <h1 className="hero-title">오늘의 <b>AI</b> 트렌드</h1>
+        <div className="hero-meta">
+          데이터베이스 연결 정보가 없습니다. `DATABASE_URL` 환경 변수를 설정해주세요.
+        </div>
+      </div>
+    )
+  }
+
   const [news, studies, statNews, statStudy, statPrompts, statSaved] = await Promise.all([
     prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
