@@ -15,6 +15,7 @@ model AiNews {
   url         String   @unique
   source      String?
   category    String?
+  publishedAt DateTime?   // ✅ v2 추가: 원문 발행일 (없으면 null)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

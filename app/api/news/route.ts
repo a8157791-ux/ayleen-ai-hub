@@ -29,10 +29,13 @@ export async function POST(req: NextRequest) {
             source: item.source,
             summary: item.summary,
             category: item.category,
+            // ✅ v2: publishedAt 저장 (ISO 문자열 → DateTime)
+            publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
           },
         })
         created++
       } catch {
+        // url unique constraint 위반 = 중복 skip
         skipped++
       }
     }
@@ -45,15 +48,26 @@ export async function POST(req: NextRequest) {
 }
 
 // GET /api/news — 목록 조회
+// ?cat=design|code|video|3d|plan|research  카테고리 필터
+// ?limit=200                                최대 500건
+// ?sortBy=publishedAt|createdAt             정렬 기준 (기본: publishedAt 우선)
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const cat = searchParams.get('cat')
-  const limit = Number(searchParams.get('limit') ?? '200')
+  const limit = Math.min(Number(searchParams.get('limit') ?? '200'), 500)
+  const sortBy = searchParams.get('sortBy') === 'createdAt' ? 'createdAt' : 'publishedAt'
+
   const where = cat ? { category: cat } : {}
+
+  // publishedAt 정렬: null은 뒤로 보내기 위해 createdAt도 함께 사용
   const news = await prisma.aiNews.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
-    take: Math.min(limit, 500),
+    orderBy:
+      sortBy === 'publishedAt'
+        ? [{ publishedAt: 'desc' }, { createdAt: 'desc' }]
+        : [{ createdAt: 'desc' }],
+    take: limit,
   })
+
   return NextResponse.json(news)
 }
