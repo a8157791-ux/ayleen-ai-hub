@@ -14,9 +14,9 @@ export default function EditPromptPage() {
   const set = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
   useEffect(() => {
-    fetch('/api/prompts').then(r => r.json()).then((data: any[]) => {
-      const item = data.find(t => t.id === Number(id))
-      if (item) setForm(item as typeof form)
+    fetch('/api/prompts?admin=1').then(r => r.json()).then((data: any[]) => {
+      const item = data.find((t: any) => String(t.id) === String(id))
+      if (item) setForm(item)
       setLoading(false)
     })
   }, [id])
@@ -47,7 +47,7 @@ export default function EditPromptPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','video','text','system'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['image', 'video', 'text', 'system'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

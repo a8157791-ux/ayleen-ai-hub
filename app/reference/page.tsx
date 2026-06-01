@@ -14,8 +14,13 @@ export default async function ReferencePage() {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
         {refs.map(ref => (
-          <a key={ref.id} href={ref.url} target="_blank" rel="noopener"
-            style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 12, textDecoration: 'none' }}>
+          <a
+            key={ref.id}
+            href={ref.url}
+            target="_blank"
+            rel="noopener"
+            style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 12, textDecoration: 'none' }}
+          >
             <div style={{ width: 28, height: 28, borderRadius: 'var(--radius-sm)', background: 'var(--color-bg-3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
               {ref.faviconUrl
                 ? <img src={ref.faviconUrl} alt="" style={{ width: 16, height: 16 }} />

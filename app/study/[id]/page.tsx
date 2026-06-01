@@ -2,8 +2,13 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export default async function StudyDetailPage({ params }: { params: { id: string } }) {
-  const note = await prisma.studyNote.findUnique({ where: { id: Number(params.id) } })
+export default async function StudyDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }> | { id: string }
+}) {
+  const resolved = await Promise.resolve(params)
+  const note = await prisma.studyNote.findUnique({ where: { id: Number(resolved.id) } })
   if (!note || !note.published) notFound()
 
   return (

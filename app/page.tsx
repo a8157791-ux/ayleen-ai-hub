@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${Math.floor(h / 24)}일 전`
 }
 
-export const revalidate = 1800 // 30분 캐시
+export const revalidate = 1800
 
 export default async function HomePage() {
   const [news, studies, statNews, statStudy, statPrompts, statSaved] = await Promise.all([
@@ -30,14 +30,12 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero */}
       <div className="page-hero">
         <div className="hero-eyebrow">Daily Digest</div>
         <h1 className="hero-title">오늘의 <b>AI</b> 트렌드</h1>
         <div className="hero-meta">{today} · {statNews}건 수집됨</div>
       </div>
 
-      {/* Stats */}
       <div className="stats-row">
         <div className="stat-card">
           <div className="stat-label">수집 뉴스</div>
@@ -61,7 +59,6 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Ticker */}
       {news.length > 0 && (
         <div className="ticker-wrap" aria-hidden="true">
           <div className="ticker-inner">
@@ -74,7 +71,6 @@ export default async function HomePage() {
         </div>
       )}
 
-      {/* 오늘의 AI 뉴스 */}
       <section className="aihub-section">
         <div className="sec-hd">
           <h2 className="sec-title">오늘의 AI 뉴스</h2>
@@ -87,13 +83,7 @@ export default async function HomePage() {
           {news.slice(0, 7).map((item, i) => {
             const isNew = Date.now() - item.createdAt.getTime() < 86400000
             return (
-              <a
-                key={item.id}
-                href={item.url}
-                className="news-item"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
                 <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
                 <div className="news-body">
                   {item.category && (
@@ -114,7 +104,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 최근 스터디룸 */}
       {studies.length > 0 && (
         <section className="aihub-section">
           <div className="sec-hd">
@@ -137,9 +126,7 @@ export default async function HomePage() {
                 <div className="study-body">
                   {note.tool && <div className="study-tool">{note.tool}</div>}
                   <div className="study-title">{note.title}</div>
-                  <div className="study-date">
-                    {note.createdAt.toLocaleDateString('ko-KR')}
-                  </div>
+                  <div className="study-date">{note.createdAt.toLocaleDateString('ko-KR')}</div>
                 </div>
               </Link>
             ))}

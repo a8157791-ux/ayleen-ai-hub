@@ -7,9 +7,15 @@ const catLabel: Record<string, string> = {
 
 export const revalidate = 60
 
-export default async function StudyPage({ searchParams }: { searchParams: { cat?: string } }) {
-  const cat = searchParams.cat
+export default async function StudyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cat?: string }> | { cat?: string }
+}) {
+  const resolved = await Promise.resolve(searchParams)
+  const cat = resolved.cat
   const where = { published: true, ...(cat ? { category: cat } : {}) }
+
   const [notes, total] = await Promise.all([
     prisma.studyNote.findMany({ where, orderBy: { createdAt: 'desc' } }),
     prisma.studyNote.count({ where: { published: true } }),
@@ -26,7 +32,9 @@ export default async function StudyPage({ searchParams }: { searchParams: { cat?
       <div className="tab-bar" style={{ marginBottom: 20 }}>
         <a href="/study" className={`tab-btn ${!cat ? 'active' : ''}`}>전체</a>
         {Object.entries(catLabel).map(([val, label]) => (
-          <a key={val} href={`/study?cat=${val}`} className={`tab-btn ${cat === val ? 'active' : ''}`}>{label}</a>
+          <a key={val} href={`/study?cat=${val}`} className={`tab-btn ${cat === val ? 'active' : ''}`}>
+            {label}
+          </a>
         ))}
       </div>
 
@@ -44,7 +52,9 @@ export default async function StudyPage({ searchParams }: { searchParams: { cat?
               )}
             </div>
             <div className="card-body">
-              {note.category && <div className={`card-cat cat-${note.category}`}>{catLabel[note.category] ?? note.category}</div>}
+              {note.category && (
+                <div className={`card-cat cat-${note.category}`}>{catLabel[note.category] ?? note.category}</div>
+              )}
               <div className="card-title">{note.title}</div>
               <div className="card-footer">
                 {note.tool && <><span>{note.tool}</span><span className="card-footer-dot" /></>}

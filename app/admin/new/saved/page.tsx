@@ -40,7 +40,7 @@ export default function NewSavedPage() {
             <div className="form-group">
               <label className="form-label">타입</label>
               <select className="form-select" value={form.linkType} onChange={e => set('linkType', e.target.value)}>
-                {['youtube','instagram','article','news'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['youtube', 'instagram', 'article', 'news'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

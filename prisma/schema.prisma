@@ -14,7 +14,7 @@ model AiNews {
   summary     String?
   url         String   @unique
   source      String?
-  category    String?  // design / code / video / 3d / plan / research
+  category    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -25,7 +25,7 @@ model StudyNote {
   id          Int      @id @default(autoincrement())
   title       String
   content     String?
-  category    String?  // image / design / video / 3d / plan
+  category    String?
   tool        String?
   prompt      String?
   mediaUrl    String?
@@ -42,8 +42,8 @@ model AiTool {
   name        String
   description String?
   url         String?
-  category    String?  // image / video / 3d / code / plan / music
-  pricing     String?  // free / freemium / paid
+  category    String?
+  pricing     String?
   rating      Float?
   review      String?
   published   Boolean  @default(true)
@@ -57,7 +57,7 @@ model PromptItem {
   id          Int      @id @default(autoincrement())
   title       String
   body        String
-  category    String?  // image / video / text / system
+  category    String?
   tool        String?
   resultUrl   String?
   published   Boolean  @default(true)
@@ -71,7 +71,7 @@ model SavedLink {
   id          Int      @id @default(autoincrement())
   title       String?
   url         String
-  linkType    String?  // youtube / instagram / article / news
+  linkType    String?
   category    String?
   memo        String?
   createdAt   DateTime @default(now())
@@ -83,7 +83,7 @@ model Reference {
   id          Int      @id @default(autoincrement())
   title       String?
   url         String
-  refType     String?  // website / portfolio / tool / article / inspiration
+  refType     String?
   category    String?
   desc        String?
   faviconUrl  String?

@@ -4,7 +4,6 @@ const catLabel: Record<string, string> = {
   design: 'Design', code: 'Coding', video: 'Video',
   '3d': '3D', plan: 'Planning', research: 'Research',
 }
-const cats = Object.entries(catLabel)
 
 function timeAgo(date: Date): string {
   const diff = Date.now() - date.getTime()
@@ -19,13 +18,15 @@ export const revalidate = 1800
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: { cat?: string }
+  searchParams: Promise<{ cat?: string }> | { cat?: string }
 }) {
-  const cat = searchParams.cat
+  const resolved = await Promise.resolve(searchParams)
+  const cat = resolved.cat
+
   const where = cat ? { category: cat } : {}
 
   const [news, total] = await Promise.all([
-    prisma.aiNews.findMany({ where, orderBy: { createdAt: 'desc' }, take: 50 }),
+    prisma.aiNews.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100 }),
     prisma.aiNews.count(),
   ])
 
@@ -37,20 +38,10 @@ export default async function NewsPage({
         <div className="hero-meta">총 {total}건 수집됨</div>
       </div>
 
-      {/* Category filter */}
       <div className="tab-bar" style={{ marginBottom: 20 }}>
-        <a
-          href="/news"
-          className={`tab-btn ${!cat ? 'active' : ''}`}
-        >
-          전체
-        </a>
-        {cats.map(([val, label]) => (
-          <a
-            key={val}
-            href={`/news?cat=${val}`}
-            className={`tab-btn ${cat === val ? 'active' : ''}`}
-          >
+        <a href="/news" className={`tab-btn ${!cat ? 'active' : ''}`}>전체</a>
+        {Object.entries(catLabel).map(([val, label]) => (
+          <a key={val} href={`/news?cat=${val}`} className={`tab-btn ${cat === val ? 'active' : ''}`}>
             {label}
           </a>
         ))}

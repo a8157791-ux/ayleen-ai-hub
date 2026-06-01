@@ -1,11 +1,25 @@
 # Ayleen's AI Hub
 
-AI 트렌드 큐레이션 + 개인 학습 아카이브 사이트  
+AI 트렌드 큐레이션 + 개인 학습 아카이브  
 **Next.js 14 + Vercel + Neon PostgreSQL**
 
 ---
 
-## 배포 순서 (처음부터 끝까지)
+## 버그 수정 내역 (v6 → v6.1)
+
+- **사이드바 이중 렌더링 제거** — Topbar 안에서 Sidebar를 import해 2개가 렌더링되던 문제 수정. 커스텀 이벤트 방식으로 통신
+- **searchParams / params async 처리** — Next.js 14 App Router에서 `searchParams`를 동기적으로 접근하면 빌드 오류 발생. `Promise.resolve()` 래핑으로 수정
+- **saved/page.tsx 이벤트 핸들러 오류** — 서버 컴포넌트에 `onMouseEnter/Leave` 인라인 핸들러 사용 불가. CSS `.saved-link-item` 클래스로 대체
+- **study API 단일 조회 누락** — `GET /api/study?id=` 파라미터 처리 로직 없어 편집 페이지 데이터 로드 실패하던 문제 수정
+- **admin 페이지에서 미공개 항목 조회** — tools/prompts API에 `?admin=1` 파라미터 추가해 관리자는 unpublished 포함 전체 조회
+- **뉴스 목록 limit 하드코딩** — 관리자 패널에서 50건만 보이던 문제. `/api/news?limit=200` 으로 수정
+- **xml2js 미사용 의존성 제거** — package.json에서 제거
+- **RSS fetch timeout 추가** — `AbortSignal.timeout(8000)` 으로 느린 피드 무한 대기 방지
+- **편집 페이지 id 비교 버그** — `Number(id)` 비교를 `String(t.id) === String(id)` 로 변경해 타입 불일치 방지
+
+---
+
+## 배포 순서
 
 ### 1단계 — GitHub에 올리기
 
@@ -13,26 +27,21 @@ AI 트렌드 큐레이션 + 개인 학습 아카이브 사이트
 cd ayleen-ai-hub
 git init
 git add .
-git commit -m "init: Ayleen AI Hub"
-# GitHub에서 새 repo 만들고:
+git commit -m "init: Ayleen AI Hub v6.1"
 git remote add origin https://github.com/YOUR_ID/ayleen-ai-hub.git
 git push -u origin main
 ```
-
----
 
 ### 2단계 — Neon DB 만들기 (무료)
 
 1. https://neon.tech 접속 → 회원가입
 2. New Project → `ayleen-ai-hub`
-3. **Connection string** 복사 (postgresql://... 형식)
-
----
+3. Connection string 복사 (postgresql://... 형식)
 
 ### 3단계 — Vercel 배포
 
 1. https://vercel.com → New Project → GitHub repo 연결
-2. **Environment Variables** 설정:
+2. Environment Variables 설정:
 
 | Key | 값 |
 |-----|---|
@@ -45,11 +54,7 @@ git push -u origin main
 
 3. Deploy 클릭
 
----
-
 ### 4단계 — DB 테이블 생성
-
-배포 후 로컬에서:
 
 ```bash
 npm install
@@ -57,16 +62,7 @@ npm install
 npx prisma db push
 ```
 
-또는 Vercel 대시보드 → Functions → Run Command:
-```
-npx prisma db push
-```
-
----
-
 ### 5단계 — 관리자 계정 생성 (1회)
-
-배포된 사이트에서 POST 요청:
 
 ```bash
 curl -X POST https://your-site.vercel.app/api/setup \
@@ -79,38 +75,12 @@ curl -X POST https://your-site.vercel.app/api/setup \
   }'
 ```
 
-또는 Postman/Insomnia로 동일하게 호출.
-
----
-
 ### 6단계 — AI 뉴스 수집 시작
 
 1. 사이트 접속 → 우측 상단 사람 아이콘 → 로그인
 2. 사이드바 → 관리자 패널
-3. **"AI 뉴스 지금 수집"** 버튼 클릭
+3. "AI 뉴스 지금 수집" 버튼 클릭
 4. 이후 매일 새벽 6시(KST) 자동 수집됨
-
----
-
-## 무료 뉴스 수집 방식
-
-### RSS 피드 (완전 무료, 제한 없음)
-자동으로 아래 소스에서 수집:
-- VentureBeat AI
-- OpenAI Blog
-- HuggingFace Blog  
-- Stability AI
-- Towards Data Science
-- ML Mastery
-- AI Art Weekly
-- Runway ML Blog
-- MarkTechPost
-- Artificial Intelligence News
-
-### NewsAPI (선택, 무료 플랜)
-- https://newsapi.org 가입 → Developer 플랜 (무료)
-- 월 100회 요청 제한 (하루 1회 수집이면 충분)
-- `NEWS_API_KEY` 환경변수에 입력
 
 ---
 
@@ -121,51 +91,6 @@ npm install
 cp .env.example .env.local
 # .env.local에 실제 값 입력
 
-npx prisma db push  # DB 테이블 생성
-npm run dev         # http://localhost:3000
-```
-
----
-
-## 파일 구조
-
-```
-app/
-├── page.tsx              # 홈 대시보드
-├── news/page.tsx         # 트렌드 보드
-├── study/page.tsx        # 스터디룸
-├── study/[id]/page.tsx   # 스터디 상세
-├── tools/page.tsx        # 툴 라이브러리
-├── prompts/page.tsx      # 프롬프트 보관함
-├── saved/page.tsx        # 저장한 글
-├── reference/page.tsx    # 레퍼런스
-├── admin/
-│   ├── page.tsx          # 관리자 패널
-│   ├── login/page.tsx    # 로그인
-│   └── new/              # 콘텐츠 추가 폼
-└── api/
-    ├── news/             # 뉴스 CRUD + 수집
-    ├── study/            # 스터디 CRUD
-    ├── tools/            # 툴 CRUD
-    ├── prompts/          # 프롬프트 CRUD
-    ├── saved/            # 저장한 글 CRUD
-    ├── reference/        # 레퍼런스 CRUD
-    ├── auth/             # NextAuth
-    ├── setup/            # 최초 관리자 생성
-    └── cron/             # 자동 뉴스 수집
-
-components/
-├── Sidebar.tsx
-├── Topbar.tsx
-└── Providers.tsx
-
-lib/
-├── db.ts                 # Prisma client
-├── auth.ts               # NextAuth config
-└── rss.ts                # RSS + NewsAPI 수집
-
-prisma/
-└── schema.prisma         # DB 스키마
-
-vercel.json               # Cron 설정 (매일 06:00 KST)
+npx prisma db push
+npm run dev  # http://localhost:3000
 ```

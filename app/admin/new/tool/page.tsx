@@ -36,13 +36,13 @@ export default function NewToolPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','video','3d','code','plan','music'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['image', 'video', '3d', 'code', 'plan', 'music'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">
               <label className="form-label">가격</label>
               <select className="form-select" value={form.pricing} onChange={e => set('pricing', e.target.value)}>
-                {['free','freemium','paid'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['free', 'freemium', 'paid'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

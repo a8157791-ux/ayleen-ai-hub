@@ -19,13 +19,17 @@ export default function AdminPage() {
   }, [status, router])
 
   useEffect(() => {
-    fetchItems()
-  }, [tab])
+    if (status === 'authenticated') fetchItems()
+  }, [tab, status])
 
   const fetchItems = async () => {
     const endpoints: Record<Tab, string> = {
-      news: '/api/news', study: '/api/study', tools: '/api/tools',
-      prompts: '/api/prompts', saved: '/api/saved', reference: '/api/reference',
+      news: '/api/news?limit=200',
+      study: '/api/study',
+      tools: '/api/tools?admin=1',
+      prompts: '/api/prompts?admin=1',
+      saved: '/api/saved',
+      reference: '/api/reference',
     }
     const res = await fetch(endpoints[tab])
     const data = await res.json()
@@ -58,6 +62,7 @@ export default function AdminPage() {
   }
 
   if (status === 'loading') return null
+  if (status === 'unauthenticated') return null
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'news', label: 'AI 뉴스' },
@@ -68,6 +73,13 @@ export default function AdminPage() {
     { id: 'reference', label: '레퍼런스' },
   ]
 
+  // edit 경로 매핑 (saved, reference, news는 편집 없음)
+  const editPath: Partial<Record<Tab, string>> = {
+    study: 'study',
+    tools: 'tools',
+    prompts: 'prompts',
+  }
+
   return (
     <>
       <div className="page-hero">
@@ -76,7 +88,6 @@ export default function AdminPage() {
         <div className="hero-meta">{session?.user?.email}</div>
       </div>
 
-      {/* Quick actions */}
       <div className="admin-card" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <button onClick={collectNews} className="btn btn-primary" disabled={collecting}>
           <i className="ti ti-refresh" />
@@ -96,20 +107,14 @@ export default function AdminPage() {
         </Link>
       </div>
 
-      {/* Tab nav */}
       <div className="tab-bar" style={{ marginBottom: 16 }}>
         {tabs.map(t => (
-          <button
-            key={t.id}
-            className={`tab-btn ${tab === t.id ? 'active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
+          <button key={t.id} className={`tab-btn ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
       </div>
 
-      {/* Items list */}
       <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
         <table className="admin-table">
           <thead>
@@ -125,7 +130,7 @@ export default function AdminPage() {
               <tr key={item.id as number}>
                 <td style={{ maxWidth: 400 }}>
                   <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {(item.title ?? item.url) as string}
+                    {(item.title ?? item.name ?? item.url) as string}
                   </div>
                   {item.url && (
                     <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -143,8 +148,8 @@ export default function AdminPage() {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    {tab !== 'news' && (
-                      <Link href={`/admin/edit/${tab}/${item.id}`} className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: 10 }}>
+                    {editPath[tab] && (
+                      <Link href={`/admin/edit/${editPath[tab]}/${item.id}`} className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: 10 }}>
                         편집
                       </Link>
                     )}

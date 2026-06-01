@@ -4,8 +4,15 @@ import { authOptions } from '@/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
-  const cat = req.nextUrl.searchParams.get('cat')
-  const where = { published: true, ...(cat ? { category: cat } : {}) }
+  const { searchParams } = req.nextUrl
+  const cat = searchParams.get('cat')
+  const admin = searchParams.get('admin')
+  const session = await getServerSession(authOptions)
+
+  const where = (admin && session)
+    ? (cat ? { category: cat } : {})
+    : { published: true, ...(cat ? { category: cat } : {}) }
+
   const prompts = await prisma.promptItem.findMany({ where, orderBy: { createdAt: 'desc' } })
   return NextResponse.json(prompts)
 }

@@ -14,10 +14,9 @@ export default function EditToolPage() {
   const set = (k: string, v: string | number | boolean) => setForm(f => ({ ...f, [k]: v }))
 
   useEffect(() => {
-    // fetch single item via list and filter
-    fetch('/api/tools').then(r => r.json()).then((data: any[]) => {
-      const item = data.find(t => t.id === Number(id))
-      if (item) setForm(item as typeof form)
+    fetch('/api/tools?admin=1').then(r => r.json()).then((data: any[]) => {
+      const item = data.find((t: any) => String(t.id) === String(id))
+      if (item) setForm(item)
       setLoading(false)
     })
   }, [id])
@@ -48,13 +47,13 @@ export default function EditToolPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','video','3d','code','plan','music'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['image', 'video', '3d', 'code', 'plan', 'music'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">
               <label className="form-label">가격</label>
               <select className="form-select" value={form.pricing} onChange={e => set('pricing', e.target.value)}>
-                {['free','freemium','paid'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['free', 'freemium', 'paid'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

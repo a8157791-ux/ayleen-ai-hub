@@ -36,7 +36,7 @@ export default function NewPromptPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','video','text','system'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['image', 'video', 'text', 'system'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

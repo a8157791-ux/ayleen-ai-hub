@@ -2,8 +2,13 @@ import { prisma } from '@/lib/db'
 
 export const revalidate = 60
 
-export default async function ToolsPage({ searchParams }: { searchParams: { cat?: string } }) {
-  const cat = searchParams.cat
+export default async function ToolsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cat?: string }> | { cat?: string }
+}) {
+  const resolved = await Promise.resolve(searchParams)
+  const cat = resolved.cat
   const where = { published: true, ...(cat ? { category: cat } : {}) }
   const tools = await prisma.aiTool.findMany({ where, orderBy: { createdAt: 'desc' } })
 
@@ -25,7 +30,9 @@ export default async function ToolsPage({ searchParams }: { searchParams: { cat?
       <div className="tab-bar" style={{ marginBottom: 20 }}>
         <a href="/tools" className={`tab-btn ${!cat ? 'active' : ''}`}>전체</a>
         {Object.entries(catLabel).map(([val, label]) => (
-          <a key={val} href={`/tools?cat=${val}`} className={`tab-btn ${cat === val ? 'active' : ''}`}>{label}</a>
+          <a key={val} href={`/tools?cat=${val}`} className={`tab-btn ${cat === val ? 'active' : ''}`}>
+            {label}
+          </a>
         ))}
       </div>
 

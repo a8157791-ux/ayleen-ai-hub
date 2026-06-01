@@ -1,11 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 const mainNav = [
-  { href: '/', icon: 'ti-layout-dashboard', label: '오늘의 AI', badge: true },
+  { href: '/', icon: 'ti-layout-dashboard', label: '오늘의 AI', badge: false },
   { href: '/news', icon: 'ti-chart-line', label: '트렌드 보드' },
   { href: '/tools', icon: 'ti-box', label: '툴 라이브러리' },
   { href: '/reference', icon: 'ti-bookmarks', label: '레퍼런스' },
@@ -16,15 +16,22 @@ const myNav = [
   { href: '/saved', icon: 'ti-bookmark', label: '저장한 글' },
 ]
 
-interface SidebarProps {
-  isOpen?: boolean
-  onClose?: () => void
-  newsCount?: number
+// 전역 사이드바 토글을 위한 커스텀 이벤트
+const SIDEBAR_TOGGLE_EVENT = 'aihub:sidebar-toggle'
+const SIDEBAR_CLOSE_EVENT = 'aihub:sidebar-close'
+
+export function toggleSidebar() {
+  window.dispatchEvent(new Event(SIDEBAR_TOGGLE_EVENT))
 }
 
-export default function Sidebar({ isOpen, onClose, newsCount }: SidebarProps) {
+export function closeSidebar() {
+  window.dispatchEvent(new Event(SIDEBAR_CLOSE_EVENT))
+}
+
+export default function Sidebar() {
   const pathname = usePathname()
   const [clock, setClock] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -37,17 +44,39 @@ export default function Sidebar({ isOpen, onClose, newsCount }: SidebarProps) {
     return () => clearInterval(id)
   }, [])
 
+  useEffect(() => {
+    const onToggle = () => setIsOpen(v => !v)
+    const onClose = () => setIsOpen(false)
+    window.addEventListener(SIDEBAR_TOGGLE_EVENT, onToggle)
+    window.addEventListener(SIDEBAR_CLOSE_EVENT, onClose)
+    return () => {
+      window.removeEventListener(SIDEBAR_TOGGLE_EVENT, onToggle)
+      window.removeEventListener(SIDEBAR_CLOSE_EVENT, onClose)
+    }
+  }, [])
+
+  // 라우트 변경 시 모바일에서 닫기
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
+
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
 
+  const handleClose = () => setIsOpen(false)
+
   return (
     <>
       {isOpen && (
-        <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
+        <div
+          className="sidebar-overlay active"
+          onClick={handleClose}
+          aria-hidden="true"
+        />
       )}
-      <aside className={`aihub-sidebar ${isOpen ? 'open' : ''}`} id="aihub-sidebar">
+      <aside className={`aihub-sidebar ${isOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div className="sb-logo">
           <Link href="/" style={{ textDecoration: 'none' }}>
@@ -65,13 +94,9 @@ export default function Sidebar({ isOpen, onClose, newsCount }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={`sb-item ${isActive(item.href) ? 'active' : ''}`}
-                onClick={onClose}
               >
                 <i className={`ti ${item.icon}`} aria-hidden="true" />
                 {item.label}
-                {item.badge && newsCount ? (
-                  <span className="sb-item-badge">{newsCount}</span>
-                ) : null}
               </Link>
             ))}
           </div>
@@ -85,7 +110,6 @@ export default function Sidebar({ isOpen, onClose, newsCount }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={`sb-item ${isActive(item.href) ? 'active' : ''}`}
-                onClick={onClose}
               >
                 <i className={`ti ${item.icon}`} aria-hidden="true" />
                 {item.label}
@@ -98,7 +122,10 @@ export default function Sidebar({ isOpen, onClose, newsCount }: SidebarProps) {
               <div className="sb-divider" />
               <div className="sb-group">
                 <div className="sb-group-label">Admin</div>
-                <Link href="/admin" className={`sb-item ${isActive('/admin') ? 'active' : ''}`} onClick={onClose}>
+                <Link
+                  href="/admin"
+                  className={`sb-item ${isActive('/admin') ? 'active' : ''}`}
+                >
                   <i className="ti ti-settings" aria-hidden="true" />
                   관리자 패널
                 </Link>

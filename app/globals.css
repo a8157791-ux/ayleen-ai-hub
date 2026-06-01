@@ -177,7 +177,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 
 /* ── News list ── */
 .news-list {display: flex; flex-direction: column}
-.news-item {display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border); cursor: pointer; position: relative; text-decoration: none; transition: background var(--duration)}
+.news-item {display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border); cursor: pointer; position: relative; text-decoration: none; transition: background var(--duration), padding-left var(--duration)}
 .news-item:hover {background: rgba(255,255,255,0.015); padding-left: 8px}
 .news-num {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3); min-width: 20px; padding-top: 2px; flex-shrink: 0}
 .news-body {flex: 1; min-width: 0}
@@ -217,6 +217,10 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .study-tool {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-indigo); margin-bottom: 3px}
 .study-title {font-family: var(--font-serif); font-size: 13px; line-height: 1.45; color: var(--color-text); margin-bottom: 5px}
 .study-date {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
+
+/* ── Saved link item (CSS hover, no JS needed) ── */
+.saved-link-item {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px; text-decoration: none; transition: border-color 0.2s var(--ease)}
+.saved-link-item:hover {border-color: var(--color-blue-border)}
 
 /* ── Category colors ── */
 .cat-design {color: var(--cat-design)}

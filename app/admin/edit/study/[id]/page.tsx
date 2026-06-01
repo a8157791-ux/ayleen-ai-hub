@@ -53,7 +53,7 @@ export default function EditStudyPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','design','video','3d','plan'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['image', 'design', 'video', '3d', 'plan'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">

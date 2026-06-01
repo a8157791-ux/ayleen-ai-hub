@@ -18,9 +18,13 @@ export default async function SavedPage() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {links.map(link => (
-          <a key={link.id} href={link.url} target="_blank" rel="noopener" style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 12, textDecoration: 'none', transition: 'border-color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-blue-border)')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border)')}>
+          <a
+            key={link.id}
+            href={link.url}
+            target="_blank"
+            rel="noopener"
+            className="saved-link-item"
+          >
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, color: 'var(--color-text)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {link.title ?? link.url}

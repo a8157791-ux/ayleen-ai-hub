@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import Sidebar from './Sidebar'
+import { toggleSidebar } from './Sidebar'
 
 const greetings = [
   '오늘도 좋은 하루!',
@@ -12,7 +12,6 @@ const greetings = [
 ]
 
 export default function Topbar() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [dateStr, setDateStr] = useState('')
   const [greeting, setGreeting] = useState('')
   const { data: session } = useSession()
@@ -24,36 +23,33 @@ export default function Topbar() {
   }, [])
 
   return (
-    <>
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <header className="aihub-topbar">
-        <div className="topbar-left">
-          <button
-            className="topbar-menu-btn"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="메뉴 열기"
-          >
-            <i className="ti ti-menu-2" />
-          </button>
-          <span className="topbar-date">{dateStr}</span>
-          <span className="topbar-greeting">{greeting}</span>
-        </div>
-        <div className="topbar-right">
-          <span className="topbar-pill">
-            <i className="ti ti-robot" />
-            AI Hub
-          </span>
-          {session ? (
-            <Link href="/admin" className="topbar-icon-btn" title="관리자">
-              <i className="ti ti-settings" />
-            </Link>
-          ) : (
-            <Link href="/admin/login" className="topbar-icon-btn" title="로그인">
-              <i className="ti ti-user" />
-            </Link>
-          )}
-        </div>
-      </header>
-    </>
+    <header className="aihub-topbar">
+      <div className="topbar-left">
+        <button
+          className="topbar-menu-btn"
+          onClick={toggleSidebar}
+          aria-label="메뉴 열기"
+        >
+          <i className="ti ti-menu-2" />
+        </button>
+        <span className="topbar-date">{dateStr}</span>
+        <span className="topbar-greeting">{greeting}</span>
+      </div>
+      <div className="topbar-right">
+        <span className="topbar-pill">
+          <i className="ti ti-robot" />
+          AI Hub
+        </span>
+        {session ? (
+          <Link href="/admin" className="topbar-icon-btn" title="관리자">
+            <i className="ti ti-settings" />
+          </Link>
+        ) : (
+          <Link href="/admin/login" className="topbar-icon-btn" title="로그인">
+            <i className="ti ti-user" />
+          </Link>
+        )}
+      </div>
+    </header>
   )
 }

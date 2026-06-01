@@ -6,7 +6,6 @@ import { fetchAllAINews } from '@/lib/rss'
 
 // POST /api/news — 뉴스 수집 (관리자 or cron secret)
 export async function POST(req: NextRequest) {
-  // Allow cron job with secret key OR logged-in admin
   const cronSecret = req.headers.get('x-cron-secret')
   if (cronSecret !== process.env.CRON_SECRET) {
     const session = await getServerSession(authOptions)
@@ -34,7 +33,6 @@ export async function POST(req: NextRequest) {
         })
         created++
       } catch {
-        // Unique constraint = duplicate, skip
         skipped++
       }
     }
@@ -48,12 +46,14 @@ export async function POST(req: NextRequest) {
 
 // GET /api/news — 목록 조회
 export async function GET(req: NextRequest) {
-  const cat = req.nextUrl.searchParams.get('cat')
+  const { searchParams } = req.nextUrl
+  const cat = searchParams.get('cat')
+  const limit = Number(searchParams.get('limit') ?? '200')
   const where = cat ? { category: cat } : {}
   const news = await prisma.aiNews.findMany({
     where,
     orderBy: { createdAt: 'desc' },
-    take: 50,
+    take: Math.min(limit, 500),
   })
   return NextResponse.json(news)
 }

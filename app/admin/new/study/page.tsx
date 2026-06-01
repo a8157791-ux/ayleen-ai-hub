@@ -11,7 +11,6 @@ export default function NewStudyPage() {
     prompt: '', mediaUrl: '', tags: '', published: true,
   })
   const [saving, setSaving] = useState(false)
-
   const set = (k: string, v: string | boolean) => setForm(f => ({ ...f, [k]: v }))
 
   const submit = async (e: React.FormEvent) => {
@@ -34,7 +33,6 @@ export default function NewStudyPage() {
         <div className="hero-eyebrow">Admin</div>
         <h1 className="hero-title">스터디 노트 <b>추가</b></h1>
       </div>
-
       <form onSubmit={submit} style={{ maxWidth: 640 }}>
         <div className="admin-card">
           <div className="form-group">
@@ -45,7 +43,7 @@ export default function NewStudyPage() {
             <div className="form-group">
               <label className="form-label">카테고리</label>
               <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image','design','video','3d','plan'].map(c => (
+                {['image', 'design', 'video', '3d', 'plan'].map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
