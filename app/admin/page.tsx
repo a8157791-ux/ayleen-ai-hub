@@ -105,6 +105,9 @@ export default function AdminPage() {
         <Link href="/admin/new/saved" className="btn btn-ghost">
           <i className="ti ti-plus" /> 링크 저장
         </Link>
+        <Link href="/admin/new/reference" className="btn btn-ghost">
+          <i className="ti ti-plus" /> 레퍼런스 추가
+        </Link>
       </div>
 
       <div className="tab-bar" style={{ marginBottom: 16 }}>
