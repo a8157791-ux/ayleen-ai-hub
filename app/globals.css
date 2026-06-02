@@ -297,3 +297,30 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
   .study-grid {grid-template-columns: repeat(3, 1fr)}
   .hero-title {font-size: 40px}
 }
+
+
+/* ── globals.css에 추가할 Topbar 스타일 ──────────────────
+   기존 .topbar-date / .topbar-greeting / .topbar-right 등
+   아래 코드로 교체 or 추가하세요
+──────────────────────────────────────────────────────── */
+
+/* 날짜+인사말 묶음 */
+.topbar-dateline {display: flex; align-items: center; gap: 5px; min-width: 0}
+.topbar-date {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-2); letter-spacing: 0.03em; white-space: nowrap}
+.topbar-greeting {font-family: var(--font-serif); font-size: 11px; font-style: italic; color: var(--color-text-3); white-space: nowrap; display: none}
+
+/* 날씨 */
+.topbar-weather {display: none; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-2); padding: 4px 8px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; white-space: nowrap}
+.topbar-weather i {font-size: 12px; color: var(--color-amber)}
+.topbar-weather-city {color: var(--color-text-3); font-size: 9px}
+
+/* 검색 폼 (열렸을 때) */
+.topbar-search-form {display: flex; align-items: center; gap: 6px; background: var(--color-bg-3); border: 1px solid var(--color-blue-border); border-radius: 20px; padding: 5px 10px; min-width: 200px}
+.topbar-search-input {background: none; border: none; outline: none; font-family: var(--font-sans); font-size: 12px; color: var(--color-text); width: 100%; min-width: 0}
+.topbar-search-input::placeholder {color: var(--color-text-3)}
+
+/* 768px+ — 인사말·날씨 노출 */
+@media (min-width: 768px) {
+  .topbar-greeting {display: block}
+  .topbar-weather {display: flex}
+}
