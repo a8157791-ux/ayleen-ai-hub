@@ -324,3 +324,15 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
   .topbar-greeting {display: block}
   .topbar-weather {display: flex}
 }
+
+
+
+/* ===== AI 툴 트렌드 ===== */
+.tools-trend-banner {display:flex; align-items:center; gap:12px; background:var(--color-bg-2); border:1px solid var(--color-border-2); border-radius:8px; padding:10px 16px; margin-bottom:20px; flex-wrap:wrap}
+.tools-trend-label {display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px; color:var(--color-text-3); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap}
+.tools-trend-label .ti {color:var(--color-green); font-size:14px}
+.tools-trend-links {display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.tools-trend-link {display:flex; align-items:center; gap:5px; font-size:12px; color:var(--color-blue); text-decoration:none; transition:color 0.15s}
+.tools-trend-link:hover {color:var(--color-cyan)}
+.tools-trend-link .ti {font-size:13px}
+.tools-trend-divider {color:var(--color-border-2); font-size:12px}

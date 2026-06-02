@@ -31,12 +31,43 @@ export default async function ToolsPage({
 
   return (
     <>
+      {/* 헤더 */}
       <div className="page-hero">
         <div className="hero-eyebrow">Tool Library</div>
         <h1 className="hero-title">툴 <b>라이브러리</b></h1>
         <div className="hero-meta">{tools.length}개의 도구</div>
       </div>
 
+      {/* 트렌드 배너 — 헤더 바로 아래 */}
+      <div className="tools-trend-banner">
+        <span className="tools-trend-label">
+          <i className="ti ti-trending-up"></i>
+          AI 툴 트렌드
+        </span>
+        <div className="tools-trend-links">
+          <a
+            href="https://www.toolify.ai/Best-trending-AI-Tools"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tools-trend-link"
+          >
+            <i className="ti ti-chart-bar"></i>
+            Toolify 월간 랭킹
+          </a>
+          <span className="tools-trend-divider">·</span>
+          <a
+            href="https://www.airankings.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tools-trend-link"
+          >
+            <i className="ti ti-bolt"></i>
+            AI Rankings 실사용 순위
+          </a>
+        </div>
+      </div>
+
+      {/* 카테고리 탭 */}
       <div className="tab-bar" style={{ marginBottom: 20 }}>
         <a href="/tools" className={`tab-btn ${!cat ? 'active' : ''}`}>전체</a>
         {Object.entries(catLabel).map(([val, label]) => (
@@ -46,6 +77,7 @@ export default async function ToolsPage({
         ))}
       </div>
 
+      {/* 툴 카드 목록 */}
       <div className="cards-grid">
         {tools.map(tool => (
           <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
