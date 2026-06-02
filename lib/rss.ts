@@ -11,26 +11,37 @@ export interface NewsItem {
 }
 
 const RSS_FEEDS = [
-  // --- Research / General ---
+  // 🤖 LLM / 에이전트
+  { url: 'https://openai.com/blog/rss.xml', source: 'OpenAI Blog', category: 'research' },
+  { url: 'https://www.anthropic.com/rss.xml', source: 'Anthropic Blog', category: 'research' },
+  { url: 'https://huggingface.co/blog/feed.xml', source: 'HuggingFace Blog', category: 'code' },
+  { url: 'https://deepmind.google/blog/rss/', source: 'Google DeepMind', category: 'research' },
   { url: 'https://feeds.feedburner.com/venturebeat/SZYF', source: 'VentureBeat AI', category: 'research' },
   { url: 'https://www.artificialintelligence-news.com/feed/', source: 'AI News', category: 'research' },
   { url: 'https://www.marktechpost.com/feed/', source: 'MarkTechPost', category: 'research' },
-  { url: 'https://towardsdatascience.com/feed', source: 'Towards Data Science', category: 'research' },
   { url: 'https://www.technologyreview.com/feed/', source: 'MIT Tech Review', category: 'research' },
-  // --- Code / Dev ---
-  { url: 'https://machinelearningmastery.com/feed/', source: 'ML Mastery', category: 'code' },
-  { url: 'https://huggingface.co/blog/feed.xml', source: 'HuggingFace Blog', category: 'code' },
-  { url: 'https://openai.com/blog/rss.xml', source: 'OpenAI Blog', category: 'research' },
-  { url: 'https://deepmind.google/blog/rss/', source: 'Google DeepMind', category: 'research' },
-  // --- Design / Image ---
+  { url: 'https://towardsdatascience.com/feed', source: 'Towards Data Science', category: 'research' },
+  { url: 'https://www.therundown.ai/feed', source: 'The Rundown AI', category: 'research' },
+
+  // 🎨 AI 이미지 / 디자인
   { url: 'https://stability.ai/news/rss', source: 'Stability AI', category: 'design' },
   { url: 'https://aiartweekly.com/feed/', source: 'AI Art Weekly', category: 'design' },
-  // --- Video ---
-  { url: 'https://runwayml.com/blog/rss', source: 'Runway', category: 'video' },
-  // --- Tools / Product ---
-  { url: 'https://www.therundown.ai/feed', source: 'The Rundown AI', category: 'research' },
-  { url: 'https://newsletter.theaiedge.io/feed', source: 'The AI Edge', category: 'research' },
-  { url: 'https://www.aiweekly.co/feed', source: 'AI Weekly', category: 'research' },
+
+  // 🎬 AI 영상
+  { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
+
+  // 💻 AI 코딩 툴
+  { url: 'https://machinelearningmastery.com/feed/', source: 'ML Mastery', category: 'code' },
+  { url: 'https://github.blog/feed/', source: 'GitHub Blog', category: 'code' },
+  { url: 'https://code.visualstudio.com/feed.xml', source: 'VS Code Blog', category: 'code' },
+
+  // 🎨 Figma / 디자인 툴
+  { url: 'https://www.figma.com/blog/feed/', source: 'Figma Blog', category: 'design' },
+
+  // 🌐 HTML/CSS / 웹 표준
+  { url: 'https://web.dev/feed.xml', source: 'web.dev', category: 'code' },
+  { url: 'https://css-tricks.com/feed/', source: 'CSS-Tricks', category: 'code' },
+  { url: 'https://www.smashingmagazine.com/feed/', source: 'Smashing Magazine', category: 'code' },
 ]
 
 const ITEMS_PER_FEED = 5  // 피드당 최대 수집 건수 (v1: 3 → v2: 5)
