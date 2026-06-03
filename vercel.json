@@ -1,4 +1,12 @@
 {
+  "functions": {
+    "app/api/news/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/cron/collect-news/route.ts": {
+      "maxDuration": 300
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/collect-news",
