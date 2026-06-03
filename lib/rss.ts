@@ -46,7 +46,7 @@ const RSS_FEEDS = [
   { url: 'https://www.smashingmagazine.com/feed/', source: 'Smashing Magazine', category: 'code' },
 ]
 
-const ITEMS_PER_FEED = 1  // 피드당 최대 수집 건수 (v1: 3 → v2: 5)
+const ITEMS_PER_FEED = 5  // 피드당 최대 수집 건수 (v1: 3 → v2: 5)
 
 function guessCategory(title: string): string {
   const t = title.toLowerCase()
