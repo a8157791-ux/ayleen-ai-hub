@@ -88,7 +88,6 @@ export default async function ToolsPage({
                     width={20}
                     height={20}
                     style={{ borderRadius: 4, flexShrink: 0 }}
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                   />
                 )}
                 <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--color-text)', flex: 1, minWidth: 0 }}>{tool.name}</div>
