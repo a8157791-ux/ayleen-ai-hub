@@ -9,15 +9,17 @@ datasource db {
 }
 
 model AiNews {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
+  titleKo     String?   // ✅ v3 추가: 한국어 번역 제목
   summary     String?
-  url         String   @unique
+  summaryKo   String?   // ✅ v3 추가: 한국어 요약
+  url         String    @unique
   source      String?
   category    String?
-  publishedAt DateTime?   // ✅ v2 추가: 원문 발행일 (없으면 null)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("ai_news")
 }

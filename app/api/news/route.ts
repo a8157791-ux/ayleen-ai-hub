@@ -25,11 +25,12 @@ export async function POST(req: NextRequest) {
         await prisma.aiNews.create({
           data: {
             title: item.title,
+            titleKo: item.titleKo,      // ✅ 추가
             url: item.url,
             source: item.source,
             summary: item.summary,
+            summaryKo: item.summaryKo,  // ✅ 추가
             category: item.category,
-            // ✅ v2: publishedAt 저장 (ISO 문자열 → DateTime)
             publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
           },
         })

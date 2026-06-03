@@ -3,9 +3,11 @@
 
 export interface NewsItem {
   title: string
+  titleKo?: string    // ✅ 추가
   url: string
   source: string
   summary?: string
+  summaryKo?: string  // ✅ 추가
   category?: string
   publishedAt?: string
 }
@@ -206,6 +208,110 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
   }
 }
 
+async function translateAndSummarize(items: NewsItem[]): Promise<NewsItem[]> {
+  // 한번에 최대 20건만 번역 (API 비용 절약)
+  const targets = items.slice(0, 20)
+  const rest = items.slice(20)
+
+  try {
+    const prompt = `아래 AI 뉴스 목록을 JSON 배열로 반환해줘.
+각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
+원문 영어 제목이 이미 한국어면 그대로 써도 돼.
+반드시 JSON만 반환하고 다른 텍스트는 절대 쓰지 마.
+
+입력:
+${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
+
+출력 형식:
+[{"i":0,"titleKo":"...","summaryKo":"..."},...]`
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(30000),
+    })
+
+    if (!res.ok) return [...targets, ...rest]
+
+    const data = await res.json()
+    const text = data.content?.[0]?.text ?? ''
+    const clean = text.replace(/```json|```/g, '').trim()
+    const parsed: { i: number; titleKo: string; summaryKo: string }[] = JSON.parse(clean)
+
+    for (const p of parsed) {
+      if (targets[p.i]) {
+        targets[p.i].titleKo = p.titleKo
+        targets[p.i].summaryKo = p.summaryKo
+      }
+    }
+  } catch (e) {
+    console.error('Translation failed:', e)
+  }
+
+  return [...targets, ...rest]
+}
+
+async function translateAndSummarize(items: NewsItem[]): Promise<NewsItem[]> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return items
+
+  const targets = items.slice(0, 20)
+  const rest = items.slice(20)
+
+  try {
+    const prompt = `아래 AI 뉴스 목록을 JSON 배열로 반환해줘.
+각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
+원문이 이미 한국어면 그대로 써도 돼.
+반드시 JSON만 반환하고 다른 텍스트나 마크다운 코드블록은 절대 쓰지 마.
+
+입력:
+${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
+
+출력 형식:
+[{"i":0,"titleKo":"...","summaryKo":"..."},...]`
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.1 },
+        }),
+        signal: AbortSignal.timeout(30000),
+      }
+    )
+
+    if (!res.ok) return [...targets, ...rest]
+
+    const data = await res.json()
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    const clean = text.replace(/```json|```/g, '').trim()
+    const parsed: { i: number; titleKo: string; summaryKo: string }[] = JSON.parse(clean)
+
+    for (const p of parsed) {
+      if (targets[p.i]) {
+        targets[p.i].titleKo = p.titleKo
+        targets[p.i].summaryKo = p.summaryKo
+      }
+    }
+  } catch (e) {
+    console.error('Translation failed:', e)
+  }
+
+  return [...targets, ...rest]
+}
+
 export async function fetchAllAINews(): Promise<NewsItem[]> {
   const results = await Promise.allSettled([
     ...RSS_FEEDS.map(f => parseRSSFeed(f)),
@@ -217,7 +323,6 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
     if (r.status === 'fulfilled') all.push(...r.value)
   }
 
-  // URL 기준 중복 제거
   const seen = new Set<string>()
   const unique = all.filter(item => {
     if (!item.url || seen.has(item.url)) return false
@@ -225,7 +330,6 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
     return true
   })
 
-  // publishedAt 기준 최신순 정렬 (없는 항목은 뒤로)
   unique.sort((a, b) => {
     if (!a.publishedAt && !b.publishedAt) return 0
     if (!a.publishedAt) return 1
@@ -233,5 +337,5 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
 
-  return unique
+  return await translateAndSummarize(unique)
 }
