@@ -20,8 +20,6 @@ model AiNews {
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  siteUrl    String?
-  studiedAt  DateTime?
 
   @@map("ai_news")
 }
@@ -35,6 +33,8 @@ model StudyNote {
   prompt      String?
   mediaUrl    String?
   tags        String?
+  siteUrl    String?
+  studiedAt  DateTime?
   published   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
