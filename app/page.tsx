@@ -16,10 +16,8 @@ function timeAgo(date: Date): string {
 
 export const revalidate = 1800
 
-const hasDatabase = Boolean(process.env.DATABASE_URL)
-
 export default async function HomePage() {
-  if (!hasDatabase) {
+  if (!process.env.DATABASE_URL) {
     return (
       <div className="page-hero">
         <div className="hero-eyebrow">Daily Digest</div>
