@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { fetchAllAINews, translateItems } from '@/lib/rss'
+import { fetchAllAINews, translateItems, NewsItem } from '@/lib/rss'
 
 // POST /api/news — 뉴스 수집 (관리자 or cron secret)
 export async function POST(req: NextRequest) {
@@ -19,7 +19,9 @@ export async function POST(req: NextRequest) {
     const items = await fetchAllAINews()
     let created = 0
     let skipped = 0
-    const newIds: number[] = []
+
+    // id와 원본 item을 함께 추적
+    const savedPairs: { id: number; item: NewsItem }[] = []
 
     // 2단계: DB 저장 (번역 전)
     for (const item of items) {
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
             publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
           },
         })
-        newIds.push(saved.id)
+        savedPairs.push({ id: saved.id, item })
         created++
       } catch {
         skipped++
@@ -43,15 +45,17 @@ export async function POST(req: NextRequest) {
     }
 
     // 3단계: 새로 저장된 글만 번역 (최대 20건)
-    if (newIds.length > 0) {
-      const newItems = items.filter(item => item.url).slice(0, newIds.length)
-      const translated = await translateItems(newItems)
+    if (savedPairs.length > 0) {
+      const toTranslate = savedPairs.slice(0, 20).map(p => p.item)
+      const translated = await translateItems(toTranslate)
 
       for (let i = 0; i < translated.length; i++) {
         const t = translated[i]
+        const pair = savedPairs[i]
+        if (!pair) continue
         if (!t.titleKo && !t.summaryKo) continue
         await prisma.aiNews.update({
-          where: { id: newIds[i] },
+          where: { id: pair.id },
           data: {
             titleKo: t.titleKo ?? null,
             summaryKo: t.summaryKo ?? null,
