@@ -74,11 +74,14 @@ export default async function HomePage() {
       {news.length > 0 && (
         <div className="ticker-wrap" aria-hidden="true">
           <div className="ticker-inner">
-            {[...news, ...news].map((n, i) => (
-              <span key={i} className="ticker-item">
-                {n.title.slice(0, 40)}{n.title.length > 40 ? '...' : ''}
-              </span>
-            ))}
+            {[...news, ...news].map((n, i) => {
+              const tickerTitle = (n as any).titleKo || n.title
+              return (
+                <span key={i} className="ticker-item">
+                  {tickerTitle.slice(0, 40)}{tickerTitle.length > 40 ? '...' : ''}
+                </span>
+              )
+            })}
           </div>
         </div>
       )}
@@ -94,6 +97,7 @@ export default async function HomePage() {
         <div className="news-list">
           {news.slice(0, 7).map((item, i) => {
             const isNew = Date.now() - item.createdAt.getTime() < 86400000
+            const displayTitle = (item as any).titleKo || item.title
             return (
               <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
                 <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
@@ -103,7 +107,7 @@ export default async function HomePage() {
                       {catLabel[item.category] ?? item.category}
                     </div>
                   )}
-                  <div className="news-title">{item.title}</div>
+                  <div className="news-title">{displayTitle}</div>
                   <div className="news-footer">
                     <span>{timeAgo(item.createdAt)}</span>
                     {item.source && <span className="news-source">{item.source}</span>}

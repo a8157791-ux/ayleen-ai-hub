@@ -65,6 +65,8 @@ export default async function NewsPage({
         )}
         {news.map((item, i) => {
           const isNew = Date.now() - item.createdAt.getTime() < 86400000
+          const displayTitle = (item as any).titleKo || item.title
+          const displaySummary = (item as any).summaryKo || item.summary
           return (
             <a
               key={item.id}
@@ -80,10 +82,11 @@ export default async function NewsPage({
                     {catLabel[item.category] ?? item.category}
                   </div>
                 )}
-                <div className="news-title">{item.title}</div>
-                {item.summary && (
+                <div className="news-title">{displayTitle}</div>
+                {!(item as any).titleKo && item.title && (item as any).titleKo !== item.title && null}
+                {displaySummary && (
                   <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginTop: 3, lineHeight: 1.5 }}>
-                    {item.summary}
+                    {displaySummary}
                   </div>
                 )}
                 <div className="news-footer">
