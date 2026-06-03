@@ -209,58 +209,6 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
 }
 
 async function translateAndSummarize(items: NewsItem[]): Promise<NewsItem[]> {
-  // 한번에 최대 20건만 번역 (API 비용 절약)
-  const targets = items.slice(0, 20)
-  const rest = items.slice(20)
-
-  try {
-    const prompt = `아래 AI 뉴스 목록을 JSON 배열로 반환해줘.
-각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
-원문 영어 제목이 이미 한국어면 그대로 써도 돼.
-반드시 JSON만 반환하고 다른 텍스트는 절대 쓰지 마.
-
-입력:
-${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
-
-출력 형식:
-[{"i":0,"titleKo":"...","summaryKo":"..."},...]`
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-      signal: AbortSignal.timeout(30000),
-    })
-
-    if (!res.ok) return [...targets, ...rest]
-
-    const data = await res.json()
-    const text = data.content?.[0]?.text ?? ''
-    const clean = text.replace(/```json|```/g, '').trim()
-    const parsed: { i: number; titleKo: string; summaryKo: string }[] = JSON.parse(clean)
-
-    for (const p of parsed) {
-      if (targets[p.i]) {
-        targets[p.i].titleKo = p.titleKo
-        targets[p.i].summaryKo = p.summaryKo
-      }
-    }
-  } catch (e) {
-    console.error('Translation failed:', e)
-  }
-
-  return [...targets, ...rest]
-}
-
-async function translateAndSummarize(items: NewsItem[]): Promise<NewsItem[]> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return items
 
