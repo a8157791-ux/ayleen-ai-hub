@@ -149,7 +149,7 @@ export default function AdminPage() {
                 <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--color-text-3)' }}>
                   {new Date(item.createdAt as string).toLocaleDateString('ko-KR')}
                 </td>
-                <td>
+                <td style={{ width: 100, whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'flex', gap: 6 }}>
                     {editPath[tab] && (
                       <Link href={`/admin/edit/${editPath[tab]}/${item.id}`} className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: 10 }}>
