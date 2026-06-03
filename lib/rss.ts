@@ -109,9 +109,9 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
 
       const rawDesc = descMatch?.[1] ?? ''
       const summary = rawDesc
-        .replace(/<[^>]+>/g, '')
-        .replace(/&amp;/g, '&')
-        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')  // ← 먼저 디코딩
+        .replace(/<[^>]+>/g, '')   // ← 그 다음 태그 제거
+        .replace(/&nbsp;/g, ' ').replace(/&#\d+;/g, '').replace(/&[a-z]+;/g, '')
         .trim()
         .slice(0, 200)
 
@@ -208,7 +208,8 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
   }
 }
 
-async function translateAndSummarize(items: NewsItem[]): Promise<NewsItem[]> {
+// 번역/요약 — 외부에서도 호출 가능하도록 export
+export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return items
 
@@ -260,6 +261,7 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
   return [...targets, ...rest]
 }
 
+// fetchAllAINews — 번역 없이 수집만
 export async function fetchAllAINews(): Promise<NewsItem[]> {
   const results = await Promise.allSettled([
     ...RSS_FEEDS.map(f => parseRSSFeed(f)),
@@ -285,5 +287,5 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
 
-  return await translateAndSummarize(unique)
+  return unique  // 번역 없이 반환
 }

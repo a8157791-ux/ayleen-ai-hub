@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { fetchAllAINews } from '@/lib/rss'
+import { fetchAllAINews, translateItems } from '@/lib/rss'
 
 // POST /api/news — 뉴스 수집 (관리자 or cron secret)
 export async function POST(req: NextRequest) {
@@ -15,29 +15,48 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // 1단계: RSS 수집 (번역 없이)
     const items = await fetchAllAINews()
     let created = 0
     let skipped = 0
+    const newIds: number[] = []
 
+    // 2단계: DB 저장 (번역 전)
     for (const item of items) {
       if (!item.url || !item.title) continue
       try {
-        await prisma.aiNews.create({
+        const saved = await prisma.aiNews.create({
           data: {
             title: item.title,
-            titleKo: item.titleKo,      // ✅ 추가
             url: item.url,
             source: item.source,
             summary: item.summary,
-            summaryKo: item.summaryKo,  // ✅ 추가
             category: item.category,
             publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
           },
         })
+        newIds.push(saved.id)
         created++
       } catch {
-        // url unique constraint 위반 = 중복 skip
         skipped++
+      }
+    }
+
+    // 3단계: 새로 저장된 글만 번역 (최대 20건)
+    if (newIds.length > 0) {
+      const newItems = items.filter(item => item.url).slice(0, newIds.length)
+      const translated = await translateItems(newItems)
+
+      for (let i = 0; i < translated.length; i++) {
+        const t = translated[i]
+        if (!t.titleKo && !t.summaryKo) continue
+        await prisma.aiNews.update({
+          where: { id: newIds[i] },
+          data: {
+            titleKo: t.titleKo ?? null,
+            summaryKo: t.summaryKo ?? null,
+          },
+        })
       }
     }
 
@@ -49,9 +68,6 @@ export async function POST(req: NextRequest) {
 }
 
 // GET /api/news — 목록 조회
-// ?cat=design|code|video|3d|plan|research  카테고리 필터
-// ?limit=200                                최대 500건
-// ?sortBy=publishedAt|createdAt             정렬 기준 (기본: publishedAt 우선)
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const cat = searchParams.get('cat')
@@ -60,7 +76,6 @@ export async function GET(req: NextRequest) {
 
   const where = cat ? { category: cat } : {}
 
-  // publishedAt 정렬: null은 뒤로 보내기 위해 createdAt도 함께 사용
   const news = await prisma.aiNews.findMany({
     where,
     orderBy:
