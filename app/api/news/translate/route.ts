@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       summary: n.summary ?? undefined,
     }))
 
-    // Gemini 번역 호출
+    // Groq 번역 호출
     const translated = await translateItems(items)
 
     // DB 업데이트
