@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
         })
         savedPairs.push({ id: saved.id, item })
         created++
-      } catch {
+      } catch (error) {
+        console.error('Failed to save news item:', { title: item.title, url: item.url, source: item.source }, error)
         skipped++
       }
     }

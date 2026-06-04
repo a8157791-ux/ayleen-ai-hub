@@ -15,9 +15,23 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // titleKo가 null인 것들 최대 20건 가져오기
+    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY or GOOGLE_API_KEY is required for translation' },
+        { status: 500 }
+      )
+    }
+
+    // titleKo나 summaryKo가 비어있는 항목 최대 20건 가져오기
     const untranslated = await prisma.aiNews.findMany({
-      where: { titleKo: null },
+      where: {
+        OR: [
+          { titleKo: null },
+          { titleKo: '' },
+          { summaryKo: null },
+          { summaryKo: '' },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
     })

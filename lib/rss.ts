@@ -210,8 +210,11 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
 
 // 번역/요약 — 외부에서도 호출 가능하도록 export
 export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return items
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+  if (!apiKey) {
+    console.error(`GEMINI API key is missing. Translation skipped for ${items.length} item(s).`)
+    return items
+  }
 
   const targets = items.slice(0, 20)
   const rest = items.slice(20)
@@ -241,13 +244,29 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
       }
     )
 
-    if (!res.ok) return [...targets, ...rest]
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.error('Gemini API returned error', res.status, res.statusText, body.slice(0, 500))
+      return [...targets, ...rest]
+    }
 
     const data = await res.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
     console.log('Gemini raw response:', text.slice(0, 200))
     const clean = text.replace(/```json|```/g, '').trim()
-    const parsed: { i: number; titleKo: string; summaryKo: string }[] = JSON.parse(clean)
+
+    let parsed: { i: number; titleKo: string; summaryKo: string }[] = []
+    try {
+      parsed = JSON.parse(clean)
+    } catch (err) {
+      const jsonMatch = clean.match(/\[\s*\{[\s\S]*\}\s*\]/)
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0])
+      } else {
+        console.error('Failed to parse Gemini response JSON:', err, clean)
+        return [...targets, ...rest]
+      }
+    }
 
     for (const p of parsed) {
       if (targets[p.i]) {
