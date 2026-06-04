@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+// @ts-ignore: CSS import handled by Next.js
 import './globals.css'
 import Sidebar from '@/components/Sidebar'
 import Topbar from '@/components/Topbar'
