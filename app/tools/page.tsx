@@ -1,6 +1,6 @@
 import { databaseEnabled, prisma } from '@/lib/db'
 
-export const revalidate = 3600  // 60 → 3600으로
+export const revalidate = 3600 
 
 function getFaviconUrl(url?: string | null): string | null {
   if (!url) return null

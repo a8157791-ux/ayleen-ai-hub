@@ -187,8 +187,15 @@ export default function AdminPage() {
               <tr key={item.id as number}>
                 <td style={{ maxWidth: 400 }}>
                   <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {(item.title ?? item.name ?? item.url) as string}
+                    {tab === 'news' && item.titleKo
+                      ? item.titleKo
+                      : (item.title ?? item.name ?? item.url) as string}
                   </div>
+                  {tab === 'news' && item.titleKo && (
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.title as string}
+                    </div>
+                  )}
                   {item.url && (
                     <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.url as string}

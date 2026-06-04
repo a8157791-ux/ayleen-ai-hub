@@ -48,13 +48,7 @@ export default function NewsClient({ news, total }: { news: any[], total: number
           const displayTitle = item.titleKo || item.title
           const displaySummary = item.summaryKo || item.summary
           return (
-            <a
-              key={item.id}
-              href={item.url}
-              className="news-item"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
               <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
               <div className="news-body">
                 {item.category && (
@@ -63,8 +57,13 @@ export default function NewsClient({ news, total }: { news: any[], total: number
                   </div>
                 )}
                 <div className="news-title">{displayTitle}</div>
+                {item.titleKo && item.titleKo !== item.title && (
+                  <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                    {item.title}
+                  </div>
+                )}
                 {displaySummary && (
-                  <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginTop: 3, lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5 }}>
                     {displaySummary}
                   </div>
                 )}

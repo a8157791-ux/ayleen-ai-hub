@@ -118,6 +118,7 @@ export default async function HomePage() {
           {news.slice(0, 7).map((item, i) => {
             const isNew = Date.now() - item.createdAt.getTime() < 86400000
             const displayTitle = (item as any).titleKo || item.title
+            const displaySummary = (item as any).summaryKo || item.summary
             return (
               <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
                 <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
@@ -128,6 +129,16 @@ export default async function HomePage() {
                     </div>
                   )}
                   <div className="news-title">{displayTitle}</div>
+                  {(item as any).titleKo && item.title !== (item as any).titleKo && (
+                    <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                      {item.title}
+                    </div>
+                  )}
+                  {displaySummary && (
+                    <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5 }}>
+                      {displaySummary}
+                    </div>
+                  )}
                   <div className="news-footer">
                     <span>{timeAgo(item.createdAt)}</span>
                     {item.source && <span className="news-source">{item.source}</span>}
