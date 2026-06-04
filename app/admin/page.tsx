@@ -93,6 +93,16 @@ export default function AdminPage() {
           <i className="ti ti-refresh" />
           {collecting ? 'AI 뉴스 수집 중...' : 'AI 뉴스 지금 수집'}
         </button>
+        <button
+          className="btn btn-ghost"
+          onClick={async () => {
+            const res = await fetch('/api/news/translate', { method: 'POST' })
+            const data = await res.json()
+            alert(`번역 완료: ${data.translated}건`)
+          }}
+        >
+          번역 보충
+        </button>
         <Link href="/admin/new/study" className="btn btn-ghost">
           <i className="ti ti-plus" /> 스터디 노트 추가
         </Link>
