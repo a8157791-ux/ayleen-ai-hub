@@ -13,14 +13,15 @@ export default function AdminPage() {
   const [collecting, setCollecting] = useState(false)
   const [toast, setToast] = useState('')
   const [items, setItems] = useState<Record<string, any>[]>([])
+  const isDev = process.env.NODE_ENV !== 'production'
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/admin/login')
-  }, [status, router])
+    if (status === 'unauthenticated' && !isDev) router.push('/admin/login')
+  }, [status, router, isDev])
 
   useEffect(() => {
-    if (status === 'authenticated') fetchItems()
-  }, [tab, status])
+    if (status === 'authenticated' || isDev) fetchItems()
+  }, [tab, status, isDev])
 
   const fetchItems = async () => {
     const endpoints: Record<Tab, string> = {
@@ -62,7 +63,7 @@ export default function AdminPage() {
   }
 
   if (status === 'loading') return null
-  if (status === 'unauthenticated') return null
+  if (status === 'unauthenticated' && !isDev) return null
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'news', label: 'AI 뉴스' },
@@ -85,9 +86,13 @@ export default function AdminPage() {
       <div className="page-hero">
         <div className="hero-eyebrow">Admin Panel</div>
         <h1 className="hero-title">관리자 <b>패널</b></h1>
-        <div className="hero-meta">{session?.user?.email}</div>
+        <div className="hero-meta">{session?.user?.email ?? (isDev ? 'local-dev' : '')}</div>
+        {isDev && !session && (
+          <div style={{ color: 'var(--color-text-2)', fontSize: 12, marginTop: 4 }}>
+            로컬 개발 모드: 로그인 없이 테스트 중입니다.
+          </div>
+        )}
       </div>
-
       <div className="admin-card" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <button onClick={collectNews} className="btn btn-primary" disabled={collecting}>
           <i className="ti ti-refresh" />

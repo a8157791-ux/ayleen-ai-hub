@@ -7,7 +7,8 @@ import { translateItems, NewsItem } from '@/lib/rss'
 // POST /api/news/translate — titleKo가 없는 뉴스 번역
 export async function POST(req: NextRequest) {
   const cronSecret = req.headers.get('x-cron-secret')
-  if (cronSecret !== process.env.CRON_SECRET) {
+  const isDev = process.env.NODE_ENV !== 'production'
+  if (cronSecret !== process.env.CRON_SECRET && !isDev) {
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
