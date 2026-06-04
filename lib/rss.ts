@@ -236,15 +236,15 @@ export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
 
   try {
     const prompt = `아래 AI 뉴스 목록을 JSON 배열로 반환해줘.
-각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
-원문이 이미 한국어면 그대로 써도 돼.
-반드시 JSON만 반환하고 다른 텍스트나 마크다운 코드블록은 절대 쓰지 마.
+    각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
+    ⚠️ 원문 title이 이미 한국어(한글 포함)인 경우, titleKo는 원문 title을 그대로 복사하고 summaryKo도 원문 summary를 그대로 써줘. 절대 번역하지 마.
+    반드시 JSON만 반환하고 다른 텍스트나 마크다운 코드블록은 절대 쓰지 마.
 
-입력:
-${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
+    입력:
+    ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
 
-출력 형식:
-[{"i":0,"titleKo":"...","summaryKo":"..."},...]`
+    출력 형식:
+    [{"i":0,"titleKo":"...","summaryKo":"..."},...]`
 
     const res = await fetch(
       'https://api.groq.com/openai/v1/chat/completions',
@@ -287,12 +287,14 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
       }
     }
 
-    for (const p of parsed) {
-      if (targets[p.i]) {
-        targets[p.i].titleKo = p.titleKo
-        targets[p.i].summaryKo = p.summaryKo
-      }
+  for (const p of parsed) {
+    if (targets[p.i]) {
+      // 원문에 한글이 이미 있으면 번역 결과 무시
+      const hasKorean = /[\uAC00-\uD7AF]/.test(targets[p.i].title)
+      targets[p.i].titleKo = hasKorean ? targets[p.i].title : p.titleKo
+      targets[p.i].summaryKo = hasKorean ? (targets[p.i].summary ?? '') : p.summaryKo
     }
+  }
   } catch (e) {
     console.error('Translation failed:', e)
   }

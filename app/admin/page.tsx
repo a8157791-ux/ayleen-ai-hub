@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [toast, setToast] = useState('')
   const [items, setItems] = useState<Record<string, any>[]>([])
   const isDev = process.env.NODE_ENV !== 'production'
+  const [translating, setTranslating] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated' && !isDev) router.push('/admin/login')
@@ -128,24 +129,33 @@ export default function AdminPage() {
         </button>
         <button
           className="btn btn-ghost"
+          disabled={translating}
           onClick={async () => {
+            setTranslating(true)
+            setToast('')
             try {
               const res = await fetch('/api/news/translate', { method: 'POST' })
               if (!res.ok) {
                 const text = await res.text().catch(() => '')
-                console.error('Translate request failed', res.status, text)
-                alert(`번역 실패: ${res.status} ${text || '서버 오류'}`)
+                setToast(`번역 실패: ${res.status} ${text || '서버 오류'}`)
+                setTimeout(() => setToast(''), 4000)
                 return
               }
               const data = await res.json()
-              alert(`번역 완료: ${data.translated ?? 0}건`)
+              setToast(`✓ 번역 완료: ${data.translated ?? 0}건`)
+              setTimeout(() => setToast(''), 4000)
+              fetchItems()
             } catch (err) {
               console.error('Translate request error', err)
-              alert('번역 요청 중 오류가 발생했습니다.')
+              setToast('번역 요청 중 오류가 발생했습니다.')
+              setTimeout(() => setToast(''), 4000)
+            } finally {
+              setTranslating(false)
             }
           }}
         >
-          번역 보충
+          <i className="ti ti-language" />
+          {translating ? '번역 중...' : '번역 보충'}
         </button>
         <Link href="/admin/new/study" className="btn btn-ghost">
           <i className="ti ti-plus" /> 스터디 노트 추가
