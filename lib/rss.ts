@@ -177,10 +177,10 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
   if (!apiKey) return []
 
   try {
-    const res = await fetch(
-      `https://newsapi.org/v2/everything?q=artificial+intelligence+OR+AI+model+OR+LLM&language=en&pageSize=15&sortBy=publishedAt&apiKey=${apiKey}`,
-      { signal: AbortSignal.timeout(8000) }
-    )
+const res = await fetch(
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+  { signal: AbortSignal.timeout(8000) }
+)
     if (!res.ok) return []
 
     const data = await res.json()
@@ -210,9 +210,9 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
 
 // 번역/요약 — 외부에서도 호출 가능하도록 export
 export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+  const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    console.error(`GEMINI API key is missing. Translation skipped for ${items.length} item(s).`)
+    console.error('GROQ_API_KEY is missing. Translation skipped.')
     return items
   }
 
@@ -232,27 +232,31 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
 [{"i":0,"titleKo":"...","summaryKo":"..."},...]`
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      'https://api.groq.com/openai/v1/chat/completions',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.1 },
+          model: 'llama-3.1-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.1,
         }),
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(60000),
       }
     )
 
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      console.error('Gemini API returned error', res.status, res.statusText, body.slice(0, 500))
+      console.error('Groq API returned error', res.status, res.statusText, body.slice(0, 500))
       return [...targets, ...rest]
     }
 
     const data = await res.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-    console.log('Gemini raw response:', text.slice(0, 200))
+    const text = data.choices?.[0]?.message?.content ?? ''
+    console.log('Groq raw response:', text.slice(0, 200))
     const clean = text.replace(/```json|```/g, '').trim()
 
     let parsed: { i: number; titleKo: string; summaryKo: string }[] = []
@@ -263,7 +267,7 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0])
       } else {
-        console.error('Failed to parse Gemini response JSON:', err, clean)
+        console.error('Failed to parse Groq response JSON:', err, clean)
         return [...targets, ...rest]
       }
     }
@@ -279,33 +283,4 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
   }
 
   return [...targets, ...rest]
-}
-
-// fetchAllAINews — 번역 없이 수집만
-export async function fetchAllAINews(): Promise<NewsItem[]> {
-  const results = await Promise.allSettled([
-    ...RSS_FEEDS.map(f => parseRSSFeed(f)),
-    fetchFromNewsAPI(),
-  ])
-
-  const all: NewsItem[] = []
-  for (const r of results) {
-    if (r.status === 'fulfilled') all.push(...r.value)
-  }
-
-  const seen = new Set<string>()
-  const unique = all.filter(item => {
-    if (!item.url || seen.has(item.url)) return false
-    seen.add(item.url)
-    return true
-  })
-
-  unique.sort((a, b) => {
-    if (!a.publishedAt && !b.publishedAt) return 0
-    if (!a.publishedAt) return 1
-    if (!b.publishedAt) return -1
-    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  })
-
-  return unique  // 번역 없이 반환
 }
