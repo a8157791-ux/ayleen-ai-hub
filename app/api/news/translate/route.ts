@@ -16,9 +16,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: 'GEMINI_API_KEY or GOOGLE_API_KEY is required for translation' },
+        { error: 'GROQ_API_KEY is required for translation' },
         { status: 500 }
       )
     }
