@@ -240,7 +240,7 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.1-70b-versatile',
+          model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.1,
         }),
