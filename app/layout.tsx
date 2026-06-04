@@ -7,6 +7,10 @@ import Providers from '@/components/Providers'
 export const metadata: Metadata = {
   title: "Ayleen's AI — Trend Archive",
   description: 'AI 트렌드 큐레이션 + 개인 학습 아카이브',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
