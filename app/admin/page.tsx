@@ -32,9 +32,35 @@ export default function AdminPage() {
       saved: '/api/saved',
       reference: '/api/reference',
     }
-    const res = await fetch(endpoints[tab])
-    const data = await res.json()
-    setItems(Array.isArray(data) ? data : [])
+    const endpoint = endpoints[tab]
+
+    try {
+      const res = await fetch(endpoint)
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        console.error('Admin fetch error', endpoint, res.status, text)
+        setToast(`데이터 로드 실패: ${res.status}`)
+        setItems([])
+        return
+      }
+
+      let data: unknown
+      try {
+        data = await res.json()
+      } catch (err) {
+        const text = await res.text().catch(() => '')
+        console.error('Admin JSON parse error', endpoint, res.status, err, text)
+        setToast('데이터 파싱 실패')
+        setItems([])
+        return
+      }
+
+      setItems(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Admin fetch failed', endpoint, err)
+      setToast('데이터 요청 실패')
+      setItems([])
+    }
   }
 
   const collectNews = async () => {
@@ -103,9 +129,20 @@ export default function AdminPage() {
         <button
           className="btn btn-ghost"
           onClick={async () => {
-            const res = await fetch('/api/news/translate', { method: 'POST' })
-            const data = await res.json()
-            alert(`번역 완료: ${data.translated}건`)
+            try {
+              const res = await fetch('/api/news/translate', { method: 'POST' })
+              if (!res.ok) {
+                const text = await res.text().catch(() => '')
+                console.error('Translate request failed', res.status, text)
+                alert(`번역 실패: ${res.status} ${text || '서버 오류'}`)
+                return
+              }
+              const data = await res.json()
+              alert(`번역 완료: ${data.translated ?? 0}건`)
+            } catch (err) {
+              console.error('Translate request error', err)
+              alert('번역 요청 중 오류가 발생했습니다.')
+            }
           }}
         >
           번역 보충

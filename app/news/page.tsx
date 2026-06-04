@@ -35,10 +35,26 @@ export default async function NewsPage({
 
   const where = cat ? { category: cat } : {}
 
-  const [news, total] = await Promise.all([
-    prisma.aiNews.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100 }),
-    prisma.aiNews.count(),
-  ])
+  let news = []
+  let total = 0
+
+  try {
+    ;[news, total] = await Promise.all([
+      prisma.aiNews.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100 }),
+      prisma.aiNews.count(),
+    ])
+  } catch (error) {
+    console.error('News page DB error:', error)
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">News</div>
+        <h1 className="hero-title">데이터베이스 연결에 실패했습니다</h1>
+        <div className="hero-meta">
+          로컬 DB 또는 `DATABASE_URL` 설정을 확인해주세요.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

@@ -82,14 +82,22 @@ export async function GET(req: NextRequest) {
 
   const where = cat ? { category: cat } : {}
 
-  const news = await prisma.aiNews.findMany({
-    where,
-    orderBy:
-      sortBy === 'publishedAt'
-        ? [{ publishedAt: 'desc' }, { createdAt: 'desc' }]
-        : [{ createdAt: 'desc' }],
-    take: limit,
-  })
+  try {
+    const news = await prisma.aiNews.findMany({
+      where,
+      orderBy:
+        sortBy === 'publishedAt'
+          ? [{ publishedAt: 'desc' }, { createdAt: 'desc' }]
+          : [{ createdAt: 'desc' }],
+      take: limit,
+    })
 
-  return NextResponse.json(news)
+    return NextResponse.json(news)
+  } catch (error) {
+    console.error('News API DB error:', error)
+    return NextResponse.json(
+      { error: 'Database unavailable' },
+      { status: 503 }
+    )
+  }
 }

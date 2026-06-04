@@ -34,6 +34,7 @@ export default async function ToolsPage({
 
   const catLabel: Record<string, string> = {
     image: 'Image', video: 'Video', '3d': '3D', code: 'Code', plan: 'Planning', music: 'Music',
+    presentation: 'Presentation',  // ← 추가
   }
   const pricingColor: Record<string, string> = {
     free: 'var(--color-green)', paid: 'var(--color-amber)', freemium: 'var(--color-blue)',

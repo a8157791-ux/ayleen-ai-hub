@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, translated: count, total: untranslated.length })
   } catch (err) {
     console.error('Translate error:', err)
-    return NextResponse.json({ error: 'Failed to translate' }, { status: 500 })
-    }
+    const message = err instanceof Error ? err.message : 'Failed to translate'
+    return NextResponse.json({ error: message }, { status: 503 })
+  }
 }

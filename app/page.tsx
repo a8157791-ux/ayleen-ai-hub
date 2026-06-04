@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db'
+import { databaseEnabled, prisma } from '@/lib/db'
 import Link from 'next/link'
 
 const catLabel: Record<string, string> = {
@@ -17,7 +17,7 @@ function timeAgo(date: Date): string {
 export const revalidate = 1800
 
 export default async function HomePage() {
-  if (!process.env.DATABASE_URL) {
+  if (!databaseEnabled) {
     return (
       <div className="page-hero">
         <div className="hero-eyebrow">Daily Digest</div>
@@ -29,7 +29,15 @@ export default async function HomePage() {
     )
   }
 
-  const [news, studies, statNews, statStudy, statPrompts, statSaved] = await Promise.all([
+  let news = []
+  let studies = []
+  let statNews = 0
+  let statStudy = 0
+  let statPrompts = 0
+  let statSaved = 0
+
+  try {
+    ;[news, studies, statNews, statStudy, statPrompts, statSaved] = await Promise.all([
     prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
     prisma.aiNews.count(),
@@ -37,6 +45,18 @@ export default async function HomePage() {
     prisma.promptItem.count({ where: { published: true } }),
     prisma.savedLink.count(),
   ])
+  } catch (error) {
+    console.error('Home page DB error:', error)
+    return (
+      <div className="page-hero">
+        <div className="hero-eyebrow">Daily Digest</div>
+        <h1 className="hero-title">데이터베이스 연결에 실패했습니다</h1>
+        <div className="hero-meta">
+          로컬 DB 또는 `DATABASE_URL` 설정을 확인해주세요.
+        </div>
+      </div>
+    )
+  }
 
   const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
 
