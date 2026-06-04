@@ -47,7 +47,7 @@ export default function Topbar() {
   }, [])
 
   useEffect(() => {
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weathercode&timezone=Asia%2FSeoul')
+    fetch('/api/weather')
       .then(r => r.json())
       .then(data => {
         const temp = Math.round(data.current?.temperature_2m ?? 0)

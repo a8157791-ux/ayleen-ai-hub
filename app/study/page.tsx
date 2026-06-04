@@ -5,7 +5,7 @@ const catLabel: Record<string, string> = {
   image: 'Image', design: 'Design', video: 'Video', '3d': '3D', plan: 'Planning',
 }
 
-export const revalidate = 60
+export const revalidate = 3600  // 60 → 3600으로
 
 export default async function StudyPage({
   searchParams,
