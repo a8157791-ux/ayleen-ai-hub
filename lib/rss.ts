@@ -177,10 +177,10 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
   if (!apiKey) return []
 
   try {
-const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
-  { signal: AbortSignal.timeout(8000) }
-)
+    const res = await fetch(
+      `https://newsapi.org/v2/everything?q=artificial+intelligence+OR+AI+model+OR+LLM&language=en&pageSize=15&sortBy=publishedAt&apiKey=${apiKey}`,
+      { signal: AbortSignal.timeout(8000) }
+    )
     if (!res.ok) return []
 
     const data = await res.json()
@@ -283,4 +283,33 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
   }
 
   return [...targets, ...rest]
+}
+
+// fetchAllAINews — 번역 없이 수집만
+export async function fetchAllAINews(): Promise<NewsItem[]> {
+  const results = await Promise.allSettled([
+    ...RSS_FEEDS.map(f => parseRSSFeed(f)),
+    fetchFromNewsAPI(),
+  ])
+
+  const all: NewsItem[] = []
+  for (const r of results) {
+    if (r.status === 'fulfilled') all.push(...r.value)
+  }
+
+  const seen = new Set<string>()
+  const unique = all.filter(item => {
+    if (!item.url || seen.has(item.url)) return false
+    seen.add(item.url)
+    return true
+  })
+
+  unique.sort((a, b) => {
+    if (!a.publishedAt && !b.publishedAt) return 0
+    if (!a.publishedAt) return 1
+    if (!b.publishedAt) return -1
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  })
+
+  return unique
 }
