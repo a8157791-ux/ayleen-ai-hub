@@ -192,7 +192,7 @@ export default function AdminPage() {
                       : (item.title ?? item.name ?? item.url) as string}
                   </div>
                   {tab === 'news' && item.titleKo && (
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.title as string}
                     </div>
                   )}

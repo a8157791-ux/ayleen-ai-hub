@@ -16,34 +16,49 @@ const RSS_FEEDS = [
   // 🤖 LLM / 에이전트
   { url: 'https://openai.com/blog/rss.xml', source: 'OpenAI Blog', category: 'research' },
   { url: 'https://www.anthropic.com/rss.xml', source: 'Anthropic Blog', category: 'research' },
-  { url: 'https://huggingface.co/blog/feed.xml', source: 'HuggingFace Blog', category: 'code' },
   { url: 'https://deepmind.google/blog/rss/', source: 'Google DeepMind', category: 'research' },
-  { url: 'https://feeds.feedburner.com/venturebeat/SZYF', source: 'VentureBeat AI', category: 'research' },
-  { url: 'https://www.artificialintelligence-news.com/feed/', source: 'AI News', category: 'research' },
-  { url: 'https://www.marktechpost.com/feed/', source: 'MarkTechPost', category: 'research' },
-  { url: 'https://www.technologyreview.com/feed/', source: 'MIT Tech Review', category: 'research' },
-  { url: 'https://towardsdatascience.com/feed', source: 'Towards Data Science', category: 'research' },
   { url: 'https://www.therundown.ai/feed', source: 'The Rundown AI', category: 'research' },
 
   // 🎨 AI 이미지 / 디자인
   { url: 'https://stability.ai/news/rss', source: 'Stability AI', category: 'design' },
   { url: 'https://aiartweekly.com/feed/', source: 'AI Art Weekly', category: 'design' },
+  { url: 'https://tympanus.net/codrops/feed', source: 'Codrops', category: 'design' },
+  { url: 'https://uxdesign.cc/feed', source: 'UX Collective', category: 'design' },
+  { url: 'https://abduzeedo.com/rss.xml', source: 'Abduzeedo', category: 'design' },
+  { url: 'https://blog.secondbrush.co.kr/rss/', source: 'Daily Prompt', category: 'design' },
+  { url: 'https://designcompass.org/feed', source: 'Design Compass', category: 'design' },
 
   // 🎬 AI 영상
   { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
 
   // 💻 AI 코딩 툴
-  { url: 'https://machinelearningmastery.com/feed/', source: 'ML Mastery', category: 'code' },
   { url: 'https://github.blog/feed/', source: 'GitHub Blog', category: 'code' },
-  { url: 'https://code.visualstudio.com/feed.xml', source: 'VS Code Blog', category: 'code' },
-
-  // 🎨 Figma / 디자인 툴
-  { url: 'https://www.figma.com/blog/feed/', source: 'Figma Blog', category: 'design' },
+  { url: 'https://blog.codepen.io/feed', source: 'CodePen Blog', category: 'code' },
+  { url: 'https://www.joshwcomeau.com/rss.xml', source: 'Josh W Comeau', category: 'code' },
 
   // 🌐 HTML/CSS / 웹 표준
   { url: 'https://web.dev/feed.xml', source: 'web.dev', category: 'code' },
   { url: 'https://css-tricks.com/feed/', source: 'CSS-Tricks', category: 'code' },
   { url: 'https://www.smashingmagazine.com/feed/', source: 'Smashing Magazine', category: 'code' },
+
+  // 🏆 웹디자인 레퍼런스
+  { url: 'https://www.awwwards.com/rss/', source: 'Awwwards', category: 'design' },
+
+  // 🎨 Figma / 디자인 인사이트
+  { url: 'https://www.creativebloq.com/feed', source: 'Creative Bloq', category: 'design' },
+  { url: 'https://www.figma.com/blog/feed/', source: 'Figma Blog', category: 'design' },
+
+  // 🎨 Adobe / Behance
+  { url: 'https://blog.behance.net/feed', source: 'Behance Blog', category: 'design' },
+
+  // ⚡ 프론트엔드 & 인터랙션
+  { url: 'https://frontendfoc.us/rss', source: 'Frontend Focus', category: 'code' },
+
+  // 🤖 AI 디자인
+  { url: 'https://www.midjourney.com/updates/rss/', source: 'Midjourney', category: 'design' }, // 동작 여부 확인 필요
+
+  // 🎨 디자인 시스템
+  { url: 'https://m3.material.io/feed.xml', source: 'Material Design', category: 'design' },  
 ]
 
 const ITEMS_PER_FEED = 5  // 피드당 최대 수집 건수 (v1: 3 → v2: 5)
