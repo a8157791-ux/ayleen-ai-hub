@@ -8,13 +8,24 @@ export async function GET(req: NextRequest) {
   }
 
   const baseUrl = process.env.NEXTAUTH_URL ?? 'https://ayleen-ai-hub.vercel.app'
-  const res = await fetch(`${baseUrl}/api/news`, {
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-cron-secret': process.env.CRON_SECRET ?? '',
+  }
+
+  // 1. 수집
+  const collectRes = await fetch(`${baseUrl}/api/news`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-cron-secret': process.env.CRON_SECRET ?? '',
-    },
+    headers,
   })
-  const data = await res.json()
-  return NextResponse.json(data)
+  const collectData = await collectRes.json()
+
+  // 2. 번역 (수집 완료 후 바로 실행)
+  const translateRes = await fetch(`${baseUrl}/api/news/translate`, {
+    method: 'POST',
+    headers,
+  })
+  const translateData = await translateRes.json()
+
+  return NextResponse.json({ collect: collectData, translate: translateData })
 }
