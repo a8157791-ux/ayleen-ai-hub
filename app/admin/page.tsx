@@ -74,11 +74,13 @@ export default function AdminPage() {
     { id: 'reference', label: '레퍼런스' },
   ]
 
-  // edit 경로 매핑 (saved, reference, news는 편집 없음)
+  // edit 경로 매핑
   const editPath: Partial<Record<Tab, string>> = {
     study: 'study',
     tools: 'tools',
     prompts: 'prompts',
+    saved: 'saved',
+    reference: 'reference',
   }
 
   return (
