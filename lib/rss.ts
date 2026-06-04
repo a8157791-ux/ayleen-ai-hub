@@ -245,6 +245,7 @@ ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary 
 
     const data = await res.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    console.log('Gemini raw response:', text.slice(0, 200))
     const clean = text.replace(/```json|```/g, '').trim()
     const parsed: { i: number; titleKo: string; summaryKo: string }[] = JSON.parse(clean)
 
