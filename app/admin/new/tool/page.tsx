@@ -1,21 +1,48 @@
 'use client'
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { CategorySelect } from '@/components/CategoryManager'
+import { fetchConfig, DEFAULT_CONFIGS } from '@/lib/config'
 
 export default function NewToolPage() {
   const { status } = useSession()
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', description: '', url: '', category: 'image', pricing: 'free', rating: 0, review: '', published: true })
   const [saving, setSaving] = useState(false)
-  const set = (k: string, v: string | number | boolean) => setForm(f => ({ ...f, [k]: v }))
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CONFIGS.tool_categories)
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    url: '',
+    category: DEFAULT_CONFIGS.tool_categories[0],
+    pricing: 'free',
+    rating: '',
+    review: '',
+    published: true,
+  })
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    fetchConfig('tool_categories').then(cats => {
+      setCategories(cats)
+      setForm(f => ({ ...f, category: cats[0] ?? f.category }))
+    })
+  }, [])
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) return alert('툴 이름을 입력해주세요.')
     setSaving(true)
-    await fetch('/api/tools', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+    const res = await fetch('/api/tools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...form,
+        rating: form.rating ? parseFloat(form.rating) : null,
+      }),
+    })
     setSaving(false)
-    router.push('/admin')
+    if (res.ok) router.push('/admin')
+    else alert('저장 실패')
   }
 
   if (status !== 'authenticated') return null
@@ -26,44 +53,115 @@ export default function NewToolPage() {
         <div className="hero-eyebrow">Admin</div>
         <h1 className="hero-title">AI 툴 <b>추가</b></h1>
       </div>
-      <form onSubmit={submit} style={{ maxWidth: 640 }}>
+
+      <div style={{ maxWidth: 640 }}>
         <div className="admin-card">
+
           <div className="form-group">
             <label className="form-label">툴 이름 *</label>
-            <input className="form-input" value={form.name} onChange={e => set('name', e.target.value)} required />
+            <input
+              className="form-input"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="예: Midjourney"
+            />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <div className="form-group">
-              <label className="form-label">카테고리</label>
-              <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
-                {['image', 'video', '3d', 'code', 'plan', 'music'].map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">가격</label>
-              <select className="form-select" value={form.pricing} onChange={e => set('pricing', e.target.value)}>
-                {['free', 'freemium', 'paid'].map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">평점 (0-5)</label>
-              <input type="number" min={0} max={5} step={0.5} className="form-input" value={form.rating} onChange={e => set('rating', Number(e.target.value))} />
-            </div>
-          </div>
+
           <div className="form-group">
             <label className="form-label">URL</label>
-            <input className="form-input" value={form.url} onChange={e => set('url', e.target.value)} placeholder="https://..." />
+            <input
+              className="form-input"
+              value={form.url}
+              onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
+              placeholder="https://..."
+            />
           </div>
+
+          <CategorySelect
+            configKey="tool_categories"
+            value={form.category}
+            categories={categories}
+            onChange={val => setForm(f => ({ ...f, category: val }))}
+            onCategoriesChange={setCategories}
+          />
+
           <div className="form-group">
-            <label className="form-label">한줄평</label>
-            <input className="form-input" value={form.review} onChange={e => set('review', e.target.value)} />
+            <label className="form-label">가격 정책</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(['free', 'freemium', 'paid'] as const).map(p => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, pricing: p }))}
+                  style={{
+                    padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                    fontSize: 12, fontFamily: 'var(--font-mono)',
+                    background: form.pricing === p ? 'var(--color-blue)' : 'var(--color-bg-3)',
+                    color: form.pricing === p ? '#fff' : 'var(--color-text-2)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
+
+          <div className="form-group">
+            <label className="form-label">설명</label>
+            <textarea
+              className="form-textarea"
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              placeholder="툴 설명"
+              style={{ minHeight: 80 }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 12 }}>
+            <div className="form-group">
+              <label className="form-label">평점 (0~5)</label>
+              <input
+                type="number"
+                min="0" max="5" step="0.1"
+                className="form-input"
+                value={form.rating}
+                onChange={e => setForm(f => ({ ...f, rating: e.target.value }))}
+                placeholder="4.5"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">한줄 리뷰</label>
+              <input
+                className="form-input"
+                value={form.review}
+                onChange={e => setForm(f => ({ ...f, review: e.target.value }))}
+                placeholder="짧은 리뷰"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={form.published}
+                onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
+                style={{ width: 16, height: 16, accentColor: 'var(--color-blue)' }}
+              />
+              <span className="form-label" style={{ margin: 0 }}>공개</span>
+            </label>
+          </div>
+
           <div style={{ display: 'flex', gap: 10 }}>
-            <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
-            <button type="button" className="btn btn-ghost" onClick={() => router.back()}>취소</button>
+            <button onClick={handleSubmit} disabled={saving} className="btn btn-primary">
+              {saving ? '저장 중...' : '저장'}
+            </button>
+            <button onClick={() => router.push('/admin')} className="btn btn-ghost">취소</button>
           </div>
+
         </div>
-      </form>
+      </div>
     </>
   )
 }

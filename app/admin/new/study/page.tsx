@@ -1,25 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-
-const CATEGORIES = [
-  { value: 'image', label: '이미지' },
-  { value: 'video', label: '영상' },
-  { value: 'prompt', label: '프롬프트' },
-  { value: 'research', label: '리서치' },
-  { value: 'website', label: '웹사이트' },
-  { value: 'etc', label: '기타' },
-]
+import { CategorySelect, ToolTagInput } from '@/components/CategoryManager'
+import { fetchConfig, DEFAULT_CONFIGS } from '@/lib/config'
 
 export default function NewStudyPage() {
   const { status } = useSession()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CONFIGS.study_categories)
+  const [toolTags, setToolTags] = useState<string[]>(DEFAULT_CONFIGS.tool_tags)
   const [form, setForm] = useState({
     title: '',
-    category: 'image',
+    category: DEFAULT_CONFIGS.study_categories[0],
     tool: '',
     content: '',
     prompt: '',
@@ -30,9 +25,18 @@ export default function NewStudyPage() {
     published: true,
   })
 
-  const setToday = () => {
-    setForm(f => ({ ...f, studiedAt: new Date().toISOString().slice(0, 10) }))
-  }
+  useEffect(() => {
+    Promise.all([
+      fetchConfig('study_categories'),
+      fetchConfig('tool_tags'),
+    ]).then(([cats, tools]) => {
+      setCategories(cats)
+      setToolTags(tools)
+      setForm(f => ({ ...f, category: cats[0] ?? f.category }))
+    })
+  }, [])
+
+  const setToday = () => setForm(f => ({ ...f, studiedAt: new Date().toISOString().slice(0, 10) }))
 
   const handleSubmit = async () => {
     if (!form.title.trim()) return alert('제목을 입력해주세요.')
@@ -65,7 +69,6 @@ export default function NewStudyPage() {
       <div style={{ maxWidth: 640 }}>
         <div className="admin-card">
 
-          {/* 제목 */}
           <div className="form-group">
             <label className="form-label">제목 *</label>
             <input
@@ -76,32 +79,21 @@ export default function NewStudyPage() {
             />
           </div>
 
-          {/* 카테고리 + 사용 툴 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div className="form-group">
-              <label className="form-label">카테고리</label>
-              <select
-                className="form-select"
-                value={form.category}
-                onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-              >
-                {CATEGORIES.map(c => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">사용 툴</label>
-              <input
-                className="form-input"
-                value={form.tool}
-                onChange={e => setForm(f => ({ ...f, tool: e.target.value }))}
-                placeholder="예: Claude, Midjourney"
-              />
-            </div>
-          </div>
+          <CategorySelect
+            configKey="study_categories"
+            value={form.category}
+            categories={categories}
+            onChange={val => setForm(f => ({ ...f, category: val }))}
+            onCategoriesChange={setCategories}
+          />
 
-          {/* 공부 날짜 */}
+          <ToolTagInput
+            value={form.tool}
+            toolTags={toolTags}
+            onChange={val => setForm(f => ({ ...f, tool: val }))}
+            onToolTagsChange={setToolTags}
+          />
+
           <div className="form-group">
             <label className="form-label">공부 날짜</label>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -127,7 +119,6 @@ export default function NewStudyPage() {
             </div>
           </div>
 
-          {/* 웹사이트 URL */}
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               웹사이트 URL
@@ -150,7 +141,6 @@ export default function NewStudyPage() {
             />
           </div>
 
-          {/* 내용 */}
           <div className="form-group">
             <label className="form-label">내용</label>
             <textarea
@@ -162,7 +152,6 @@ export default function NewStudyPage() {
             />
           </div>
 
-          {/* 프롬프트 */}
           <div className="form-group">
             <label className="form-label">프롬프트</label>
             <textarea
@@ -174,7 +163,6 @@ export default function NewStudyPage() {
             />
           </div>
 
-          {/* 이미지/영상 URL */}
           <div className="form-group">
             <label className="form-label">
               이미지 / 영상 URL
@@ -189,22 +177,14 @@ export default function NewStudyPage() {
               placeholder="https://i.imgur.com/... 또는 https://youtu.be/..."
             />
             {form.mediaUrl && (
-              <a
-                href={form.mediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  marginTop: 6, fontSize: 11, color: 'var(--color-blue)', textDecoration: 'none',
-                }}
-              >
+              <a href={form.mediaUrl} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 11, color: 'var(--color-blue)', textDecoration: 'none' }}>
                 <i className="ti ti-external-link" style={{ fontSize: 12 }} />
                 미리보기 열기
               </a>
             )}
           </div>
 
-          {/* 태그 */}
           <div className="form-group">
             <label className="form-label">
               태그
@@ -220,7 +200,6 @@ export default function NewStudyPage() {
             />
           </div>
 
-          {/* 공개 여부 */}
           <div className="form-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <input
@@ -233,21 +212,11 @@ export default function NewStudyPage() {
             </label>
           </div>
 
-          {/* 버튼 */}
           <div style={{ display: 'flex', gap: 10 }}>
-            <button
-              onClick={handleSubmit}
-              disabled={saving}
-              className="btn btn-primary"
-            >
+            <button onClick={handleSubmit} disabled={saving} className="btn btn-primary">
               {saving ? '저장 중...' : '저장'}
             </button>
-            <button
-              onClick={() => router.push('/admin')}
-              className="btn btn-ghost"
-            >
-              취소
-            </button>
+            <button onClick={() => router.push('/admin')} className="btn btn-ghost">취소</button>
           </div>
 
         </div>

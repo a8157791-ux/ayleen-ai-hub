@@ -106,3 +106,12 @@ model Admin {
 
   @@map("admins")
 }
+
+model UserConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("user_config")
+}
