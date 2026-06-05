@@ -12,6 +12,7 @@ type Note = {
   category: string | null
   tool: string | null
   mediaUrl: string | null
+  studiedAt: Date | null   // ← 추가
   createdAt: Date
 }
 
@@ -56,7 +57,7 @@ export default function StudyClient({ notes, total }: { notes: Note[], total: nu
               <div className="card-title">{note.title}</div>
               <div className="card-footer">
                 {note.tool && <><span>{note.tool}</span><span className="card-footer-dot" /></>}
-                <span>{new Date(note.createdAt).toLocaleDateString('ko-KR')}</span>
+                <span>{new Date(note.studiedAt ?? note.createdAt).toLocaleDateString('ko-KR')}</span>
               </div>
             </div>
           </Link>
