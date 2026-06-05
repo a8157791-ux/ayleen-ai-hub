@@ -337,3 +337,15 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .tools-trend-link:hover {color:var(--color-cyan)}
 .tools-trend-link .ti {font-size:13px}
 .tools-trend-divider {color:var(--color-border-2); font-size:12px}
+
+
+/* ── Search ── globals.css 맨 아래에 추가 */
+.search-results {display:flex; flex-direction:column; gap:8px}
+.search-item {display:block; padding:14px 16px; background:var(--color-bg-2); border:1px solid var(--color-border); border-radius:10px; text-decoration:none; transition:border-color 0.15s, background 0.15s; cursor:pointer}
+.search-item:hover {border-color:var(--color-border-2); background:var(--color-bg-3)}
+.search-item-header {display:flex; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap}
+.search-item-badge {font-size:10px; padding:2px 7px; border-radius:4px; font-family:var(--font-mono); letter-spacing:0.06em}
+.search-item-cat {font-size:11px; color:var(--color-text-3); font-family:var(--font-mono)}
+.search-item-date {font-size:11px; color:var(--color-text-3); font-family:var(--font-mono); margin-left:auto}
+.search-item-title {font-size:14px; color:var(--color-text); font-weight:500; line-height:1.4}
+.search-item-desc {font-size:12px; color:var(--color-text-2); margin-top:4px; line-height:1.5}

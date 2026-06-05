@@ -73,7 +73,7 @@ export default function Topbar() {
     e.preventDefault()
     const q = searchVal.trim()
     if (!q) return
-    router.push(`/news?q=${encodeURIComponent(q)}`)
+    router.push(`/search?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
     setSearchVal('')
   }
@@ -98,7 +98,7 @@ export default function Topbar() {
               ref={searchRef}
               value={searchVal}
               onChange={e => setSearchVal(e.target.value)}
-              placeholder="뉴스 검색..."
+              placeholder="통합 검색..."
               className="topbar-search-input"
             />
             <button
