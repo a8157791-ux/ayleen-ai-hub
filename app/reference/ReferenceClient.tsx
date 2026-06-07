@@ -21,9 +21,9 @@ const TABS = [
 
 type Reference = {
   id: number
-  title: string
+  title: string | null
   url: string
-  refType: string
+  refType: string | null
   category: string | null
   desc: string | null
   faviconUrl: string | null
@@ -133,7 +133,7 @@ export default function ReferenceClient({ refs }: { refs: Reference[] }) {
                         maxWidth:'calc(100% - 80px)',
                       }}
                     >
-                      {ref.title}
+                      {ref.title || ref.url}
                     </a>
                     <span style={{
                       fontSize:10, fontFamily:'var(--font-mono)',
