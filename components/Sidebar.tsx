@@ -1,132 +1,162 @@
 'use client'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
+import { useState } from 'react'
 
 const mainNav = [
-  { href: '/', icon: 'ti-layout-dashboard', label: '오늘의 AI' },
-  { href: '/news', icon: 'ti-chart-line', label: '트렌드 보드' },
-  { href: '/tools', icon: 'ti-box', label: '툴 라이브러리' },
-  { href: '/reference', icon: 'ti-bookmarks', label: '레퍼런스' },
+  { href: '/', label: '오늘의 AI', icon: 'ti-layout-dashboard' },
+  { href: '/news', label: '트렌드 보드', icon: 'ti-trending-up' },
+  { href: '/tools', label: '툴 라이브러리', icon: 'ti-tool' },
+  { href: '/reference', label: '레퍼런스', icon: 'ti-bookmark' },
 ]
+
 const myNav = [
-  { href: '/study', icon: 'ti-notebook', label: '스터디룸' },
-  { href: '/prompts', icon: 'ti-sparkles', label: '프롬프트 보관함' },
-  { href: '/saved', icon: 'ti-bookmark', label: '저장한 글' },
+  { href: '/study', label: '스터디룸', icon: 'ti-book' },
+  { href: '/saved', label: '저장한 글', icon: 'ti-heart' },
 ]
 
-const SIDEBAR_TOGGLE_EVENT = 'aihub:sidebar-toggle'
-const SIDEBAR_CLOSE_EVENT = 'aihub:sidebar-close'
-
-export function toggleSidebar() {
-  window.dispatchEvent(new Event(SIDEBAR_TOGGLE_EVENT))
-}
-export function closeSidebar() {
-  window.dispatchEvent(new Event(SIDEBAR_CLOSE_EVENT))
-}
-
-export default function Sidebar() {
+export function Sidebar() {
   const pathname = usePathname()
-  const [clock, setClock] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
   const { data: session } = useSession()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  useEffect(() => {
-    const tick = () => {
-      const now = new Date()
-      setClock(now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }))
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    const onToggle = () => setIsOpen(v => !v)
-    const onClose = () => setIsOpen(false)
-    window.addEventListener(SIDEBAR_TOGGLE_EVENT, onToggle)
-    window.addEventListener(SIDEBAR_CLOSE_EVENT, onClose)
-    return () => {
-      window.removeEventListener(SIDEBAR_TOGGLE_EVENT, onToggle)
-      window.removeEventListener(SIDEBAR_CLOSE_EVENT, onClose)
-    }
-  }, [])
-
-  useEffect(() => { setIsOpen(false) }, [pathname])
-
-  const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href)
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
 
   return (
     <>
-      {isOpen && (
-        <div className="sidebar-overlay active" onClick={() => setIsOpen(false)} aria-hidden="true" />
+      {/* 모바일 오버레이 */}
+      {mobileOpen && (
+        <div
+          style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:99}}
+          onClick={() => setMobileOpen(false)}
+        />
       )}
-      <aside className={`aihub-sidebar ${isOpen ? 'open' : ''}`}>
-        {/* Logo */}
-        <div className="sb-logo">
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <div className="sb-logo-name">Ayleen's <span>AI</span></div>
+
+      {/* 사이드바 */}
+      <aside
+        style={{
+          position:'fixed', top:0, left:0, height:'100vh', width:224,
+          background:'var(--color-sidebar, #090C14)',
+          borderRight:'1px solid var(--color-border)',
+          display:'flex', flexDirection:'column',
+          zIndex:100,
+          transform: mobileOpen ? 'translateX(0)' : undefined,
+        }}
+        className="sidebar"
+      >
+        {/* 로고 */}
+        <div style={{padding:'20px 16px 16px', borderBottom:'1px solid var(--color-border)'}}>
+          <Link href="/" style={{textDecoration:'none'}}>
+            <div style={{fontFamily:'var(--font-display)', fontSize:20, color:'var(--color-text)', letterSpacing:-0.5}}>
+              Ayleen<span style={{color:'var(--color-blue)'}}>.</span>AI
+            </div>
+            <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', marginTop:2, letterSpacing:2}}>
+              TREND ARCHIVE
+            </div>
           </Link>
-          <div className="sb-logo-sub">Trend Archive</div>
         </div>
 
-        {/* Nav */}
-        <nav className="sb-nav">
-          <div className="sb-group">
-            <div className="sb-group-label">Main</div>
-            {mainNav.map(item => (
-              <Link key={item.href} href={item.href} className={`sb-item ${isActive(item.href) ? 'active' : ''}`}>
-                <i className={`ti ${item.icon}`} aria-hidden="true" />
-                {item.label}
-              </Link>
-            ))}
+        {/* 네비게이션 */}
+        <nav style={{flex:1, overflowY:'auto', padding:'12px 8px'}}>
+          {/* Main */}
+          <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'4px 8px', marginBottom:4}}>
+            MAIN
           </div>
+          {mainNav.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display:'flex', alignItems:'center', gap:10,
+                padding:'8px 10px', borderRadius:8, marginBottom:2,
+                textDecoration:'none', fontSize:14,
+                background: isActive(item.href) ? 'rgba(59,130,246,0.12)' : 'transparent',
+                color: isActive(item.href) ? 'var(--color-blue)' : 'var(--color-text-2)',
+                transition:'all 0.15s',
+              }}
+            >
+              <i className={`ti ${item.icon}`} style={{fontSize:16}} />
+              {item.label}
+            </Link>
+          ))}
 
-          <div className="sb-divider" />
-
-          <div className="sb-group">
-            <div className="sb-group-label">My</div>
-            {myNav.map(item => (
-              <Link key={item.href} href={item.href} className={`sb-item ${isActive(item.href) ? 'active' : ''}`}>
-                <i className={`ti ${item.icon}`} aria-hidden="true" />
-                {item.label}
-              </Link>
-            ))}
-
-            <div className="sb-divider" style={{ margin: '8px 0 4px' }} />
-
-            {/* 로그인 / 관리자+로그아웃 */}
-            {session ? (
-              <>
-                <Link href="/admin" className={`sb-item ${isActive('/admin') ? 'active' : ''}`}>
-                  <i className="ti ti-settings" aria-hidden="true" />
-                  관리자 패널
-                </Link>
-                <button
-                  className="sb-item"
-                  onClick={() => signOut()}
-                  style={{ width: '100%', textAlign: 'left' }}
-                >
-                  <i className="ti ti-logout" aria-hidden="true" />
-                  로그아웃
-                </button>
-              </>
-            ) : (
-              <Link href="/admin/login" className="sb-item">
-                <i className="ti ti-user" aria-hidden="true" />
-                로그인
-              </Link>
-            )}
+          {/* My */}
+          <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'12px 8px 4px', marginBottom:4}}>
+            MY
           </div>
+          {myNav.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display:'flex', alignItems:'center', gap:10,
+                padding:'8px 10px', borderRadius:8, marginBottom:2,
+                textDecoration:'none', fontSize:14,
+                background: isActive(item.href) ? 'rgba(59,130,246,0.12)' : 'transparent',
+                color: isActive(item.href) ? 'var(--color-blue)' : 'var(--color-text-2)',
+                transition:'all 0.15s',
+              }}
+            >
+              <i className={`ti ${item.icon}`} style={{fontSize:16}} />
+              {item.label}
+            </Link>
+          ))}
+
+          {/* 구분선 */}
+          <div style={{height:1, background:'var(--color-border)', margin:'12px 8px'}} />
+
+          {/* 관리자 */}
+          {session ? (
+            <>
+              <Link
+                href="/admin"
+                style={{
+                  display:'flex', alignItems:'center', gap:10,
+                  padding:'8px 10px', borderRadius:8, marginBottom:2,
+                  textDecoration:'none', fontSize:14,
+                  background: isActive('/admin') ? 'rgba(59,130,246,0.12)' : 'transparent',
+                  color: isActive('/admin') ? 'var(--color-blue)' : 'var(--color-text-2)',
+                  transition:'all 0.15s',
+                }}
+              >
+                <i className="ti ti-settings" style={{fontSize:16}} />
+                관리자 패널
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                style={{
+                  display:'flex', alignItems:'center', gap:10,
+                  padding:'8px 10px', borderRadius:8, marginBottom:2,
+                  width:'100%', border:'none', background:'transparent',
+                  color:'var(--color-text-3)', fontSize:14, cursor:'pointer',
+                  transition:'all 0.15s',
+                }}
+              >
+                <i className="ti ti-logout" style={{fontSize:16}} />
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/admin/login"
+              style={{
+                display:'flex', alignItems:'center', gap:10,
+                padding:'8px 10px', borderRadius:8, marginBottom:2,
+                textDecoration:'none', fontSize:14,
+                color:'var(--color-text-3)',
+                transition:'all 0.15s',
+              }}
+            >
+              <i className="ti ti-user" style={{fontSize:16}} />
+              로그인
+            </Link>
+          )}
         </nav>
-
-        {/* Clock */}
-        <div className="sb-bottom">
-          <span className="sb-clock">{clock}</span>
-          <span className="sb-location">Seoul, KR</span>
-        </div>
       </aside>
     </>
   )
