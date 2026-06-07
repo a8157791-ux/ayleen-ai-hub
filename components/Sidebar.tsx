@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const mainNav = [
   { href: '/', label: '오늘의 AI', icon: 'ti-layout-dashboard' },
@@ -17,10 +17,27 @@ const myNav = [
   { href: '/saved', label: '저장한 글', icon: 'ti-heart' },
 ]
 
+// 전역 토글 함수 — Topbar에서 import해서 사용
+let _setOpen: ((v: boolean | ((prev: boolean) => boolean)) => void) | null = null
+export function toggleSidebar() {
+  _setOpen?.(prev => !prev)
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // 전역에 setter 등록
+  useEffect(() => {
+    _setOpen = setMobileOpen
+    return () => { _setOpen = null }
+  }, [])
+
+  // 경로 변경 시 사이드바 닫기
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -45,6 +62,7 @@ export function Sidebar() {
           borderRight:'1px solid var(--color-border)',
           display:'flex', flexDirection:'column',
           zIndex:100,
+          transition:'transform 0.25s ease',
           transform: mobileOpen ? 'translateX(0)' : undefined,
         }}
         className="sidebar"
