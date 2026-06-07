@@ -22,7 +22,6 @@ export default function AdminPage() {
   const [translating, setTranslating] = useState(false)
   const [toast, setToast] = useState('')
 
-  // 각 탭 데이터
   const [studyNotes, setStudyNotes] = useState<any[]>([])
   const [tools, setTools] = useState<any[]>([])
   const [savedLinks, setSavedLinks] = useState<any[]>([])
@@ -67,10 +66,7 @@ export default function AdminPage() {
   async function handleCollect() {
     setCollecting(true)
     try {
-      const res = await fetch('/api/news', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-cron-secret': '' },
-      })
+      const res = await fetch('/api/news', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
       const data = await res.json()
       showToast(`✅ ${data.saved || 0}개 수집 완료`)
     } catch {
@@ -108,24 +104,85 @@ export default function AdminPage() {
     else if (type === 'reference') setReferences(prev => prev.filter(i => i.id !== id))
   }
 
-  const tdStyle: React.CSSProperties = {
-    padding:'10px 12px', borderBottom:'1px solid var(--color-border)',
-    fontSize:13, color:'var(--color-text-2)', verticalAlign:'middle',
-    maxWidth:180, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-  }
-  const thStyle: React.CSSProperties = {
-    padding:'10px 12px', borderBottom:'1px solid var(--color-border)',
-    fontSize:11, color:'var(--color-text-3)', fontFamily:'var(--font-mono)',
-    textAlign:'left', fontWeight:400, whiteSpace:'nowrap',
-  }
-  const actionStyle: React.CSSProperties = {
-    padding:'10px 12px', borderBottom:'1px solid var(--color-border)',
-    whiteSpace:'nowrap', verticalAlign:'middle',
+  function ItemCard({
+    title,
+    sub,
+    badge,
+    editHref,
+    onDelete,
+  }: {
+    title: string
+    sub?: string
+    badge?: string
+    editHref?: string
+    onDelete: () => void
+  }) {
+    return (
+      <div style={{
+        background:'var(--color-bg-3)',
+        border:'1px solid var(--color-border)',
+        borderRadius:10, padding:'12px 14px',
+        display:'flex', alignItems:'center', gap:12,
+      }}>
+        <div style={{flex:1, minWidth:0}}>
+          <div style={{
+            fontSize:14, color:'var(--color-text)', fontWeight:500,
+            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+          }}>
+            {title}
+          </div>
+          {sub && (
+            <div style={{
+              fontSize:11, color:'var(--color-text-3)', marginTop:2,
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+            }}>
+              {sub}
+            </div>
+          )}
+          {badge && (
+            <div style={{
+              display:'inline-block', marginTop:4,
+              fontSize:10, fontFamily:'var(--font-mono)',
+              padding:'2px 7px', borderRadius:4,
+              background:'var(--color-bg-2)', color:'var(--color-text-3)',
+            }}>
+              {badge}
+            </div>
+          )}
+        </div>
+
+        <div style={{display:'flex', gap:6, flexShrink:0}}>
+          {editHref && (
+            <Link
+              href={editHref}
+              style={{
+                fontSize:12, padding:'5px 10px', borderRadius:6,
+                border:'1px solid var(--color-border-2)',
+                color:'var(--color-blue)', textDecoration:'none',
+                background:'transparent', whiteSpace:'nowrap',
+              }}
+            >
+              편집
+            </Link>
+          )}
+          <button
+            onClick={onDelete}
+            style={{
+              fontSize:12, padding:'5px 10px', borderRadius:6,
+              border:'1px solid rgba(239,68,68,0.3)',
+              color:'#f87171', background:'transparent',
+              cursor:'pointer', whiteSpace:'nowrap',
+            }}
+          >
+            삭제
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="page-container">
-      {/* Toast */}
       {toast && (
         <div style={{
           position:'fixed', top:70, right:16, zIndex:999,
@@ -143,7 +200,6 @@ export default function AdminPage() {
         <p style={{color:'var(--color-text-3)', fontSize:13, marginTop:4}}>{session.user?.email}</p>
       </div>
 
-      {/* 액션 버튼 */}
       <div className="admin-card" style={{marginBottom:24}}>
         <div style={{display:'flex', flexWrap:'wrap', gap:10}}>
           <button className="btn btn-primary" onClick={handleCollect} disabled={collecting}>
@@ -161,7 +217,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 탭 */}
       <div style={{display:'flex', gap:4, marginBottom:16, borderBottom:'1px solid var(--color-border)', overflowX:'auto'}}>
         {TABS.map(t => (
           <button
@@ -179,100 +234,37 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {/* 테이블 */}
-      <div className="admin-card" style={{overflowX:'auto', padding:0}}>
-        {tab === 'study' && (
-          <table style={{width:'100%', borderCollapse:'collapse', minWidth:400}}>
-            <thead>
-              <tr>
-                <th style={thStyle}>제목</th>
-                <th style={thStyle}>카테고리</th>
-                <th style={{...thStyle, whiteSpace:'nowrap'}}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studyNotes.map(n => (
-                <tr key={n.id}>
-                  <td style={tdStyle}>{n.title}</td>
-                  <td style={tdStyle}>{n.category}</td>
-                  <td style={actionStyle}>
-                    <Link href={`/admin/edit/study/${n.id}`} style={{fontSize:12, color:'var(--color-blue)', marginRight:10, textDecoration:'none'}}>편집</Link>
-                    <button onClick={() => handleDelete('study', n.id)} style={{fontSize:12, color:'#f87171', border:'none', background:'transparent', cursor:'pointer'}}>삭제</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div style={{display:'flex', flexDirection:'column', gap:8}}>
+        {tab === 'study' && (studyNotes.length === 0
+          ? <div style={{textAlign:'center', padding:40, color:'var(--color-text-3)', fontSize:13}}>탭을 눌러 불러오기</div>
+          : studyNotes.map(n => (
+            <ItemCard key={n.id} title={n.title} sub={n.siteUrl || n.mediaUrl || ''} badge={n.category}
+              editHref={`/admin/edit/study/${n.id}`} onDelete={() => handleDelete('study', n.id)} />
+          ))
         )}
 
-        {tab === 'tools' && (
-          <table style={{width:'100%', borderCollapse:'collapse', minWidth:400}}>
-            <thead>
-              <tr>
-                <th style={thStyle}>이름</th>
-                <th style={thStyle}>카테고리</th>
-                <th style={{...thStyle, whiteSpace:'nowrap'}}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tools.map(t => (
-                <tr key={t.id}>
-                  <td style={tdStyle}>{t.name}</td>
-                  <td style={tdStyle}>{t.category}</td>
-                  <td style={actionStyle}>
-                    <Link href={`/admin/edit/tools/${t.id}`} style={{fontSize:12, color:'var(--color-blue)', marginRight:10, textDecoration:'none'}}>편집</Link>
-                    <button onClick={() => handleDelete('tools', t.id)} style={{fontSize:12, color:'#f87171', border:'none', background:'transparent', cursor:'pointer'}}>삭제</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {tab === 'tools' && (tools.length === 0
+          ? <div style={{textAlign:'center', padding:40, color:'var(--color-text-3)', fontSize:13}}>탭을 눌러 불러오기</div>
+          : tools.map(t => (
+            <ItemCard key={t.id} title={t.name} sub={t.url} badge={`${t.category} · ${t.pricing}`}
+              editHref={`/admin/edit/tools/${t.id}`} onDelete={() => handleDelete('tools', t.id)} />
+          ))
         )}
 
-        {tab === 'saved' && (
-          <table style={{width:'100%', borderCollapse:'collapse', minWidth:400}}>
-            <thead>
-              <tr>
-                <th style={thStyle}>제목</th>
-                <th style={thStyle}>타입</th>
-                <th style={{...thStyle, whiteSpace:'nowrap'}}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {savedLinks.map(l => (
-                <tr key={l.id}>
-                  <td style={tdStyle}>{l.title}</td>
-                  <td style={tdStyle}>{l.linkType}</td>
-                  <td style={actionStyle}>
-                    <button onClick={() => handleDelete('saved', l.id)} style={{fontSize:12, color:'#f87171', border:'none', background:'transparent', cursor:'pointer'}}>삭제</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {tab === 'saved' && (savedLinks.length === 0
+          ? <div style={{textAlign:'center', padding:40, color:'var(--color-text-3)', fontSize:13}}>탭을 눌러 불러오기</div>
+          : savedLinks.map(l => (
+            <ItemCard key={l.id} title={l.title} sub={l.url} badge={l.linkType}
+              onDelete={() => handleDelete('saved', l.id)} />
+          ))
         )}
 
-        {tab === 'reference' && (
-          <table style={{width:'100%', borderCollapse:'collapse', minWidth:400}}>
-            <thead>
-              <tr>
-                <th style={thStyle}>제목</th>
-                <th style={thStyle}>분류</th>
-                <th style={{...thStyle, whiteSpace:'nowrap'}}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {references.map(r => (
-                <tr key={r.id}>
-                  <td style={{...tdStyle, maxWidth:200}}>{r.title}</td>
-                  <td style={{...tdStyle, maxWidth:100}}>{r.refType}</td>
-                  <td style={actionStyle}>
-                    <button onClick={() => handleDelete('reference', r.id)} style={{fontSize:12, color:'#f87171', border:'none', background:'transparent', cursor:'pointer'}}>삭제</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {tab === 'reference' && (references.length === 0
+          ? <div style={{textAlign:'center', padding:40, color:'var(--color-text-3)', fontSize:13}}>탭을 눌러 불러오기</div>
+          : references.map(r => (
+            <ItemCard key={r.id} title={r.title} sub={r.url} badge={r.refType}
+              onDelete={() => handleDelete('reference', r.id)} />
+          ))
         )}
       </div>
     </div>
