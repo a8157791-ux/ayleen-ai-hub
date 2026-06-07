@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { Sidebar } from '@/components/Sidebar'
-import { Topbar } from '@/components/Topbar'
-import { Providers } from '@/components/Providers'
+import Sidebar from '@/components/Sidebar'
+import Topbar from '@/components/Topbar'
+import Providers from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: "Ayleen's AI",
