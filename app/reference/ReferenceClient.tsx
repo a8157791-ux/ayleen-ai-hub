@@ -142,7 +142,7 @@ export default function ReferenceClient({ refs }: { refs: Reference[] }) {
                       color:'var(--color-text-3)',
                       whiteSpace:'nowrap', flexShrink:0,
                     }}>
-                      {REF_TYPE_LABELS[ref.refType] || ref.refType}
+                      {ref.refType ? (REF_TYPE_LABELS[ref.refType] || ref.refType) : ''}
                     </span>
                   </div>
 
