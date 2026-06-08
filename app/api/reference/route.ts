@@ -15,7 +15,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { title, url, refType, category, desc, faviconUrl } = body
+    const { title, url, refType, category, desc, faviconUrl, imageUrl } = body
 
     if (!title || !url) {
       return NextResponse.json({ error: 'title and url are required' }, { status: 400 })
@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         category: category || null,
         desc: desc || null,
         faviconUrl: faviconUrl || null,
+        imageUrl: imageUrl || null,
       },
     })
 

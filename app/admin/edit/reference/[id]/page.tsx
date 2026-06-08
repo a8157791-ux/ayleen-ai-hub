@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { CategorySelect } from '@/components/CategoryManager'
@@ -15,11 +15,13 @@ export default function EditReferencePage() {
   const [refTypes, setRefTypes] = useState<string[]>(DEFAULT_CONFIGS.ref_categories)
   const [form, setForm] = useState({
     url: '', title: '', refType: DEFAULT_CONFIGS.ref_categories[0],
-    category: '', desc: '', faviconUrl: '',
+    category: '', desc: '', faviconUrl: '', imageUrl: '',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [itemFound, setItemFound] = useState(true)
+  const [ogFetching, setOgFetching] = useState(false)
+  const fetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -36,6 +38,7 @@ export default function EditReferencePage() {
           category: item.category ?? '',
           desc: item.desc ?? '',
           faviconUrl: item.faviconUrl ?? '',
+          imageUrl: item.imageUrl ?? '',
         })
         setItemFound(true)
       } else {
@@ -44,6 +47,29 @@ export default function EditReferencePage() {
       setLoading(false)
     })
   }, [id])
+
+  // URL 변경 시 og 자동 파싱 (imageUrl 비어있을 때만)
+  useEffect(() => {
+    if (fetchTimer.current) clearTimeout(fetchTimer.current)
+    const url = form.url.trim()
+    if (!url.startsWith('http') || form.imageUrl) return
+
+    fetchTimer.current = setTimeout(async () => {
+      setOgFetching(true)
+      try {
+        const res = await fetch(`/api/fetch-og?url=${encodeURIComponent(url)}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.imageUrl) setForm(f => ({ ...f, imageUrl: data.imageUrl }))
+          if (data.title && !form.title.trim()) setForm(f => ({ ...f, title: data.title }))
+          if (data.desc && !form.desc.trim()) setForm(f => ({ ...f, desc: data.desc }))
+        }
+      } catch { }
+      finally { setOgFetching(false) }
+    }, 800)
+
+    return () => { if (fetchTimer.current) clearTimeout(fetchTimer.current) }
+  }, [form.url])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,7 +117,6 @@ export default function EditReferencePage() {
               onChange={e => setForm(f => ({ ...f, url: e.target.value }))} required placeholder="https://..." />
           </div>
 
-          {/* 분류 — CategorySelect */}
           <CategorySelect
             configKey="ref_categories"
             value={form.refType}
@@ -118,6 +143,33 @@ export default function EditReferencePage() {
             <label className="form-label">Favicon URL</label>
             <input className="form-input" value={form.faviconUrl}
               onChange={e => setForm(f => ({ ...f, faviconUrl: e.target.value }))} placeholder="https://..." />
+          </div>
+
+          {/* 썸네일 이미지 */}
+          <div className="form-group">
+            <label className="form-label">
+              썸네일 이미지 URL
+              {ogFetching && <span style={{ fontSize: 11, color: 'var(--color-text-3)', marginLeft: 8 }}>불러오는 중...</span>}
+            </label>
+            <input className="form-input" value={form.imageUrl}
+              onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
+            {form.imageUrl && (
+              <div style={{ marginTop: 8, position: 'relative', display: 'inline-block' }}>
+                <img
+                  src={form.imageUrl}
+                  alt="preview"
+                  style={{ width: '100%', maxWidth: 400, height: 160, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, imageUrl: '' }))}
+                  style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', borderRadius: 4, padding: '2px 7px', fontSize: 12, cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
