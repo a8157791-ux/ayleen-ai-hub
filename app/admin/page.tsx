@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [collecting, setCollecting] = useState(false)
   const [translating, setTranslating] = useState(false)
   const [bulkThumb, setBulkThumb] = useState(false)
+  const [bulkNewsThumb, setBulkNewsThumb] = useState(false)
   const [toast, setToast] = useState('')
 
   const [data, setData] = useState<Record<Tab, any[] | null>>({
@@ -124,10 +125,29 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/reference/bulk-thumbnail', { method: 'POST' })
       const d = await res.json()
-      showToast(`✅ ${d.updated || 0}개 썸네일 업데이트 완료`)
+      showToast(`✅ 레퍼런스 ${d.updated || 0}개 썸네일 업데이트 완료`)
       invalidateTab('reference')
     } catch { showToast('❌ 썸네일 업데이트 오류') }
     finally { setBulkThumb(false) }
+  }
+
+  async function handleBulkNewsThumbnail() {
+    setBulkNewsThumb(true)
+    let page = 0
+    let totalUpdated = 0
+    try {
+      while (true) {
+        const res = await fetch(`/api/news/bulk-thumbnail?page=${page}`, { method: 'POST' })
+        const d = await res.json()
+        totalUpdated += d.updated || 0
+        showToast(`🖼 ${totalUpdated}개 완료${d.hasMore ? ` (${d.remaining}개 남음...)` : ''}`)
+        if (!d.hasMore) break
+        page++
+      }
+      showToast(`✅ 뉴스 썸네일 ${totalUpdated}개 업데이트 완료`)
+      invalidateTab('news')
+    } catch { showToast('❌ 뉴스 썸네일 업데이트 오류') }
+    finally { setBulkNewsThumb(false) }
   }
 
   async function handleTranslateOne(newsId: number) {
@@ -253,7 +273,11 @@ export default function AdminPage() {
           </button>
           <button className="btn btn-ghost" onClick={handleBulkThumbnail} disabled={bulkThumb}>
             <i className={`ti ${bulkThumb ? 'ti-loader-2' : 'ti-photo'}`} style={{ marginRight: 6, ...(bulkThumb ? { animation: 'spin 1s linear infinite' } : {}) }} />
-            {bulkThumb ? '업데이트 중...' : '썸네일 일괄 업데이트'}
+            {bulkThumb ? '업데이트 중...' : '레퍼런스 썸네일'}
+          </button>
+          <button className="btn btn-ghost" onClick={handleBulkNewsThumbnail} disabled={bulkNewsThumb}>
+            <i className={`ti ${bulkNewsThumb ? 'ti-loader-2' : 'ti-news'}`} style={{ marginRight: 6, ...(bulkNewsThumb ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            {bulkNewsThumb ? '업데이트 중...' : '뉴스 썸네일'}
           </button>
           <Link href="/admin/new/study" className="btn btn-ghost">+ 스터디룸</Link>
           <Link href="/admin/new/tool" className="btn btn-ghost">+ 툴</Link>
