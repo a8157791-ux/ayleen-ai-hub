@@ -22,38 +22,31 @@ export default async function HomePage() {
       <div className="page-hero">
         <div className="hero-eyebrow">Daily Digest</div>
         <h1 className="hero-title">오늘의 <b>AI</b> 트렌드</h1>
-        <div className="hero-meta">
-          데이터베이스 연결 정보가 없습니다. `DATABASE_URL` 환경 변수를 설정해주세요.
-        </div>
+        <div className="hero-meta">데이터베이스 연결 정보가 없습니다. DATABASE_URL 환경 변수를 설정해주세요.</div>
       </div>
     )
   }
 
-  let news = []
-  let studies = []
-  let statNews = 0
-  let statStudy = 0
-  let statPrompts = 0
-  let statSaved = 0
+  let news: any[] = []
+  let studies: any[] = []
+  let statNews = 0, statStudy = 0, statSaved = 0, statRef = 0
 
   try {
-    ;[news, studies, statNews, statStudy, statPrompts, statSaved] = await Promise.all([
-    prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
-    prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
-    prisma.aiNews.count(),
-    prisma.studyNote.count({ where: { published: true } }),
-    prisma.promptItem.count({ where: { published: true } }),
-    prisma.savedLink.count(),
-  ])
+    ;[news, studies, statNews, statStudy, statSaved, statRef] = await Promise.all([
+      prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
+      prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
+      prisma.aiNews.count(),
+      prisma.studyNote.count({ where: { published: true } }),
+      prisma.savedLink.count(),
+      prisma.reference.count(),
+    ])
   } catch (error) {
     console.error('Home page DB error:', error)
     return (
       <div className="page-hero">
         <div className="hero-eyebrow">Daily Digest</div>
         <h1 className="hero-title">데이터베이스 연결에 실패했습니다</h1>
-        <div className="hero-meta">
-          로컬 DB 또는 `DATABASE_URL` 설정을 확인해주세요.
-        </div>
+        <div className="hero-meta">로컬 DB 또는 DATABASE_URL 설정을 확인해주세요.</div>
       </div>
     )
   }
@@ -68,6 +61,7 @@ export default async function HomePage() {
         <div className="hero-meta">{today} · {statNews}건 수집됨</div>
       </div>
 
+      {/* Stats — 프롬프트 제거, 레퍼런스 추가 */}
       <div className="stats-row">
         <div className="stat-card">
           <div className="stat-label">수집 뉴스</div>
@@ -80,17 +74,18 @@ export default async function HomePage() {
           <div className="stat-desc">누적 학습 기록</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">프롬프트</div>
-          <div className="stat-value">{statPrompts}</div>
-          <div className="stat-desc">보관된 프롬프트</div>
-        </div>
-        <div className="stat-card">
           <div className="stat-label">저장한 글</div>
           <div className="stat-value">{statSaved}</div>
           <div className="stat-desc">북마크 아이템</div>
         </div>
+        <div className="stat-card">
+          <div className="stat-label">레퍼런스</div>
+          <div className="stat-value">{statRef}</div>
+          <div className="stat-desc">참고 사이트</div>
+        </div>
       </div>
 
+      {/* 티커 */}
       {news.length > 0 && (
         <div className="ticker-wrap" aria-hidden="true">
           <div className="ticker-inner">
@@ -106,13 +101,12 @@ export default async function HomePage() {
         </div>
       )}
 
+      {/* 오늘의 AI 뉴스 */}
       <section className="aihub-section">
         <div className="sec-hd">
           <h2 className="sec-title">오늘의 AI 뉴스</h2>
           <span className="sec-count">{statNews}건</span>
-          <Link href="/news" className="sec-more">
-            전체 보기 <i className="ti ti-arrow-right" />
-          </Link>
+          <Link href="/news" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
         </div>
         <div className="news-list">
           {news.slice(0, 7).map((item, i) => {
@@ -124,9 +118,7 @@ export default async function HomePage() {
                 <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
                 <div className="news-body">
                   {item.category && (
-                    <div className={`news-cat cat-${item.category}`}>
-                      {catLabel[item.category] ?? item.category}
-                    </div>
+                    <div className={`news-cat cat-${item.category}`}>{catLabel[item.category] ?? item.category}</div>
                   )}
                   <div className="news-title">{displayTitle}</div>
                   {(item as any).titleKo && item.title !== (item as any).titleKo && (
@@ -151,24 +143,22 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* 최근 스터디룸 */}
       {studies.length > 0 && (
         <section className="aihub-section">
           <div className="sec-hd">
             <h2 className="sec-title">최근 스터디룸</h2>
             <span className="sec-count">총 {statStudy}건</span>
-            <Link href="/study" className="sec-more">
-              전체 보기 <i className="ti ti-arrow-right" />
-            </Link>
+            <Link href="/study" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
           </div>
           <div className="study-grid">
             {studies.map(note => (
               <Link key={note.id} href={`/study/${note.id}`} className="study-card">
                 <div className="study-thumb">
-                  {note.mediaUrl ? (
-                    <img src={note.mediaUrl} alt="" loading="lazy" />
-                  ) : (
-                    <i className="ti ti-photo-ai" style={{ fontSize: 20, color: 'var(--color-indigo)', opacity: 0.45 }} />
-                  )}
+                  {note.mediaUrl
+                    ? <img src={note.mediaUrl} alt="" loading="lazy" />
+                    : <i className="ti ti-photo-ai" style={{ fontSize: 20, color: 'var(--color-indigo)', opacity: 0.45 }} />
+                  }
                 </div>
                 <div className="study-body">
                   {note.tool && <div className="study-tool">{note.tool}</div>}
