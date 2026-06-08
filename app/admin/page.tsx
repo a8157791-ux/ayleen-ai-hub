@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -15,6 +15,41 @@ const TABS: { value: Tab; label: string }[] = [
   { value: 'reference', label: '레퍼런스' },
 ]
 
+const API_MAP: Record<Tab, string> = {
+  news: '/api/news?limit=100&sortBy=createdAt',
+  study: '/api/study',
+  tools: '/api/tools?admin=1',
+  saved: '/api/saved',
+  reference: '/api/reference',
+}
+
+// 스켈레톤 카드
+function SkeletonCard() {
+  return (
+    <div style={{
+      background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
+      borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12,
+    }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ height: 14, borderRadius: 4, background: 'var(--color-bg-2)', width: '60%', animation: 'skeleton-pulse 1.4s ease-in-out infinite' }} />
+        <div style={{ height: 12, borderRadius: 4, background: 'var(--color-bg-2)', width: '35%', animation: 'skeleton-pulse 1.4s ease-in-out 0.2s infinite' }} />
+      </div>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ width: 42, height: 26, borderRadius: 6, background: 'var(--color-bg-2)', animation: 'skeleton-pulse 1.4s ease-in-out infinite' }} />
+        <div style={{ width: 42, height: 26, borderRadius: 6, background: 'var(--color-bg-2)', animation: 'skeleton-pulse 1.4s ease-in-out 0.1s infinite' }} />
+      </div>
+    </div>
+  )
+}
+
+function SkeletonList() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {[0, 1, 2, 3, 4].map(i => <SkeletonCard key={i} />)}
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -23,12 +58,32 @@ export default function AdminPage() {
   const [translating, setTranslating] = useState(false)
   const [toast, setToast] = useState('')
 
-  const [newsList, setNewsList] = useState<any[]>([])
-  const [studyNotes, setStudyNotes] = useState<any[]>([])
-  const [tools, setTools] = useState<any[]>([])
-  const [savedLinks, setSavedLinks] = useState<any[]>([])
-  const [references, setReferences] = useState<any[]>([])
-  const [loaded, setLoaded] = useState<Set<Tab>>(new Set())
+  const [data, setData] = useState<Record<Tab, any[] | null>>({
+    news: null, study: null, tools: null, saved: null, reference: null,
+  })
+  const [loading, setLoading] = useState<Record<Tab, boolean>>({
+    news: false, study: false, tools: false, saved: false, reference: false,
+  })
+
+  // 탭 전환 시 자동 로드
+  useEffect(() => {
+    if (data[tab] !== null) return // 캐시 있으면 스킵
+    loadTab(tab)
+  }, [tab])
+
+  async function loadTab(t: Tab) {
+    setLoading(p => ({ ...p, [t]: true }))
+    try {
+      const res = await fetch(API_MAP[t])
+      const json = await res.json()
+      setData(p => ({ ...p, [t]: json }))
+    } catch {}
+    finally { setLoading(p => ({ ...p, [t]: false })) }
+  }
+
+  function invalidateTab(t: Tab) {
+    setData(p => ({ ...p, [t]: null }))
+  }
 
   if (status === 'loading') return null
   if (!session) { router.push('/admin/login'); return null }
@@ -38,37 +93,13 @@ export default function AdminPage() {
     setTimeout(() => setToast(''), 3500)
   }
 
-  async function loadTab(t: Tab) {
-    if (loaded.has(t)) return
-    const map: Record<Tab, string> = {
-      news: '/api/news?limit=100&sortBy=createdAt',
-      study: '/api/study',
-      tools: '/api/tools?admin=1',
-      saved: '/api/saved',
-      reference: '/api/reference',
-    }
-    try {
-      const res = await fetch(map[t])
-      const data = await res.json()
-      if (t === 'news') setNewsList(data)
-      else if (t === 'study') setStudyNotes(data)
-      else if (t === 'tools') setTools(data)
-      else if (t === 'saved') setSavedLinks(data)
-      else if (t === 'reference') setReferences(data)
-      setLoaded(prev => new Set([...prev, t]))
-    } catch {}
-  }
-
-  function handleTabChange(t: Tab) { setTab(t); loadTab(t) }
-
   async function handleCollect() {
     setCollecting(true)
     try {
       const res = await fetch('/api/news', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-      const data = await res.json()
-      showToast(`✅ ${data.created || 0}개 수집 완료`)
-      // 뉴스 탭 강제 리로드
-      setLoaded(prev => { const next = new Set(prev); next.delete('news'); return next })
+      const d = await res.json()
+      showToast(`✅ ${d.created || 0}개 수집 완료`)
+      invalidateTab('news')
     } catch { showToast('❌ 수집 중 오류 발생') }
     finally { setCollecting(false) }
   }
@@ -77,9 +108,9 @@ export default function AdminPage() {
     setTranslating(true)
     try {
       const res = await fetch('/api/news/translate', { method: 'POST' })
-      const data = await res.json()
-      showToast(`✅ ${data.translated || 0}개 번역 완료`)
-      setLoaded(prev => { const next = new Set(prev); next.delete('news'); return next })
+      const d = await res.json()
+      showToast(`✅ ${d.translated || 0}개 번역 완료`)
+      invalidateTab('news')
     } catch { showToast('❌ 번역 중 오류 발생') }
     finally { setTranslating(false) }
   }
@@ -87,7 +118,7 @@ export default function AdminPage() {
   async function handleDeleteNews(id: number) {
     if (!confirm('삭제하시겠습니까?')) return
     await fetch(`/api/news/${id}`, { method: 'DELETE' })
-    setNewsList(p => p.filter(i => i.id !== id))
+    setData(p => ({ ...p, news: (p.news ?? []).filter(i => i.id !== id) }))
   }
 
   async function handleDelete(type: Exclude<Tab, 'news'>, id: number) {
@@ -97,21 +128,17 @@ export default function AdminPage() {
       saved: `/api/saved/${id}`, reference: `/api/reference/${id}`,
     }
     await fetch(map[type], { method: 'DELETE' })
-    if (type === 'study') setStudyNotes(p => p.filter(i => i.id !== id))
-    else if (type === 'tools') setTools(p => p.filter(i => i.id !== id))
-    else if (type === 'saved') setSavedLinks(p => p.filter(i => i.id !== id))
-    else if (type === 'reference') setReferences(p => p.filter(i => i.id !== id))
+    setData(p => ({ ...p, [type]: (p[type] ?? []).filter((i: any) => i.id !== id) }))
   }
 
-  // 버튼 스타일
   const editBtn: React.CSSProperties = {
-    fontSize: 12, padding: '4px 10px', borderRadius: 6,
+    fontSize: 12, padding: '5px 11px', borderRadius: 6,
     border: '1px solid var(--color-border-2)',
     color: 'var(--color-text)', background: 'transparent',
     textDecoration: 'none', whiteSpace: 'nowrap', cursor: 'pointer',
   }
   const delBtn: React.CSSProperties = {
-    fontSize: 12, padding: '4px 10px', borderRadius: 6,
+    fontSize: 12, padding: '5px 11px', borderRadius: 6,
     border: '1px solid rgba(239,68,68,0.3)',
     color: '#f87171', background: 'transparent',
     whiteSpace: 'nowrap', cursor: 'pointer',
@@ -131,12 +158,12 @@ export default function AdminPage() {
             {title || '(제목 없음)'}
           </div>
           {sub && (
-            <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {sub}
             </div>
           )}
           {badge && (
-            <span style={{ display: 'inline-block', marginTop: 4, fontSize: 10, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
+            <span style={{ display: 'inline-block', marginTop: 5, fontSize: 12, fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
               {badge}
             </span>
           )}
@@ -149,13 +176,23 @@ export default function AdminPage() {
     )
   }
 
+  const currentData = data[tab]
+  const isLoading = loading[tab]
+
   return (
     <div>
+      <style>{`
+        @keyframes skeleton-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
+
       {toast && (
         <div style={{
           position: 'fixed', top: 70, right: 16, zIndex: 999,
           background: 'var(--color-bg-2)', border: '1px solid var(--color-border-2)',
-          borderRadius: 10, padding: '10px 16px', fontSize: 13, color: 'var(--color-text)',
+          borderRadius: 10, padding: '12px 18px', fontSize: 13, color: 'var(--color-text)',
           boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
         }}>
           {toast}
@@ -172,11 +209,11 @@ export default function AdminPage() {
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button className="btn btn-primary" onClick={handleCollect} disabled={collecting}>
-            <i className="ti ti-refresh" style={{ marginRight: 6 }} />
+            <i className={`ti ${collecting ? 'ti-loader-2' : 'ti-refresh'}`} style={{ marginRight: 6, ...(collecting ? { animation: 'spin 1s linear infinite' } : {}) }} />
             {collecting ? '수집 중...' : 'AI 뉴스 지금 수집'}
           </button>
           <button className="btn btn-ghost" onClick={handleTranslate} disabled={translating}>
-            <i className="ti ti-language" style={{ marginRight: 6 }} />
+            <i className={`ti ${translating ? 'ti-loader-2' : 'ti-language'}`} style={{ marginRight: 6, ...(translating ? { animation: 'spin 1s linear infinite' } : {}) }} />
             {translating ? '번역 중...' : '번역 보충'}
           </button>
           <Link href="/admin/new/study" className="btn btn-ghost">+ 스터디룸</Link>
@@ -189,27 +226,34 @@ export default function AdminPage() {
       {/* 탭 */}
       <div style={{ display: 'flex', gap: 0, marginBottom: 16, borderBottom: '1px solid var(--color-border)', overflowX: 'auto' }}>
         {TABS.map(t => (
-          <button key={t.value} onClick={() => handleTabChange(t.value)} style={{
+          <button key={t.value} onClick={() => setTab(t.value)} style={{
             padding: '8px 16px', border: 'none', background: 'transparent',
             color: tab === t.value ? 'var(--color-blue)' : 'var(--color-text-3)',
             borderBottom: tab === t.value ? '2px solid var(--color-blue)' : '2px solid transparent',
             fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
           }}>
             {t.label}
+            {data[t.value] !== null && (
+              <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
+                {data[t.value]?.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      {/* 콘텐츠 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* 로딩 스켈레톤 */}
+      {isLoading && <SkeletonList />}
 
-        {/* AI 뉴스 탭 */}
-        {tab === 'news' && (
-          newsList.length === 0
+      {/* 콘텐츠 */}
+      {!isLoading && currentData !== null && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+          {tab === 'news' && (currentData.length === 0
             ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>
-                탭을 눌러 불러오기 (수집 후 목록이 나타납니다)
+                아직 수집된 뉴스가 없습니다.
               </div>
-            : newsList.map(n => {
+            : currentData.map(n => {
                 const title = n.titleKo || n.title
                 const hasKo = n.titleKo && n.titleKo !== n.title
                 return (
@@ -219,27 +263,27 @@ export default function AdminPage() {
                     display: 'flex', alignItems: 'flex-start', gap: 12,
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: 13, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>
                         {title}
                       </div>
                       {hasKo && (
-                        <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>
                           {n.title}
                         </div>
                       )}
-                      <div style={{ display: 'flex', gap: 8, marginTop: 4, alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                         {n.category && (
-                          <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', padding: '1px 6px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
+                          <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
                             {n.category}
                           </span>
                         )}
                         {n.source && (
-                          <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontSize: 12, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>
                             {n.source}
                           </span>
                         )}
                         {!n.titleKo && (
-                          <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: 'rgba(251,191,36,0.15)', color: 'var(--color-amber)', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontSize: 12, padding: '2px 7px', borderRadius: 4, background: 'rgba(251,191,36,0.15)', color: 'var(--color-amber)', fontFamily: 'var(--font-mono)' }}>
                             미번역
                           </span>
                         )}
@@ -252,51 +296,52 @@ export default function AdminPage() {
                   </div>
                 )
               })
-        )}
+          )}
 
-        {tab === 'study' && (
-          studyNotes.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>탭을 눌러 불러오기</div>
-            : studyNotes.map(n => (
+          {tab === 'study' && (currentData.length === 0
+            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 스터디룸이 없습니다.</div>
+            : currentData.map(n => (
               <ItemCard key={n.id} title={n.title} sub={n.siteUrl || n.mediaUrl || ''}
                 badge={n.category} editHref={`/admin/edit/study/${n.id}`}
                 onDelete={() => handleDelete('study', n.id)} />
             ))
-        )}
+          )}
 
-        {tab === 'tools' && (
-          tools.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>탭을 눌러 불러오기</div>
-            : tools.map(t => (
+          {tab === 'tools' && (currentData.length === 0
+            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 툴이 없습니다.</div>
+            : currentData.map(t => (
               <ItemCard key={t.id} title={t.name} sub={t.url}
                 badge={[t.category, t.pricing].filter(Boolean).join(' · ')}
                 editHref={`/admin/edit/tools/${t.id}`}
                 onDelete={() => handleDelete('tools', t.id)} />
             ))
-        )}
+          )}
 
-        {tab === 'saved' && (
-          savedLinks.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>탭을 눌러 불러오기</div>
-            : savedLinks.map(l => (
+          {tab === 'saved' && (currentData.length === 0
+            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>저장한 글이 없습니다.</div>
+            : currentData.map(l => (
               <ItemCard key={l.id} title={l.title || l.url} sub={l.url}
                 badge={l.linkType}
                 editHref={`/admin/edit/saved/${l.id}`}
                 onDelete={() => handleDelete('saved', l.id)} />
             ))
-        )}
+          )}
 
-        {tab === 'reference' && (
-          references.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>탭을 눌러 불러오기</div>
-            : references.map(r => (
+          {tab === 'reference' && (currentData.length === 0
+            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 레퍼런스가 없습니다.</div>
+            : currentData.map(r => (
               <ItemCard key={r.id} title={r.title || r.url} sub={r.url}
                 badge={[r.refType, r.category].filter(Boolean).join(' · ')}
                 editHref={`/admin/edit/reference/${r.id}`}
                 onDelete={() => handleDelete('reference', r.id)} />
             ))
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   )
 }
