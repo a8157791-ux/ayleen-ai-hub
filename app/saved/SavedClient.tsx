@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 const LINK_TYPE_LABELS: Record<string, string> = {
   youtube: 'YouTube',
@@ -22,9 +21,9 @@ const TABS = [
 
 type SavedLink = {
   id: number
-  title: string
+  title: string | null
   url: string
-  linkType: string
+  linkType: string | null
   category: string | null
   memo: string | null
   createdAt: Date | string
@@ -87,7 +86,6 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
                 borderRadius:12, padding:'14px 16px',
                 transition:'border-color 0.15s',
               }}
-              className="saved-link-card"
             >
               <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12}}>
                 <div style={{flex:1, minWidth:0}}>
@@ -96,19 +94,19 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
                     overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
                   }}>
                     {link.linkType === 'keep' && <span style={{marginRight:6}}>📌</span>}
-                    {link.title}
+                    {link.title || link.url}
                   </div>
                   {link.memo && (
                     <div style={{fontSize:12, color:'var(--color-text-2)', marginTop:4, lineHeight:1.5}}>
                       {link.memo}
                     </div>
                   )}
-                  <div style={{display:'flex', alignItems:'center', gap:8, marginTop:6}}>
+                  <div style={{marginTop:6}}>
                     <span style={{
                       fontSize:10, fontFamily:'var(--font-mono)',
                       color:'var(--color-text-3)',
                       overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                      maxWidth:200,
+                      display:'block', maxWidth:'100%',
                     }}>
                       {link.url}
                     </span>
@@ -121,7 +119,7 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
                   color: link.linkType === 'keep' ? 'var(--color-blue)' : 'var(--color-text-3)',
                   whiteSpace:'nowrap', flexShrink:0,
                 }}>
-                  {LINK_TYPE_LABELS[link.linkType] || link.linkType}
+                  {link.linkType ? (LINK_TYPE_LABELS[link.linkType] || link.linkType) : ''}
                 </span>
               </div>
             </a>
