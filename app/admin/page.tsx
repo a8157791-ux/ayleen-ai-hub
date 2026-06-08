@@ -49,6 +49,11 @@ function SkeletonList() {
   )
 }
 
+// 한국어 포함 여부 감지
+function hasKorean(text: string) {
+  return /[\uAC00-\uD7AF]/.test(text)
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -63,6 +68,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<Record<Tab, boolean>>({
     news: false, study: false, tools: false, saved: false, reference: false,
   })
+  // 단건 번역 중인 뉴스 ID set
+  const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     if (data[tab] !== null) return
@@ -111,6 +118,33 @@ export default function AdminPage() {
       invalidateTab('news')
     } catch { showToast('❌ 번역 중 오류 발생') }
     finally { setTranslating(false) }
+  }
+
+  // 단건 번역
+  async function handleTranslateOne(newsId: number) {
+    if (translatingIds.has(newsId)) return
+    setTranslatingIds(prev => new Set(prev).add(newsId))
+    try {
+      const res = await fetch(`/api/news/${newsId}`, { method: 'PUT' })
+      if (res.ok) {
+        const d = await res.json()
+        // 로컬 state 업데이트 (재로드 없이)
+        setData(prev => ({
+          ...prev,
+          news: (prev.news ?? []).map(n =>
+            n.id === newsId
+              ? { ...n, titleKo: d.titleKo, summaryKo: d.summaryKo }
+              : n
+          ),
+        }))
+        showToast('✅ 번역 완료')
+      } else {
+        showToast('❌ 번역 실패')
+      }
+    } catch { showToast('❌ 번역 중 오류') }
+    finally {
+      setTranslatingIds(prev => { const next = new Set(prev); next.delete(newsId); return next })
+    }
   }
 
   async function handleDeleteNews(id: number) {
@@ -180,10 +214,8 @@ export default function AdminPage() {
   return (
     <div>
       <style>{`
-        @keyframes skeleton-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
+        @keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
 
       {toast && (
@@ -203,7 +235,6 @@ export default function AdminPage() {
         <p style={{ color: 'var(--color-text-3)', fontSize: 13, marginTop: 4 }}>{session.user?.email}</p>
       </div>
 
-      {/* 액션 버튼 — 저장한 글 추가 버튼 제거 (북마크 전용) */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button className="btn btn-primary" onClick={handleCollect} disabled={collecting}>
@@ -251,6 +282,11 @@ export default function AdminPage() {
             : currentData.map(n => {
                 const title = n.titleKo || n.title
                 const hasKo = n.titleKo && n.titleKo !== n.title
+                // 한국어 원문이면 미번역 뱃지 숨김
+                const isKoreanOriginal = hasKorean(n.title)
+                const needsTranslation = !n.titleKo && !isKoreanOriginal
+                const isTranslatingThis = translatingIds.has(n.id)
+
                 return (
                   <div key={n.id} style={{
                     background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
@@ -277,9 +313,32 @@ export default function AdminPage() {
                             {n.source}
                           </span>
                         )}
-                        {!n.titleKo && (
-                          <span style={{ fontSize: 12, padding: '2px 7px', borderRadius: 4, background: 'rgba(251,191,36,0.15)', color: 'var(--color-amber)', fontFamily: 'var(--font-mono)' }}>
-                            미번역
+                        {/* 영문 기사만 번역 버튼 표시 */}
+                        {needsTranslation && (
+                          <button
+                            onClick={() => handleTranslateOne(n.id)}
+                            disabled={isTranslatingThis}
+                            style={{
+                              fontSize: 11, padding: '2px 9px', borderRadius: 4,
+                              border: '1px solid rgba(251,191,36,0.4)',
+                              background: isTranslatingThis ? 'rgba(251,191,36,0.1)' : 'transparent',
+                              color: 'var(--color-amber)',
+                              cursor: isTranslatingThis ? 'default' : 'pointer',
+                              fontFamily: 'var(--font-mono)',
+                              display: 'flex', alignItems: 'center', gap: 4,
+                              transition: 'background 0.15s',
+                            }}
+                          >
+                            {isTranslatingThis
+                              ? <><i className="ti ti-loader-2" style={{ fontSize: 11, animation: 'spin 1s linear infinite' }} /> 번역 중</>
+                              : <><i className="ti ti-language" style={{ fontSize: 11 }} /> 번역하기</>
+                            }
+                          </button>
+                        )}
+                        {/* 한국어 원문 표시 */}
+                        {isKoreanOriginal && !n.titleKo && (
+                          <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, background: 'rgba(52,211,153,0.1)', color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
+                            한국어
                           </span>
                         )}
                       </div>
@@ -312,7 +371,6 @@ export default function AdminPage() {
             ))
           )}
 
-          {/* 저장한 글 — 삭제만 가능, 편집 버튼 없음 */}
           {tab === 'saved' && (currentData.length === 0
             ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>저장한 글이 없습니다.</div>
             : currentData.map(l => (
@@ -333,13 +391,8 @@ export default function AdminPage() {
                       </span>
                     )}
                     {l.category && (
-                      <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>
-                        {l.category}
-                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>{l.category}</span>
                     )}
-                    <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
-                      {l.url}
-                    </span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -361,10 +414,6 @@ export default function AdminPage() {
           )}
         </div>
       )}
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   )
 }
