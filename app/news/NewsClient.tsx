@@ -104,7 +104,7 @@ export default function NewsClient({ news, total }: { news: any[], total: number
                   </div>
                 )}
                 {displaySummary && (
-                  <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {displaySummary}
                   </div>
                 )}
