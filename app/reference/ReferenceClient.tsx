@@ -103,20 +103,23 @@ export default function ReferenceClient({
             <div key={ref.id} style={{
               background: 'var(--color-bg-2)', border: '1px solid var(--color-border)',
               borderRadius: 10, overflow: 'hidden',
+              display: 'flex', flexDirection: 'row', alignItems: 'stretch',
             }}>
-              {/* 썸네일 */}
+              {/* 좌측 썸네일 */}
               {ref.imageUrl && (
-                <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                <a href={ref.url} target="_blank" rel="noopener noreferrer"
+                  style={{ flexShrink: 0, display: 'block', width: 120 }}>
                   <img
                     src={ref.imageUrl}
                     alt=""
-                    style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    style={{ width: 120, height: '100%', minHeight: 80, objectFit: 'cover', display: 'block' }}
+                    onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}
                   />
                 </a>
               )}
 
-              <div style={{ padding: '14px 16px' }}>
+              {/* 우측 본문 */}
+              <div style={{ flex: 1, minWidth: 0, padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   {ref.faviconUrl && (
                     <img src={ref.faviconUrl} width={18} height={18} alt=""
@@ -153,7 +156,7 @@ export default function ReferenceClient({
                       )}
                     </div>
                     {ref.desc && (
-                      <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5 }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {ref.desc}
                       </div>
                     )}

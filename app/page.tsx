@@ -123,6 +123,13 @@ export default async function HomePage() {
             return (
               <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
                 <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
+                {(item as any).imageUrl && (
+                  <img
+                    src={(item as any).imageUrl}
+                    alt=""
+                    style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
+                  />
+                )}
                 <div className="news-body">
                   {item.category && (
                     <div className={`news-cat cat-${item.category}`}>{catLabel[item.category] ?? item.category}</div>
@@ -134,7 +141,7 @@ export default async function HomePage() {
                     </div>
                   )}
                   {displaySummary && (
-                    <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {displaySummary}
                     </div>
                   )}
@@ -150,7 +157,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 레퍼런스 — onMouseEnter/Leave 제거, CSS hover 클래스 사용 */}
+      {/* 레퍼런스 */}
       {refs.length > 0 && (
         <section className="aihub-section">
           <div className="sec-hd">
@@ -161,8 +168,16 @@ export default async function HomePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {refs.map(ref => (
               <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer"
-                className="home-ref-item">
-                {ref.faviconUrl && (
+                className="home-ref-item" style={{ overflow: 'hidden' }}>
+                {/* 썸네일 있으면 좌측에 표시 */}
+                {(ref as any).imageUrl && (
+                  <img
+                    src={(ref as any).imageUrl}
+                    alt=""
+                    style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
+                  />
+                )}
+                {!(ref as any).imageUrl && ref.faviconUrl && (
                   <img src={ref.faviconUrl} width={16} height={16} alt=""
                     style={{ borderRadius: 3, flexShrink: 0 }} />
                 )}

@@ -49,7 +49,6 @@ function SkeletonList() {
   )
 }
 
-// 한국어 포함 여부 감지
 function hasKorean(text: string) {
   return /[\uAC00-\uD7AF]/.test(text)
 }
@@ -60,6 +59,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('news')
   const [collecting, setCollecting] = useState(false)
   const [translating, setTranslating] = useState(false)
+  const [bulkThumb, setBulkThumb] = useState(false)
   const [toast, setToast] = useState('')
 
   const [data, setData] = useState<Record<Tab, any[] | null>>({
@@ -68,7 +68,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState<Record<Tab, boolean>>({
     news: false, study: false, tools: false, saved: false, reference: false,
   })
-  // 단건 번역 중인 뉴스 ID set
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
@@ -120,7 +119,17 @@ export default function AdminPage() {
     finally { setTranslating(false) }
   }
 
-  // 단건 번역
+  async function handleBulkThumbnail() {
+    setBulkThumb(true)
+    try {
+      const res = await fetch('/api/reference/bulk-thumbnail', { method: 'POST' })
+      const d = await res.json()
+      showToast(`✅ ${d.updated || 0}개 썸네일 업데이트 완료`)
+      invalidateTab('reference')
+    } catch { showToast('❌ 썸네일 업데이트 오류') }
+    finally { setBulkThumb(false) }
+  }
+
   async function handleTranslateOne(newsId: number) {
     if (translatingIds.has(newsId)) return
     setTranslatingIds(prev => new Set(prev).add(newsId))
@@ -128,13 +137,10 @@ export default function AdminPage() {
       const res = await fetch(`/api/news/${newsId}`, { method: 'PUT' })
       if (res.ok) {
         const d = await res.json()
-        // 로컬 state 업데이트 (재로드 없이)
         setData(prev => ({
           ...prev,
           news: (prev.news ?? []).map(n =>
-            n.id === newsId
-              ? { ...n, titleKo: d.titleKo, summaryKo: d.summaryKo }
-              : n
+            n.id === newsId ? { ...n, titleKo: d.titleKo, summaryKo: d.summaryKo } : n
           ),
         }))
         showToast('✅ 번역 완료')
@@ -245,6 +251,10 @@ export default function AdminPage() {
             <i className={`ti ${translating ? 'ti-loader-2' : 'ti-language'}`} style={{ marginRight: 6, ...(translating ? { animation: 'spin 1s linear infinite' } : {}) }} />
             {translating ? '번역 중...' : '번역 보충'}
           </button>
+          <button className="btn btn-ghost" onClick={handleBulkThumbnail} disabled={bulkThumb}>
+            <i className={`ti ${bulkThumb ? 'ti-loader-2' : 'ti-photo'}`} style={{ marginRight: 6, ...(bulkThumb ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            {bulkThumb ? '업데이트 중...' : '썸네일 일괄 업데이트'}
+          </button>
           <Link href="/admin/new/study" className="btn btn-ghost">+ 스터디룸</Link>
           <Link href="/admin/new/tool" className="btn btn-ghost">+ 툴</Link>
           <Link href="/admin/new/reference" className="btn btn-ghost">+ 레퍼런스</Link>
@@ -282,11 +292,9 @@ export default function AdminPage() {
             : currentData.map(n => {
                 const title = n.titleKo || n.title
                 const hasKo = n.titleKo && n.titleKo !== n.title
-                // 한국어 원문이면 미번역 뱃지 숨김
                 const isKoreanOriginal = hasKorean(n.title)
                 const needsTranslation = !n.titleKo && !isKoreanOriginal
                 const isTranslatingThis = translatingIds.has(n.id)
-
                 return (
                   <div key={n.id} style={{
                     background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
@@ -313,7 +321,6 @@ export default function AdminPage() {
                             {n.source}
                           </span>
                         )}
-                        {/* 영문 기사만 번역 버튼 표시 */}
                         {needsTranslation && (
                           <button
                             onClick={() => handleTranslateOne(n.id)}
@@ -335,7 +342,6 @@ export default function AdminPage() {
                             }
                           </button>
                         )}
-                        {/* 한국어 원문 표시 */}
                         {isKoreanOriginal && !n.titleKo && (
                           <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, background: 'rgba(52,211,153,0.1)', color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
                             한국어
