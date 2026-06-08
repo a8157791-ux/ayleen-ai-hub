@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { Sidebar } from '@/components/Sidebar'
+import Sidebar from '@/components/Sidebar'
 import Topbar from '@/components/Topbar'
 import Providers from '@/components/Providers'
 
