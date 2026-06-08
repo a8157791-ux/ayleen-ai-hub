@@ -182,7 +182,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .news-num {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3); min-width: 20px; padding-top: 2px; flex-shrink: 0}
 .news-body {flex: 1; min-width: 0}
 .news-cat {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px}
-.news-title {font-family: var(--font-serif); font-size: 16px; font-weight: 400; line-height: 1.5; color: var(--color-text); transition: color var(--duration)}
+.news-title {font-family: var(--font-sans); font-size: 16px; font-weight: 400; line-height: 1.5; color: var(--color-text); transition: color var(--duration)}
 .news-item:hover .news-title {color: var(--color-blue)}
 .news-footer {display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
 .news-source::before {content: '— '}
@@ -203,7 +203,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .card-thumb img {position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover}
 .card-body {padding: 12px}
 .card-cat {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px}
-.card-title {font-family: var(--font-serif); font-size: 14px; line-height: 1.5; color: var(--color-text); margin-bottom: 8px}
+.card-title {font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--color-text); margin-bottom: 8px}
 .card-footer {display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
 .card-footer-dot {width: 2px; height: 2px; border-radius: 50%; background: var(--color-text-3)}
 
@@ -215,7 +215,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .study-thumb img {position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover}
 .study-body {padding: 10px 12px; flex: 1; min-width: 0}
 .study-tool {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-indigo); margin-bottom: 3px}
-.study-title {font-family: var(--font-serif); font-size: 13px; line-height: 1.45; color: var(--color-text); margin-bottom: 5px}
+.study-title {font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--color-text); margin-bottom: 5px}
 .study-date {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
 
 /* ── Saved link item (CSS hover, no JS needed) ── */
