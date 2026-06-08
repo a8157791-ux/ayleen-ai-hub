@@ -18,42 +18,46 @@ function timeAgo(date: Date): string {
 
 export default function NewsClient({ news, total }: { news: any[], total: number }) {
   const [cat, setCat] = useState<string | null>(null)
+  // itemId → savedLink DB id
   const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
-  const [loadingId, setLoadingId] = useState<number | null>(null)
 
   const filtered = cat ? news.filter(item => item.category === cat) : news
 
   async function handleToggle(item: any, e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if (loadingId === item.id) return
-    setLoadingId(item.id)
-    try {
-      const savedId = savedMap.get(item.id)
-      if (savedId) {
-        const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
-        if (res.ok) {
+
+    const savedId = savedMap.get(item.id)
+
+    // ✅ 낙관적 업데이트 — UI 즉시 반응
+    if (savedId) {
+      setSavedMap(prev => { const next = new Map(prev); next.delete(item.id); return next })
+      fetch(`/api/saved/${savedId}`, { method: 'DELETE' }).catch(() => {
+        // 실패 시 롤백
+        setSavedMap(prev => new Map(prev).set(item.id, savedId))
+      })
+    } else {
+      // 임시 ID로 즉시 저장 상태 표시
+      const tempId = -Date.now()
+      setSavedMap(prev => new Map(prev).set(item.id, tempId))
+      fetch('/api/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: item.titleKo || item.title,
+          url: item.url,
+          linkType: 'news',
+          category: item.category || null,
+          memo: null,
+        }),
+      })
+        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(data => setSavedMap(prev => new Map(prev).set(item.id, data.id)))
+        .catch(() => {
+          // 실패 시 롤백
           setSavedMap(prev => { const next = new Map(prev); next.delete(item.id); return next })
-        }
-      } else {
-        const res = await fetch('/api/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: item.titleKo || item.title,
-            url: item.url,
-            linkType: 'news',
-            category: item.category || null,
-            memo: null,
-          }),
         })
-        if (res.ok) {
-          const data = await res.json()
-          setSavedMap(prev => new Map(prev).set(item.id, data.id))
-        }
-      }
-    } catch {}
-    finally { setLoadingId(null) }
+    }
   }
 
   return (
@@ -84,7 +88,6 @@ export default function NewsClient({ news, total }: { news: any[], total: number
           const displayTitle = item.titleKo || item.title
           const displaySummary = item.summaryKo || item.summary
           const isSaved = savedMap.has(item.id)
-          const isLoading = loadingId === item.id
           return (
             <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
               <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
@@ -111,12 +114,7 @@ export default function NewsClient({ news, total }: { news: any[], total: number
                   {isNew && <span className="badge badge-new">NEW</span>}
                 </div>
               </div>
-              <HeartButton
-                isSaved={isSaved}
-                isLoading={isLoading}
-                size={17}
-                onClick={(e) => handleToggle(item, e)}
-              />
+              <HeartButton isSaved={isSaved} size={17} onClick={(e) => handleToggle(item, e)} />
             </a>
           )
         })}

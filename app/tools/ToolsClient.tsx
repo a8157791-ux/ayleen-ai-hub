@@ -31,41 +31,41 @@ type Tool = {
 export default function ToolsClient({ tools }: { tools: Tool[] }) {
   const [cat, setCat] = useState<string | null>(null)
   const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
-  const [loadingId, setLoadingId] = useState<number | null>(null)
 
   const filtered = cat ? tools.filter(t => t.category === cat) : tools
 
   async function handleToggle(tool: Tool, e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if (loadingId === tool.id || !tool.url) return
-    setLoadingId(tool.id)
-    try {
-      const savedId = savedMap.get(tool.id)
-      if (savedId) {
-        const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
-        if (res.ok) {
+    if (!tool.url) return
+
+    const savedId = savedMap.get(tool.id)
+
+    if (savedId) {
+      setSavedMap(prev => { const next = new Map(prev); next.delete(tool.id); return next })
+      fetch(`/api/saved/${savedId}`, { method: 'DELETE' }).catch(() => {
+        setSavedMap(prev => new Map(prev).set(tool.id, savedId))
+      })
+    } else {
+      const tempId = -Date.now()
+      setSavedMap(prev => new Map(prev).set(tool.id, tempId))
+      fetch('/api/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: tool.name,
+          url: tool.url,
+          linkType: 'tool',
+          category: tool.category || null,
+          memo: tool.review || null,
+        }),
+      })
+        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(data => setSavedMap(prev => new Map(prev).set(tool.id, data.id)))
+        .catch(() => {
           setSavedMap(prev => { const next = new Map(prev); next.delete(tool.id); return next })
-        }
-      } else {
-        const res = await fetch('/api/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: tool.name,
-            url: tool.url,
-            linkType: 'tool',
-            category: tool.category || null,
-            memo: tool.review || null,
-          }),
         })
-        if (res.ok) {
-          const data = await res.json()
-          setSavedMap(prev => new Map(prev).set(tool.id, data.id))
-        }
-      }
-    } catch {}
-    finally { setLoadingId(null) }
+    }
   }
 
   return (
@@ -107,7 +107,6 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
         {filtered.map(tool => {
           const favicon = getFaviconUrl(tool.url)
           const isSaved = savedMap.has(tool.id)
-          const isLoading = loadingId === tool.id
           return (
             <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -121,12 +120,7 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
                   </span>
                 )}
                 {tool.url && (
-                  <HeartButton
-                    isSaved={isSaved}
-                    isLoading={isLoading}
-                    size={15}
-                    onClick={(e) => handleToggle(tool, e)}
-                  />
+                  <HeartButton isSaved={isSaved} size={15} onClick={(e) => handleToggle(tool, e)} />
                 )}
               </div>
               {tool.review && (

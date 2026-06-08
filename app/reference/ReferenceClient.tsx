@@ -31,39 +31,37 @@ type Reference = {
 export default function ReferenceClient({ refs }: { refs: Reference[] }) {
   const [activeTab, setActiveTab] = useState('all')
   const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
-  const [loadingId, setLoadingId] = useState<number | null>(null)
 
   const filtered = activeTab === 'all' ? refs : refs.filter(r => r.refType === activeTab)
 
   async function handleToggle(ref: Reference) {
-    if (loadingId === ref.id) return
-    setLoadingId(ref.id)
-    try {
-      const savedId = savedMap.get(ref.id)
-      if (savedId) {
-        const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
-        if (res.ok) {
+    const savedId = savedMap.get(ref.id)
+
+    if (savedId) {
+      setSavedMap(prev => { const next = new Map(prev); next.delete(ref.id); return next })
+      fetch(`/api/saved/${savedId}`, { method: 'DELETE' }).catch(() => {
+        setSavedMap(prev => new Map(prev).set(ref.id, savedId))
+      })
+    } else {
+      const tempId = -Date.now()
+      setSavedMap(prev => new Map(prev).set(ref.id, tempId))
+      fetch('/api/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: ref.title,
+          url: ref.url,
+          linkType: 'keep',
+          category: ref.refType,
+          memo: ref.desc || null,
+        }),
+      })
+        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(data => setSavedMap(prev => new Map(prev).set(ref.id, data.id)))
+        .catch(() => {
           setSavedMap(prev => { const next = new Map(prev); next.delete(ref.id); return next })
-        }
-      } else {
-        const res = await fetch('/api/saved', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: ref.title,
-            url: ref.url,
-            linkType: 'keep',
-            category: ref.refType,
-            memo: ref.desc || null,
-          }),
         })
-        if (res.ok) {
-          const data = await res.json()
-          setSavedMap(prev => new Map(prev).set(ref.id, data.id))
-        }
-      }
-    } catch {}
-    finally { setLoadingId(null) }
+    }
   }
 
   return (
@@ -143,7 +141,6 @@ export default function ReferenceClient({ refs }: { refs: Reference[] }) {
                     </span>
                     <HeartButton
                       isSaved={savedMap.has(ref.id)}
-                      isLoading={loadingId === ref.id}
                       size={16}
                       onClick={() => handleToggle(ref)}
                     />
