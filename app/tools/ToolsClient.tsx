@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import HeartButton from '@/components/HeartButton'
 
 const catLabel: Record<string, string> = {
   image: 'Image', video: 'Video', '3d': '3D', code: 'Code',
@@ -108,7 +109,7 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
           const isSaved = savedMap.has(tool.id)
           const isLoading = loadingId === tool.id
           return (
-            <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14, position: 'relative' }}>
+            <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 {favicon && (
                   <img src={favicon} alt="" width={20} height={20} style={{ borderRadius: 4, flexShrink: 0 }} />
@@ -119,24 +120,13 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
                     {tool.pricing}
                   </span>
                 )}
-                {/* 하트 토글 버튼 */}
                 {tool.url && (
-                  <button
+                  <HeartButton
+                    isSaved={isSaved}
+                    isLoading={isLoading}
+                    size={15}
                     onClick={(e) => handleToggle(tool, e)}
-                    disabled={isLoading}
-                    title={isSaved ? '저장 취소' : '저장한 글에 추가'}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: 28, height: 28, borderRadius: '50%',
-                      border: 'none', background: 'transparent', flexShrink: 0,
-                      color: isSaved ? '#f472b6' : 'var(--color-text-3)',
-                      cursor: isLoading ? 'default' : 'pointer',
-                      transition: 'color 0.15s, transform 0.15s',
-                      transform: isLoading ? 'scale(0.8)' : 'scale(1)',
-                    }}
-                  >
-                    <i className={`ti ${isSaved ? 'ti-heart-filled' : 'ti-heart'}`} style={{ fontSize: 15 }} />
-                  </button>
+                  />
                 )}
               </div>
               {tool.review && (

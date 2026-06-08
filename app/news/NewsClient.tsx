@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import HeartButton from '@/components/HeartButton'
 
 const catLabel: Record<string, string> = {
   design: 'Design', code: 'Coding', video: 'Video',
@@ -110,23 +111,12 @@ export default function NewsClient({ news, total }: { news: any[], total: number
                   {isNew && <span className="badge badge-new">NEW</span>}
                 </div>
               </div>
-              <button
+              <HeartButton
+                isSaved={isSaved}
+                isLoading={isLoading}
+                size={17}
                 onClick={(e) => handleToggle(item, e)}
-                disabled={isLoading}
-                title={isSaved ? '저장 취소' : '저장한 글에 추가'}
-                style={{
-                  flexShrink: 0, alignSelf: 'center',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: 32, height: 32, borderRadius: '50%',
-                  border: 'none', background: 'transparent',
-                  color: isSaved ? '#f472b6' : 'var(--color-text-3)',
-                  cursor: isLoading ? 'default' : 'pointer',
-                  transition: 'color 0.15s, transform 0.15s',
-                  transform: isLoading ? 'scale(0.85)' : 'scale(1)',
-                }}
-              >
-                <i className={`ti ${isSaved ? 'ti-heart-filled' : 'ti-heart'}`} style={{ fontSize: 17 }} />
-              </button>
+              />
             </a>
           )
         })}
