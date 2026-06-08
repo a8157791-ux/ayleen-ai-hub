@@ -31,6 +31,7 @@ const RSS_FEEDS = [
   { url: 'https://abduzeedo.com/rss.xml', source: 'Abduzeedo', category: 'design' },
   { url: 'https://blog.secondbrush.co.kr/rss/', source: 'Daily Prompt', category: 'design' },
   { url: 'https://designcompass.org/feed', source: 'Design Compass', category: 'design' },
+  { url: 'https://toss.tech/feed.xml', source: 'Toss Tech', category: 'design' },
 
   // 🎬 AI 영상
   { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
