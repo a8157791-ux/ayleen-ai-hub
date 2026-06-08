@@ -17,24 +17,22 @@ const myNav = [
   { href: '/saved', label: '저장한 글', icon: 'ti-heart' },
 ]
 
-// 전역 토글 함수 — Topbar에서 import해서 사용
+// Topbar에서 import해서 사용하는 전역 토글 함수
 let _setOpen: ((v: boolean | ((prev: boolean) => boolean)) => void) | null = null
 export function toggleSidebar() {
   _setOpen?.(prev => !prev)
 }
 
-export function Sidebar() {
+export default function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  // 전역에 setter 등록
   useEffect(() => {
     _setOpen = setMobileOpen
     return () => { _setOpen = null }
   }, [])
 
-  // 경로 변경 시 사이드바 닫기
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
@@ -46,7 +44,6 @@ export function Sidebar() {
 
   return (
     <>
-      {/* 모바일 오버레이 */}
       {mobileOpen && (
         <div
           style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:99}}
@@ -54,7 +51,6 @@ export function Sidebar() {
         />
       )}
 
-      {/* 사이드바 */}
       <aside
         style={{
           position:'fixed', top:0, left:0, height:'100vh', width:224,
@@ -67,7 +63,6 @@ export function Sidebar() {
         }}
         className="sidebar"
       >
-        {/* 로고 */}
         <div style={{padding:'20px 16px 16px', borderBottom:'1px solid var(--color-border)'}}>
           <Link href="/" style={{textDecoration:'none'}}>
             <div style={{fontFamily:'var(--font-display)', fontSize:20, color:'var(--color-text)', letterSpacing:-0.5}}>
@@ -79,9 +74,7 @@ export function Sidebar() {
           </Link>
         </div>
 
-        {/* 네비게이션 */}
         <nav style={{flex:1, overflowY:'auto', padding:'12px 8px'}}>
-          {/* Main */}
           <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'4px 8px', marginBottom:4}}>
             MAIN
           </div>
@@ -103,7 +96,6 @@ export function Sidebar() {
             </Link>
           ))}
 
-          {/* My */}
           <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'12px 8px 4px', marginBottom:4}}>
             MY
           </div>
@@ -125,10 +117,8 @@ export function Sidebar() {
             </Link>
           ))}
 
-          {/* 구분선 */}
           <div style={{height:1, background:'var(--color-border)', margin:'12px 8px'}} />
 
-          {/* 관리자 */}
           {session ? (
             <>
               <Link
