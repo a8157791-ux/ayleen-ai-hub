@@ -3,11 +3,11 @@
 
 export interface NewsItem {
   title: string
-  titleKo?: string    // ✅ 추가
+  titleKo?: string
   url: string
   source: string
   summary?: string
-  summaryKo?: string  // ✅ 추가
+  summaryKo?: string
   category?: string
   publishedAt?: string
 }
@@ -55,13 +55,13 @@ const RSS_FEEDS = [
   { url: 'https://frontendfoc.us/rss', source: 'Frontend Focus', category: 'code' },
 
   // 🤖 AI 디자인
-  { url: 'https://www.midjourney.com/updates/rss/', source: 'Midjourney', category: 'design' }, // 동작 여부 확인 필요
+  { url: 'https://www.midjourney.com/updates/rss/', source: 'Midjourney', category: 'design' },
 
   // 🎨 디자인 시스템
-  { url: 'https://m3.material.io/feed.xml', source: 'Material Design', category: 'design' },  
+  { url: 'https://m3.material.io/feed.xml', source: 'Material Design', category: 'design' },
 ]
 
-const ITEMS_PER_FEED = 5  // 피드당 최대 수집 건수 (v1: 3 → v2: 5)
+const ITEMS_PER_FEED = 5
 
 function guessCategory(title: string): string {
   const t = title.toLowerCase()
@@ -73,7 +73,6 @@ function guessCategory(title: string): string {
   return 'research'
 }
 
-// RFC 822 / ISO 8601 모두 파싱해서 ISO 문자열로 통일
 function parseDate(raw?: string): string | undefined {
   if (!raw) return undefined
   try {
@@ -85,7 +84,6 @@ function parseDate(raw?: string): string | undefined {
   return undefined
 }
 
-// RSS 2.0 파싱
 async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
   try {
     const res = await fetch(feed.url, {
@@ -97,7 +95,6 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
     const text = await res.text()
     const items: NewsItem[] = []
 
-    // RSS 2.0: <item> 블록
     const itemMatches = Array.from(text.matchAll(/<item>([\s\S]*?)<\/item>/g))
 
     for (const match of itemMatches) {
@@ -124,8 +121,8 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
 
       const rawDesc = descMatch?.[1] ?? ''
       const summary = rawDesc
-        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')  // ← 먼저 디코딩
-        .replace(/<[^>]+>/g, '')   // ← 그 다음 태그 제거
+        .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+        .replace(/<[^>]+>/g, '')
         .replace(/&nbsp;/g, ' ').replace(/&#\d+;/g, '').replace(/&[a-z]+;/g, '')
         .trim()
         .slice(0, 200)
@@ -144,7 +141,6 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
       if (items.length >= ITEMS_PER_FEED) break
     }
 
-    // Atom 피드 fallback (<entry> 블록)
     if (items.length === 0) {
       const entryMatches = Array.from(text.matchAll(/<entry>([\s\S]*?)<\/entry>/g))
       for (const match of entryMatches) {
@@ -223,7 +219,7 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
   }
 }
 
-// 번역/요약 — 외부에서도 호출 가능하도록 export
+// ✅ v18: 번역 프롬프트 개선 — 구체적 인사이트 중심 요약
 export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
@@ -235,16 +231,23 @@ export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
   const rest = items.slice(20)
 
   try {
-    const prompt = `아래 AI 뉴스 목록을 JSON 배열로 반환해줘.
-    각 항목마다 titleKo(제목 한국어 번역)와 summaryKo(한국어 요약 2문장)를 추가해줘.
-    ⚠️ 원문 title이 이미 한국어(한글 포함)인 경우, titleKo는 원문 title을 그대로 복사하고 summaryKo도 원문 summary를 그대로 써줘. 절대 번역하지 마.
-    반드시 JSON만 반환하고 다른 텍스트나 마크다운 코드블록은 절대 쓰지 마.
+    const prompt = `You are a Korean tech/design journalist. Translate and summarize each article below for Korean readers.
 
-    입력:
-    ${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
+Rules:
+- titleKo: Translate naturally into Korean. Keep product names, company names, and proper nouns in English (e.g. "ChatGPT", "Figma", "Runway").
+- summaryKo: Write 1-2 Korean sentences capturing the KEY INSIGHT or NEW FACT from the article.
+  - Lead with the most important finding, number, or change
+  - Be specific: include names, percentages, product names, or concrete details if present
+  - NEVER use filler phrases like "~에 대해 알아보겠습니다", "이는 ~에 대해 다룹니다", "~을 확인해 보세요"
+  - Write as if briefing a busy colleague: direct and informative
+- If the original title is already in Korean (contains 한글), copy it as-is to titleKo and copy summary as-is to summaryKo.
+- Return ONLY valid JSON array. No markdown, no code blocks, no explanation.
 
-    출력 형식:
-    [{"i":0,"titleKo":"...","summaryKo":"..."},...]`
+Input:
+${JSON.stringify(targets.map((t, i) => ({ i, title: t.title, summary: t.summary ?? '' })))}
+
+Output format:
+[{"i":0,"titleKo":"...","summaryKo":"..."},...]`
 
     const res = await fetch(
       'https://api.groq.com/openai/v1/chat/completions',
@@ -257,7 +260,7 @@ export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
+          temperature: 0.2,
         }),
         signal: AbortSignal.timeout(60000),
       }
@@ -287,14 +290,13 @@ export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
       }
     }
 
-  for (const p of parsed) {
-    if (targets[p.i]) {
-      // 원문에 한글이 이미 있으면 번역 결과 무시
-      const hasKorean = /[\uAC00-\uD7AF]/.test(targets[p.i].title)
-      targets[p.i].titleKo = hasKorean ? targets[p.i].title : p.titleKo
-      targets[p.i].summaryKo = hasKorean ? (targets[p.i].summary ?? '') : p.summaryKo
+    for (const p of parsed) {
+      if (targets[p.i]) {
+        const hasKorean = /[\uAC00-\uD7AF]/.test(targets[p.i].title)
+        targets[p.i].titleKo = hasKorean ? targets[p.i].title : p.titleKo
+        targets[p.i].summaryKo = hasKorean ? (targets[p.i].summary ?? '') : p.summaryKo
+      }
     }
-  }
   } catch (e) {
     console.error('Translation failed:', e)
   }
@@ -302,7 +304,6 @@ export async function translateItems(items: NewsItem[]): Promise<NewsItem[]> {
   return [...targets, ...rest]
 }
 
-// fetchAllAINews — 번역 없이 수집만
 export async function fetchAllAINews(): Promise<NewsItem[]> {
   const results = await Promise.allSettled([
     ...RSS_FEEDS.map(f => parseRSSFeed(f)),

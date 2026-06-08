@@ -5,16 +5,18 @@ import { useState } from 'react'
 const LINK_TYPE_LABELS: Record<string, string> = {
   youtube: 'YouTube', instagram: 'Instagram',
   article: 'Article', news: 'News', keep: '📌 Keep',
+  tool: 'Tool', reference: 'Reference', study: 'Study',
 }
 
-// 저장한 글에 있는 고유 탭 동적 계산용 (keep 포함)
 const FIXED_TABS = [
   { value: 'all', label: '전체' },
   { value: 'keep', label: '📌 킵' },
+  { value: 'news', label: 'News' },
+  { value: 'tool', label: 'Tool' },
+  { value: 'reference', label: 'Reference' },
   { value: 'article', label: 'Article' },
   { value: 'youtube', label: 'YouTube' },
   { value: 'instagram', label: 'Instagram' },
-  { value: 'news', label: 'News' },
 ]
 
 type SavedLink = {
@@ -32,10 +34,34 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
 
   const filtered = activeTab === 'all' ? links : links.filter(l => l.linkType === activeTab)
 
-  // 탭별 카운트
+  // 탭 카운트 (0건 탭은 숨김)
   function count(type: string) {
     return type === 'all' ? links.length : links.filter(l => l.linkType === type).length
   }
+
+  // 실제 존재하는 linkType만 탭에 표시 (all + keep 제외 나머지)
+  const visibleTabs = FIXED_TABS.filter(tab => {
+    if (tab.value === 'all') return true
+    return count(tab.value) > 0
+  })
+
+  function formatDate(d: Date | string) {
+    return new Date(d).toLocaleDateString('ko-KR')
+  }
+
+  const linkTypeBadgeStyle = (linkType: string | null): React.CSSProperties => ({
+    fontSize: 10, fontFamily: 'var(--font-mono)',
+    padding: '3px 8px', borderRadius: 4,
+    background: linkType === 'keep' ? 'rgba(59,130,246,0.1)'
+      : linkType === 'news' ? 'rgba(34,211,153,0.1)'
+      : linkType === 'tool' ? 'rgba(167,139,250,0.1)'
+      : 'var(--color-bg-3)',
+    color: linkType === 'keep' ? 'var(--color-blue)'
+      : linkType === 'news' ? 'var(--color-green)'
+      : linkType === 'tool' ? 'var(--color-purple)'
+      : 'var(--color-text-3)',
+    whiteSpace: 'nowrap', flexShrink: 0,
+  })
 
   return (
     <div>
@@ -47,7 +73,7 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
 
       {/* 탭 */}
       <div className="tab-bar" style={{ marginBottom: 20 }}>
-        {FIXED_TABS.map(tab => (
+        {visibleTabs.map(tab => (
           <button key={tab.value} onClick={() => setActiveTab(tab.value)}
             className={`tab-btn${activeTab === tab.value ? ' active' : ''}`}>
             {tab.label}
@@ -65,14 +91,16 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, padding: '24px 0' }}>
-          {activeTab === 'keep' ? '아직 킵한 항목이 없어요. 레퍼런스 보드에서 📌 버튼을 눌러보세요!' : '저장된 글이 없어요.'}
+        <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, padding: '40px 0', textAlign: 'center' }}>
+          {activeTab === 'keep'
+            ? '아직 킵한 항목이 없어요. 뉴스·레퍼런스·툴에서 📌 버튼을 눌러보세요!'
+            : '저장된 항목이 없어요.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtered.map(link => (
             <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
-              className="saved-link-item" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              className="saved-link-item">
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
@@ -86,21 +114,19 @@ export default function SavedClient({ links }: { links: SavedLink[] }) {
                     {link.memo}
                   </div>
                 )}
-                <div style={{
-                  fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {link.url}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                  {link.category && (
+                    <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)' }}>
+                      {link.category}
+                    </span>
+                  )}
+                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)' }}>
+                    {formatDate(link.createdAt)}
+                  </span>
                 </div>
               </div>
               {link.linkType && (
-                <span style={{
-                  fontSize: 10, fontFamily: 'var(--font-mono)',
-                  padding: '3px 8px', borderRadius: 4,
-                  background: link.linkType === 'keep' ? 'rgba(59,130,246,0.1)' : 'var(--color-bg-3)',
-                  color: link.linkType === 'keep' ? 'var(--color-blue)' : 'var(--color-text-3)',
-                  whiteSpace: 'nowrap', flexShrink: 0,
-                }}>
+                <span style={linkTypeBadgeStyle(link.linkType)}>
                   {LINK_TYPE_LABELS[link.linkType] || link.linkType}
                 </span>
               )}

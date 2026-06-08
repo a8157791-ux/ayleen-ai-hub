@@ -23,7 +23,6 @@ const API_MAP: Record<Tab, string> = {
   reference: '/api/reference',
 }
 
-// 스켈레톤 카드
 function SkeletonCard() {
   return (
     <div style={{
@@ -65,9 +64,8 @@ export default function AdminPage() {
     news: false, study: false, tools: false, saved: false, reference: false,
   })
 
-  // 탭 전환 시 자동 로드
   useEffect(() => {
-    if (data[tab] !== null) return // 캐시 있으면 스킵
+    if (data[tab] !== null) return
     loadTab(tab)
   }, [tab])
 
@@ -205,7 +203,7 @@ export default function AdminPage() {
         <p style={{ color: 'var(--color-text-3)', fontSize: 13, marginTop: 4 }}>{session.user?.email}</p>
       </div>
 
-      {/* 액션 버튼 */}
+      {/* 액션 버튼 — 저장한 글 추가 버튼 제거 (북마크 전용) */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button className="btn btn-primary" onClick={handleCollect} disabled={collecting}>
@@ -218,7 +216,6 @@ export default function AdminPage() {
           </button>
           <Link href="/admin/new/study" className="btn btn-ghost">+ 스터디룸</Link>
           <Link href="/admin/new/tool" className="btn btn-ghost">+ 툴</Link>
-          <Link href="/admin/new/saved" className="btn btn-ghost">+ 저장한 글</Link>
           <Link href="/admin/new/reference" className="btn btn-ghost">+ 레퍼런스</Link>
         </div>
       </div>
@@ -242,10 +239,8 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {/* 로딩 스켈레톤 */}
       {isLoading && <SkeletonList />}
 
-      {/* 콘텐츠 */}
       {!isLoading && currentData !== null && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
@@ -317,13 +312,41 @@ export default function AdminPage() {
             ))
           )}
 
+          {/* 저장한 글 — 삭제만 가능, 편집 버튼 없음 */}
           {tab === 'saved' && (currentData.length === 0
             ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>저장한 글이 없습니다.</div>
             : currentData.map(l => (
-              <ItemCard key={l.id} title={l.title || l.url} sub={l.url}
-                badge={l.linkType}
-                editHref={`/admin/edit/saved/${l.id}`}
-                onDelete={() => handleDelete('saved', l.id)} />
+              <div key={l.id} style={{
+                background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
+                borderRadius: 10, padding: '12px 14px',
+                display: 'flex', alignItems: 'center', gap: 12,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>
+                    {l.linkType === 'keep' && <span style={{ marginRight: 5 }}>📌</span>}
+                    {l.title || l.url}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {l.linkType && (
+                      <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
+                        {l.linkType}
+                      </span>
+                    )}
+                    {l.category && (
+                      <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>
+                        {l.category}
+                      </span>
+                    )}
+                    <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                      {l.url}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <a href={l.url} target="_blank" rel="noopener noreferrer" style={editBtn}>링크</a>
+                  <button onClick={() => handleDelete('saved', l.id)} style={delBtn}>삭제</button>
+                </div>
+              </div>
             ))
           )}
 

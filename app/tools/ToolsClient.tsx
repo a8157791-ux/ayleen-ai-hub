@@ -29,7 +29,32 @@ type Tool = {
 
 export default function ToolsClient({ tools }: { tools: Tool[] }) {
   const [cat, setCat] = useState<string | null>(null)
+  const [keptIds, setKeptIds] = useState<Set<number>>(new Set())
+  const [keepingId, setKeepingId] = useState<number | null>(null)
+
   const filtered = cat ? tools.filter(t => t.category === cat) : tools
+
+  async function handleKeep(tool: Tool, e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (keptIds.has(tool.id) || !tool.url) return
+    setKeepingId(tool.id)
+    try {
+      const res = await fetch('/api/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: tool.name,
+          url: tool.url,
+          linkType: 'tool',
+          category: tool.category || null,
+          memo: tool.review || null,
+        }),
+      })
+      if (res.ok) setKeptIds(prev => new Set([...prev, tool.id]))
+    } catch {}
+    finally { setKeepingId(null) }
+  }
 
   return (
     <>
@@ -69,8 +94,10 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
       <div className="cards-grid">
         {filtered.map(tool => {
           const favicon = getFaviconUrl(tool.url)
+          const isKept = keptIds.has(tool.id)
+          const isKeeping = keepingId === tool.id
           return (
-            <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
+            <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14, position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 {favicon && (
                   <img src={favicon} alt="" width={20} height={20} style={{ borderRadius: 4, flexShrink: 0 }} />
@@ -93,13 +120,33 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
                   ))}
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--color-border)', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--color-border)', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)' }}>
                 <span>{tool.category ? (catLabel[tool.category] ?? tool.category) : ''}</span>
-                {tool.url && (
-                  <a href={tool.url} target="_blank" rel="noopener" style={{ color: 'var(--color-blue)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                    바로가기 <i className="ti ti-external-link" style={{ fontSize: 10 }} />
-                  </a>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {/* 📌 킵 버튼 */}
+                  {tool.url && (
+                    <button
+                      onClick={(e) => handleKeep(tool, e)}
+                      disabled={isKept || isKeeping}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 3,
+                        padding: '3px 8px', borderRadius: 5,
+                        border: `1px solid ${isKept ? 'rgba(59,130,246,0.3)' : 'var(--color-border-2)'}`,
+                        background: isKept ? 'rgba(59,130,246,0.08)' : 'transparent',
+                        color: isKept ? 'var(--color-blue)' : 'var(--color-text-3)',
+                        fontSize: 10, cursor: isKept ? 'default' : 'pointer',
+                        transition: 'all 0.15s', fontFamily: 'var(--font-mono)',
+                      }}
+                    >
+                      {isKeeping ? '...' : isKept ? '📌 저장됨' : '📌 킵'}
+                    </button>
+                  )}
+                  {tool.url && (
+                    <a href={tool.url} target="_blank" rel="noopener" style={{ color: 'var(--color-blue)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      바로가기 <i className="ti ti-external-link" style={{ fontSize: 10 }} />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           )
