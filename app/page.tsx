@@ -150,7 +150,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 레퍼런스 */}
+      {/* 레퍼런스 — onMouseEnter/Leave 제거, CSS hover 클래스 사용 */}
       {refs.length > 0 && (
         <section className="aihub-section">
           <div className="sec-hd">
@@ -160,16 +160,8 @@ export default async function HomePage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {refs.map(ref => (
-              <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer" style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '10px 12px',
-                background: 'var(--color-bg-2)', border: '1px solid var(--color-border)',
-                borderRadius: 8, textDecoration: 'none',
-                transition: 'border-color 0.15s',
-              }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-border-2)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-              >
+              <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer"
+                className="home-ref-item">
                 {ref.faviconUrl && (
                   <img src={ref.faviconUrl} width={16} height={16} alt=""
                     style={{ borderRadius: 3, flexShrink: 0 }} />

@@ -349,3 +349,8 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .search-item-date {font-size:11px; color:var(--color-text-3); font-family:var(--font-mono); margin-left:auto}
 .search-item-title {font-size:14px; color:var(--color-text); font-weight:500; line-height:1.4}
 .search-item-desc {font-size:12px; color:var(--color-text-2); margin-top:4px; line-height:1.5}
+
+
+/* ── 홈 레퍼런스 아이템 */
+.home-ref-item {display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--color-bg-2); border:1px solid var(--color-border); border-radius:8px; text-decoration:none; transition:border-color 0.15s}
+.home-ref-item:hover {border-color:var(--color-border-2)}
