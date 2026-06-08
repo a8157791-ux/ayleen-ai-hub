@@ -17,31 +17,42 @@ function timeAgo(date: Date): string {
 
 export default function NewsClient({ news, total }: { news: any[], total: number }) {
   const [cat, setCat] = useState<string | null>(null)
-  const [keptIds, setKeptIds] = useState<Set<number>>(new Set())
-  const [keepingId, setKeepingId] = useState<number | null>(null)
+  const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
+  const [loadingId, setLoadingId] = useState<number | null>(null)
 
   const filtered = cat ? news.filter(item => item.category === cat) : news
 
-  async function handleKeep(item: any, e: React.MouseEvent) {
+  async function handleToggle(item: any, e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if (keptIds.has(item.id)) return
-    setKeepingId(item.id)
+    if (loadingId === item.id) return
+    setLoadingId(item.id)
     try {
-      const res = await fetch('/api/saved', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: item.titleKo || item.title,
-          url: item.url,
-          linkType: 'news',
-          category: item.category || null,
-          memo: null,
-        }),
-      })
-      if (res.ok) setKeptIds(prev => new Set([...prev, item.id]))
+      const savedId = savedMap.get(item.id)
+      if (savedId) {
+        const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
+        if (res.ok) {
+          setSavedMap(prev => { const next = new Map(prev); next.delete(item.id); return next })
+        }
+      } else {
+        const res = await fetch('/api/saved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: item.titleKo || item.title,
+            url: item.url,
+            linkType: 'news',
+            category: item.category || null,
+            memo: null,
+          }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSavedMap(prev => new Map(prev).set(item.id, data.id))
+        }
+      }
     } catch {}
-    finally { setKeepingId(null) }
+    finally { setLoadingId(null) }
   }
 
   return (
@@ -71,8 +82,8 @@ export default function NewsClient({ news, total }: { news: any[], total: number
           const isNew = Date.now() - new Date(item.createdAt).getTime() < 86400000
           const displayTitle = item.titleKo || item.title
           const displaySummary = item.summaryKo || item.summary
-          const isKept = keptIds.has(item.id)
-          const isKeeping = keepingId === item.id
+          const isSaved = savedMap.has(item.id)
+          const isLoading = loadingId === item.id
           return (
             <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
               <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
@@ -99,23 +110,22 @@ export default function NewsClient({ news, total }: { news: any[], total: number
                   {isNew && <span className="badge badge-new">NEW</span>}
                 </div>
               </div>
-              {/* 📌 킵 버튼 */}
               <button
-                onClick={(e) => handleKeep(item, e)}
-                disabled={isKept || isKeeping}
+                onClick={(e) => handleToggle(item, e)}
+                disabled={isLoading}
+                title={isSaved ? '저장 취소' : '저장한 글에 추가'}
                 style={{
-                  flexShrink: 0, alignSelf: 'flex-start', marginTop: 2,
-                  display: 'flex', alignItems: 'center', gap: 3,
-                  padding: '4px 9px', borderRadius: 6,
-                  border: `1px solid ${isKept ? 'rgba(59,130,246,0.3)' : 'var(--color-border-2)'}`,
-                  background: isKept ? 'rgba(59,130,246,0.08)' : 'transparent',
-                  color: isKept ? 'var(--color-blue)' : 'var(--color-text-3)',
-                  fontSize: 11, cursor: isKept ? 'default' : 'pointer',
-                  transition: 'all 0.15s', whiteSpace: 'nowrap',
+                  flexShrink: 0, alignSelf: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, borderRadius: '50%',
+                  border: 'none', background: 'transparent',
+                  color: isSaved ? '#f472b6' : 'var(--color-text-3)',
+                  cursor: isLoading ? 'default' : 'pointer',
+                  transition: 'color 0.15s, transform 0.15s',
+                  transform: isLoading ? 'scale(0.85)' : 'scale(1)',
                 }}
-                title={isKept ? '저장됨' : '저장한 글에 추가'}
               >
-                {isKeeping ? '...' : isKept ? '📌' : '📌'}
+                <i className={`ti ${isSaved ? 'ti-heart-filled' : 'ti-heart'}`} style={{ fontSize: 17 }} />
               </button>
             </a>
           )
