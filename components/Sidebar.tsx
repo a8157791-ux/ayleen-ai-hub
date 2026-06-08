@@ -17,7 +17,6 @@ const myNav = [
   { href: '/saved', label: '저장한 글', icon: 'ti-heart' },
 ]
 
-// Topbar에서 import해서 사용하는 전역 토글 함수
 let _setOpen: ((v: boolean | ((prev: boolean) => boolean)) => void) | null = null
 export function toggleSidebar() {
   _setOpen?.(prev => !prev)
@@ -26,141 +25,93 @@ export function toggleSidebar() {
 export default function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    _setOpen = setMobileOpen
+    _setOpen = setOpen
     return () => { _setOpen = null }
   }, [])
 
   useEffect(() => {
-    setMobileOpen(false)
+    setOpen(false)
   }, [pathname])
 
-  const isActive = (href: string) => {
-    if (href === '/') return pathname === '/'
-    return pathname.startsWith(href)
-  }
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href)
 
   return (
     <>
-      {mobileOpen && (
-        <div
-          style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:99}}
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      {/* 오버레이 */}
+      <div
+        className={`sidebar-overlay${open ? ' active' : ''}`}
+        onClick={() => setOpen(false)}
+      />
 
-      <aside
-        style={{
-          position:'fixed', top:0, left:0, height:'100vh', width:224,
-          background:'var(--color-sidebar, #090C14)',
-          borderRight:'1px solid var(--color-border)',
-          display:'flex', flexDirection:'column',
-          zIndex:100,
-          transition:'transform 0.25s ease',
-          transform: mobileOpen ? 'translateX(0)' : undefined,
-        }}
-        className="sidebar"
-      >
-        <div style={{padding:'20px 16px 16px', borderBottom:'1px solid var(--color-border)'}}>
-          <Link href="/" style={{textDecoration:'none'}}>
-            <div style={{fontFamily:'var(--font-display)', fontSize:20, color:'var(--color-text)', letterSpacing:-0.5}}>
-              Ayleen<span style={{color:'var(--color-blue)'}}>.</span>AI
+      {/* 사이드바 */}
+      <aside className={`aihub-sidebar${open ? ' open' : ''}`}>
+
+        {/* 로고 */}
+        <div className="sb-logo">
+          <Link href="/">
+            <div className="sb-logo-name">
+              Ayleen<span>.</span>AI
             </div>
-            <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', marginTop:2, letterSpacing:2}}>
-              TREND ARCHIVE
-            </div>
+            <div className="sb-logo-sub">Trend Archive</div>
           </Link>
         </div>
 
-        <nav style={{flex:1, overflowY:'auto', padding:'12px 8px'}}>
-          <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'4px 8px', marginBottom:4}}>
-            MAIN
+        {/* 네비게이션 */}
+        <nav className="sb-nav">
+          <div className="sb-group">
+            <div className="sb-group-label">Main</div>
+            {mainNav.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`sb-item${isActive(item.href) ? ' active' : ''}`}
+              >
+                <i className={`ti ${item.icon}`} />
+                {item.label}
+              </Link>
+            ))}
           </div>
-          {mainNav.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display:'flex', alignItems:'center', gap:10,
-                padding:'8px 10px', borderRadius:8, marginBottom:2,
-                textDecoration:'none', fontSize:14,
-                background: isActive(item.href) ? 'rgba(59,130,246,0.12)' : 'transparent',
-                color: isActive(item.href) ? 'var(--color-blue)' : 'var(--color-text-2)',
-                transition:'all 0.15s',
-              }}
-            >
-              <i className={`ti ${item.icon}`} style={{fontSize:16}} />
-              {item.label}
-            </Link>
-          ))}
 
-          <div style={{fontSize:10, color:'var(--color-text-3)', fontFamily:'var(--font-mono)', letterSpacing:2, padding:'12px 8px 4px', marginBottom:4}}>
-            MY
+          <div className="sb-group">
+            <div className="sb-group-label">My</div>
+            {myNav.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`sb-item${isActive(item.href) ? ' active' : ''}`}
+              >
+                <i className={`ti ${item.icon}`} />
+                {item.label}
+              </Link>
+            ))}
           </div>
-          {myNav.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              style={{
-                display:'flex', alignItems:'center', gap:10,
-                padding:'8px 10px', borderRadius:8, marginBottom:2,
-                textDecoration:'none', fontSize:14,
-                background: isActive(item.href) ? 'rgba(59,130,246,0.12)' : 'transparent',
-                color: isActive(item.href) ? 'var(--color-blue)' : 'var(--color-text-2)',
-                transition:'all 0.15s',
-              }}
-            >
-              <i className={`ti ${item.icon}`} style={{fontSize:16}} />
-              {item.label}
-            </Link>
-          ))}
 
-          <div style={{height:1, background:'var(--color-border)', margin:'12px 8px'}} />
+          <div className="sb-divider" />
 
           {session ? (
             <>
               <Link
                 href="/admin"
-                style={{
-                  display:'flex', alignItems:'center', gap:10,
-                  padding:'8px 10px', borderRadius:8, marginBottom:2,
-                  textDecoration:'none', fontSize:14,
-                  background: isActive('/admin') ? 'rgba(59,130,246,0.12)' : 'transparent',
-                  color: isActive('/admin') ? 'var(--color-blue)' : 'var(--color-text-2)',
-                  transition:'all 0.15s',
-                }}
+                className={`sb-item${isActive('/admin') ? ' active' : ''}`}
               >
-                <i className="ti ti-settings" style={{fontSize:16}} />
+                <i className="ti ti-settings" />
                 관리자 패널
               </Link>
               <button
+                className="sb-item"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                style={{
-                  display:'flex', alignItems:'center', gap:10,
-                  padding:'8px 10px', borderRadius:8, marginBottom:2,
-                  width:'100%', border:'none', background:'transparent',
-                  color:'var(--color-text-3)', fontSize:14, cursor:'pointer',
-                  transition:'all 0.15s',
-                }}
               >
-                <i className="ti ti-logout" style={{fontSize:16}} />
+                <i className="ti ti-logout" />
                 로그아웃
               </button>
             </>
           ) : (
-            <Link
-              href="/admin/login"
-              style={{
-                display:'flex', alignItems:'center', gap:10,
-                padding:'8px 10px', borderRadius:8, marginBottom:2,
-                textDecoration:'none', fontSize:14,
-                color:'var(--color-text-3)',
-                transition:'all 0.15s',
-              }}
-            >
-              <i className="ti ti-user" style={{fontSize:16}} />
+            <Link href="/admin/login" className="sb-item">
+              <i className="ti ti-user" />
               로그인
             </Link>
           )}

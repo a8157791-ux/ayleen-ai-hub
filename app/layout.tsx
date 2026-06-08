@@ -41,11 +41,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <Providers>
-          <div className="layout">
+          <div className="aihub-shell">
             <Sidebar />
-            <div className="main-wrapper">
+            <div className="aihub-main">
               <Topbar />
-              <main className="main-content">
+              <main className="aihub-content">
                 {children}
               </main>
             </div>
