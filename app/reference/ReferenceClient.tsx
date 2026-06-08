@@ -106,7 +106,7 @@ export default function ReferenceClient({
               display: 'flex', flexDirection: 'row', alignItems: 'stretch',
             }}>
               {/* 좌측 썸네일 */}
-              {ref.imageUrl && (
+              {ref.imageUrl && !ref.url.includes('instagram.com') && (
                 <a href={ref.url} target="_blank" rel="noopener noreferrer"
                   style={{ flexShrink: 0, display: 'block', width: 120 }}>
                   <img
@@ -121,7 +121,7 @@ export default function ReferenceClient({
               {/* 우측 본문 */}
               <div style={{ flex: 1, minWidth: 0, padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  {!ref.imageUrl && ref.faviconUrl && (
+                  {(!ref.imageUrl || ref.url.includes('instagram.com')) && ref.faviconUrl && (
                     <img src={ref.faviconUrl} width={18} height={18} alt=""
                       style={{ borderRadius: 4, flexShrink: 0, marginTop: 2 }}
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
