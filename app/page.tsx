@@ -6,6 +6,11 @@ const catLabel: Record<string, string> = {
   '3d': '3D', plan: 'Planning', research: 'Research', image: 'Image',
 }
 
+const REF_TYPE_LABELS: Record<string, string> = {
+  website: 'Website', portfolio: 'Portfolio', tool: 'Tool',
+  article: 'Article', inspiration: 'Inspiration',
+}
+
 function timeAgo(date: Date): string {
   const diff = Date.now() - date.getTime()
   const h = Math.floor(diff / 3600000)
@@ -14,7 +19,7 @@ function timeAgo(date: Date): string {
   return `${Math.floor(h / 24)}일 전`
 }
 
-export const revalidate = 1800
+export const revalidate = 3600
 
 export default async function HomePage() {
   if (!databaseEnabled) {
@@ -29,12 +34,14 @@ export default async function HomePage() {
 
   let news: any[] = []
   let studies: any[] = []
+  let refs: any[] = []
   let statNews = 0, statStudy = 0, statSaved = 0, statRef = 0
 
   try {
-    ;[news, studies, statNews, statStudy, statSaved, statRef] = await Promise.all([
+    ;[news, studies, refs, statNews, statStudy, statSaved, statRef] = await Promise.all([
       prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
       prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
+      prisma.reference.findMany({ orderBy: { createdAt: 'desc' }, take: 6 }),
       prisma.aiNews.count(),
       prisma.studyNote.count({ where: { published: true } }),
       prisma.savedLink.count(),
@@ -61,7 +68,7 @@ export default async function HomePage() {
         <div className="hero-meta">{today} · {statNews}건 수집됨</div>
       </div>
 
-      {/* Stats — 프롬프트 제거, 레퍼런스 추가 */}
+      {/* Stats */}
       <div className="stats-row">
         <div className="stat-card">
           <div className="stat-label">수집 뉴스</div>
@@ -142,6 +149,58 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      {/* 레퍼런스 */}
+      {refs.length > 0 && (
+        <section className="aihub-section">
+          <div className="sec-hd">
+            <h2 className="sec-title">레퍼런스</h2>
+            <span className="sec-count">총 {statRef}개</span>
+            <Link href="/reference" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {refs.map(ref => (
+              <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer" style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 12px',
+                background: 'var(--color-bg-2)', border: '1px solid var(--color-border)',
+                borderRadius: 8, textDecoration: 'none',
+                transition: 'border-color 0.15s',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-border-2)')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+              >
+                {ref.faviconUrl && (
+                  <img src={ref.faviconUrl} width={16} height={16} alt=""
+                    style={{ borderRadius: 3, flexShrink: 0 }} />
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 13, color: 'var(--color-text)', fontWeight: 500,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {ref.title || ref.url}
+                  </div>
+                  {ref.desc && (
+                    <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ref.desc}
+                    </div>
+                  )}
+                </div>
+                {ref.refType && (
+                  <span style={{
+                    fontSize: 9, fontFamily: 'var(--font-mono)', padding: '2px 6px', borderRadius: 3,
+                    background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
+                    whiteSpace: 'nowrap', flexShrink: 0,
+                  }}>
+                    {REF_TYPE_LABELS[ref.refType] || ref.refType}
+                  </span>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 최근 스터디룸 */}
       {studies.length > 0 && (
