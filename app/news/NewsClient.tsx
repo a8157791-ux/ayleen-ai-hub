@@ -18,7 +18,6 @@ function timeAgo(date: Date): string {
 
 export default function NewsClient({ news, total }: { news: any[], total: number }) {
   const [cat, setCat] = useState<string | null>(null)
-  // itemId → savedLink DB id
   const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
 
   const filtered = cat ? news.filter(item => item.category === cat) : news
@@ -29,15 +28,12 @@ export default function NewsClient({ news, total }: { news: any[], total: number
 
     const savedId = savedMap.get(item.id)
 
-    // ✅ 낙관적 업데이트 — UI 즉시 반응
     if (savedId) {
       setSavedMap(prev => { const next = new Map(prev); next.delete(item.id); return next })
       fetch(`/api/saved/${savedId}`, { method: 'DELETE' }).catch(() => {
-        // 실패 시 롤백
         setSavedMap(prev => new Map(prev).set(item.id, savedId))
       })
     } else {
-      // 임시 ID로 즉시 저장 상태 표시
       const tempId = -Date.now()
       setSavedMap(prev => new Map(prev).set(item.id, tempId))
       fetch('/api/saved', {
@@ -54,7 +50,6 @@ export default function NewsClient({ news, total }: { news: any[], total: number
         .then(res => res.ok ? res.json() : Promise.reject())
         .then(data => setSavedMap(prev => new Map(prev).set(item.id, data.id)))
         .catch(() => {
-          // 실패 시 롤백
           setSavedMap(prev => { const next = new Map(prev); next.delete(item.id); return next })
         })
     }
@@ -91,6 +86,17 @@ export default function NewsClient({ news, total }: { news: any[], total: number
           return (
             <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
               <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
+
+              {/* 썸네일 — 있을 때만 표시 */}
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt=""
+                  style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }}
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+              )}
+
               <div className="news-body">
                 {item.category && (
                   <div className={`news-cat cat-${item.category}`}>

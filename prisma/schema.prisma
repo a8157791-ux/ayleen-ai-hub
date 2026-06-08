@@ -11,15 +11,16 @@ datasource db {
 model AiNews {
   id          Int       @id @default(autoincrement())
   title       String
-  titleKo     String?   // v3 추가: 한국어 번역 제목
+  titleKo     String?   // 한국어 번역 제목
   summary     String?
-  summaryKo   String?   // v3 추가: 한국어 요약
+  summaryKo   String?   // 한국어 요약
   url         String    @unique
   source      String?
   category    String?
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  imageUrl    String?   // 추가
 
   @@map("ai_news")
 }
@@ -92,6 +93,7 @@ model Reference {
   category    String?
   desc        String?
   faviconUrl  String?
+  imageUrl    String?   // 추가
   createdAt   DateTime @default(now())
 
   @@map("references")

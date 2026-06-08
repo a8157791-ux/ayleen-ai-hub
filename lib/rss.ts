@@ -9,11 +9,24 @@ export interface NewsItem {
   summaryKo?: string
   category?: string
   publishedAt?: string
+  imageUrl?: string
 }
 
 // YouTube channel_id 기반 RSS URL 생성
 function ytRss(channelId: string) {
   return `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
+}
+
+// YouTube URL에서 video ID 추출 → 썸네일 URL 생성
+function getYouTubeThumbnail(url: string): string | undefined {
+  const match = url.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/)
+  if (!match) return undefined
+  return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`
+}
+
+// YouTube RSS 여부 확인
+function isYouTubeFeed(url: string): boolean {
+  return url.includes('youtube.com/feeds')
 }
 
 const RSS_FEEDS = [
@@ -98,7 +111,31 @@ function parseDate(raw?: string): string | undefined {
   return undefined
 }
 
+// RSS XML에서 og:image 또는 enclosure 이미지 추출
+function extractImageFromBlock(block: string): string | undefined {
+  // <media:thumbnail> (YouTube RSS 등)
+  const mediaThumbnail = block.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i)?.[1]
+  if (mediaThumbnail) return mediaThumbnail
+
+  // <enclosure> 이미지
+  const enclosure = block.match(/<enclosure[^>]+url=["']([^"']+\.(?:jpg|jpeg|png|webp))["']/i)?.[1]
+  if (enclosure) return enclosure
+
+  // <media:content> 이미지
+  const mediaContent = block.match(/<media:content[^>]+url=["']([^"']+)["'][^>]+medium=["']image["']/i)?.[1]
+    || block.match(/<media:content[^>]+medium=["']image["'][^>]+url=["']([^"']+)["']/i)?.[1]
+  if (mediaContent) return mediaContent
+
+  // description 안의 첫 번째 <img src>
+  const imgInDesc = block.match(/<img[^>]+src=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i)?.[1]
+  if (imgInDesc) return imgInDesc
+
+  return undefined
+}
+
 async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
+  const isYT = isYouTubeFeed(feed.url)
+
   try {
     const res = await fetch(feed.url, {
       headers: { 'User-Agent': 'AyleenAIHub/2.0' },
@@ -135,11 +172,18 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
         .trim().slice(0, 200)
 
       if (!title || !url || title.length < 5) continue
+
+      // 이미지: YouTube면 video ID로, 아니면 RSS 블록에서 추출
+      const imageUrl = isYT
+        ? getYouTubeThumbnail(url)
+        : extractImageFromBlock(block)
+
       items.push({
         title, url, source: feed.source,
         summary: summary || undefined,
         category: guessCategory(title) || feed.category,
         publishedAt: parseDate(pubMatch?.[1]?.trim()),
+        imageUrl,
       })
       if (items.length >= ITEMS_PER_FEED) break
     }
@@ -150,7 +194,6 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
       for (const match of entryMatches) {
         const block = match[1]
         const titleMatch = block.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)
-        // YouTube RSS는 <link rel="alternate" href="..."/> 형태
         const linkMatch =
           block.match(/<link[^>]+href=["'](https?:\/\/[^"']+)["']/) ||
           block.match(/<link>(https?:\/\/[^<]+)<\/link>/)
@@ -170,11 +213,18 @@ async function parseRSSFeed(feed: (typeof RSS_FEEDS)[0]): Promise<NewsItem[]> {
         const summary = rawSummary.replace(/<[^>]+>/g, '').trim().slice(0, 200)
 
         if (!title || !url || title.length < 5) continue
+
+        // 이미지: YouTube면 video ID로, 아니면 RSS 블록에서 추출
+        const imageUrl = isYT
+          ? getYouTubeThumbnail(url)
+          : extractImageFromBlock(block)
+
         items.push({
           title, url, source: feed.source,
           summary: summary || undefined,
           category: guessCategory(title) || feed.category,
           publishedAt: parseDate(pubMatch?.[1]?.trim()),
+          imageUrl,
         })
         if (items.length >= ITEMS_PER_FEED) break
       }
@@ -203,6 +253,7 @@ async function fetchFromNewsAPI(): Promise<NewsItem[]> {
       summary: a.description?.slice(0, 200),
       category: guessCategory(a.title ?? ''),
       publishedAt: parseDate(a.publishedAt),
+      imageUrl: a.urlToImage || undefined,
     })).filter((n: NewsItem) => n.title && n.url)
   } catch {
     return []

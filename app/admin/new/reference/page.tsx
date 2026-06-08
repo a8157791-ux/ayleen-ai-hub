@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { CategorySelect } from '@/components/CategoryManager'
@@ -20,6 +20,9 @@ export default function NewReferencePage() {
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [ogImage, setOgImage] = useState<string | null>(null)
+  const [ogFetching, setOgFetching] = useState(false)
+  const fetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     fetchConfig('ref_categories').then(types => {
@@ -27,6 +30,35 @@ export default function NewReferencePage() {
       setForm(f => ({ ...f, refType: types[0] ?? f.refType }))
     })
   }, [])
+
+  // URL 입력 시 디바운스로 og 자동 파싱
+  useEffect(() => {
+    if (fetchTimer.current) clearTimeout(fetchTimer.current)
+    const url = form.url.trim()
+    if (!url.startsWith('http')) { setOgImage(null); return }
+
+    fetchTimer.current = setTimeout(async () => {
+      setOgFetching(true)
+      try {
+        const res = await fetch(`/api/fetch-og?url=${encodeURIComponent(url)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setOgImage(data.imageUrl || null)
+          // 제목이 비어있으면 자동 완성
+          if (data.title && !form.title.trim()) {
+            setForm(f => ({ ...f, title: data.title }))
+          }
+          // 설명이 비어있으면 자동 완성
+          if (data.desc && !form.desc.trim()) {
+            setForm(f => ({ ...f, desc: data.desc }))
+          }
+        }
+      } catch { }
+      finally { setOgFetching(false) }
+    }, 800)
+
+    return () => { if (fetchTimer.current) clearTimeout(fetchTimer.current) }
+  }, [form.url])
 
   function getFaviconUrl(inputUrl: string) {
     try {
@@ -55,6 +87,7 @@ export default function NewReferencePage() {
           category: form.category.trim() || null,
           desc: form.desc.trim() || null,
           faviconUrl: faviconUrl || null,
+          imageUrl: ogImage || null,
         }),
       })
       if (!res.ok) throw new Error('저장 실패')
@@ -87,6 +120,46 @@ export default function NewReferencePage() {
             </div>
           )}
 
+          {/* URL */}
+          <div className="form-group">
+            <label className="form-label">URL *</label>
+            <input
+              type="url"
+              className="form-input"
+              value={form.url}
+              onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
+              placeholder="https://example.com"
+            />
+            {/* 파비콘 + og 파싱 상태 */}
+            {form.url && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                {faviconUrl && (
+                  <img src={faviconUrl} width={16} height={16} alt="" style={{ borderRadius: 3 }} />
+                )}
+                <span style={{ fontSize: 12, color: 'var(--color-text-3)' }}>
+                  {ogFetching ? '정보 불러오는 중...' : ogImage ? '썸네일 감지됨 ✓' : '썸네일 없음'}
+                </span>
+              </div>
+            )}
+            {/* OG 이미지 미리보기 */}
+            {ogImage && (
+              <div style={{ marginTop: 10, position: 'relative', display: 'inline-block' }}>
+                <img
+                  src={ogImage}
+                  alt="OG preview"
+                  style={{ width: '100%', maxWidth: 400, height: 180, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--color-border)' }}
+                  onError={() => setOgImage(null)}
+                />
+                <button
+                  onClick={() => setOgImage(null)}
+                  style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', borderRadius: 4, padding: '2px 7px', fontSize: 12, cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* 제목 */}
           <div className="form-group">
             <label className="form-label">제목 *</label>
@@ -98,25 +171,7 @@ export default function NewReferencePage() {
             />
           </div>
 
-          {/* URL */}
-          <div className="form-group">
-            <label className="form-label">URL *</label>
-            <input
-              type="url"
-              className="form-input"
-              value={form.url}
-              onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-              placeholder="https://example.com"
-            />
-            {faviconUrl && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-                <img src={faviconUrl} width={16} height={16} alt="" style={{ borderRadius: 3 }} />
-                <span style={{ fontSize: 12, color: 'var(--color-text-3)' }}>파비콘 자동 감지</span>
-              </div>
-            )}
-          </div>
-
-          {/* 분류 (refType) — CategorySelect 방식 */}
+          {/* 분류 (refType) */}
           <CategorySelect
             configKey="ref_categories"
             value={form.refType}

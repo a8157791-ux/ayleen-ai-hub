@@ -25,62 +25,49 @@ type Reference = {
   category: string | null
   desc: string | null
   faviconUrl: string | null
+  imageUrl: string | null
   createdAt: Date | string
 }
 
 export default function ReferenceClient({
   refs,
-  savedUrls,  // 서버에서 이미 저장된 URL 목록 전달
+  savedUrls,
 }: {
   refs: Reference[]
-  savedUrls: Record<string, number>  // url → savedLink id
+  savedUrls: Record<string, number>
 }) {
   const [activeTab, setActiveTab] = useState('all')
-
-  // 서버 초기값으로 savedMap 초기화 → 새로고침해도 하트 유지
   const [savedMap, setSavedMap] = useState<Map<string, number>>(
     () => new Map(Object.entries(savedUrls))
   )
-  // 클릭 중복 방지
   const [pendingIds, setPendingIds] = useState<Set<number>>(new Set())
 
   const filtered = activeTab === 'all' ? refs : refs.filter(r => r.refType === activeTab)
 
   async function handleToggle(ref: Reference) {
-    if (pendingIds.has(ref.id)) return  // 중복 클릭 방지
-
+    if (pendingIds.has(ref.id)) return
     setPendingIds(prev => new Set(prev).add(ref.id))
-
     const savedId = savedMap.get(ref.url)
     try {
       if (savedId) {
-        // 낙관적 삭제
         setSavedMap(prev => { const next = new Map(prev); next.delete(ref.url); return next })
         const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
-        if (!res.ok) {
-          // 롤백
-          setSavedMap(prev => new Map(prev).set(ref.url, savedId))
-        }
+        if (!res.ok) setSavedMap(prev => new Map(prev).set(ref.url, savedId))
       } else {
-        // 낙관적 저장 (tempId)
         const tempId = -ref.id
         setSavedMap(prev => new Map(prev).set(ref.url, tempId))
         const res = await fetch('/api/saved', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: ref.title,
-            url: ref.url,
-            linkType: 'keep',
-            category: ref.refType,
-            memo: ref.desc || null,
+            title: ref.title, url: ref.url,
+            linkType: 'keep', category: ref.refType, memo: ref.desc || null,
           }),
         })
         if (res.ok) {
           const data = await res.json()
           setSavedMap(prev => new Map(prev).set(ref.url, data.id))
         } else {
-          // 롤백
           setSavedMap(prev => { const next = new Map(prev); next.delete(ref.url); return next })
         }
       }
@@ -115,60 +102,74 @@ export default function ReferenceClient({
           {filtered.map(ref => (
             <div key={ref.id} style={{
               background: 'var(--color-bg-2)', border: '1px solid var(--color-border)',
-              borderRadius: 10, padding: '14px 16px',
+              borderRadius: 10, overflow: 'hidden',
             }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                {ref.faviconUrl && (
-                  <img src={ref.faviconUrl} width={18} height={18} alt=""
-                    style={{ borderRadius: 4, flexShrink: 0, marginTop: 2 }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{
-                      fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
-                      textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {ref.title || ref.url}
-                    </a>
-                    {ref.refType && (
-                      <span style={{
-                        fontSize: 10, fontFamily: 'var(--font-mono)',
-                        padding: '2px 7px', borderRadius: 4,
-                        background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
-                        whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>
-                        {REF_TYPE_LABELS[ref.refType] || ref.refType}
-                      </span>
-                    )}
-                    {ref.category && (
-                      <span style={{
-                        fontSize: 10, fontFamily: 'var(--font-mono)',
-                        padding: '2px 7px', borderRadius: 4,
-                        background: 'rgba(59,130,246,0.1)', color: 'var(--color-blue)',
-                        whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>
-                        {ref.category}
-                      </span>
-                    )}
-                  </div>
-                  {ref.desc && (
-                    <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5 }}>
-                      {ref.desc}
-                    </div>
+              {/* 썸네일 */}
+              {ref.imageUrl && (
+                <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                  <img
+                    src={ref.imageUrl}
+                    alt=""
+                    style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                  />
+                </a>
+              )}
+
+              <div style={{ padding: '14px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  {ref.faviconUrl && (
+                    <img src={ref.faviconUrl} width={18} height={18} alt=""
+                      style={{ borderRadius: 4, flexShrink: 0, marginTop: 2 }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                   )}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{
-                      fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {ref.url}
-                    </span>
-                    <HeartButton
-                      isSaved={savedMap.has(ref.url)}
-                      size={16}
-                      onClick={() => handleToggle(ref)}
-                    />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+                      <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{
+                        fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
+                        textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {ref.title || ref.url}
+                      </a>
+                      {ref.refType && (
+                        <span style={{
+                          fontSize: 10, fontFamily: 'var(--font-mono)',
+                          padding: '2px 7px', borderRadius: 4,
+                          background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
+                          whiteSpace: 'nowrap', flexShrink: 0,
+                        }}>
+                          {REF_TYPE_LABELS[ref.refType] || ref.refType}
+                        </span>
+                      )}
+                      {ref.category && (
+                        <span style={{
+                          fontSize: 10, fontFamily: 'var(--font-mono)',
+                          padding: '2px 7px', borderRadius: 4,
+                          background: 'rgba(59,130,246,0.1)', color: 'var(--color-blue)',
+                          whiteSpace: 'nowrap', flexShrink: 0,
+                        }}>
+                          {ref.category}
+                        </span>
+                      )}
+                    </div>
+                    {ref.desc && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5 }}>
+                        {ref.desc}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{
+                        fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {ref.url}
+                      </span>
+                      <HeartButton
+                        isSaved={savedMap.has(ref.url)}
+                        size={16}
+                        onClick={() => handleToggle(ref)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

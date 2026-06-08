@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
     let created = 0
     let skipped = 0
 
-    // id와 원본 item을 함께 추적
     const savedPairs: { id: number; item: NewsItem }[] = []
 
     // 2단계: DB 저장 (번역 전)
@@ -36,6 +35,7 @@ export async function POST(req: NextRequest) {
             summary: item.summary,
             category: item.category,
             publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
+            imageUrl: item.imageUrl ?? null,
           },
         })
         savedPairs.push({ id: saved.id, item })
