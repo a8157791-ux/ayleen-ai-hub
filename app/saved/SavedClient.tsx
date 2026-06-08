@@ -3,14 +3,14 @@
 import { useState } from 'react'
 import HeartButton from '@/components/HeartButton'
 
+// linkType → 탭/뱃지 표시명
 const LINK_TYPE_LABELS: Record<string, string> = {
+  news: 'News',
+  tool: 'Tool',
+  keep: 'Reference',  // 레퍼런스에서 저장된 것 → Reference로 표시
+  article: 'Article',
   youtube: 'YouTube',
   instagram: 'Instagram',
-  article: 'Article',
-  news: 'News',
-  keep: 'Keep',
-  tool: 'Tool',
-  reference: 'Reference',
 }
 
 type SavedLink = {
@@ -27,9 +27,11 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
   const [links, setLinks] = useState(initialLinks)
   const [activeTab, setActiveTab] = useState('all')
 
-  // 실제 존재하는 linkType 기반으로 동적 탭 생성
-  const existingTypes = Array.from(new Set(initialLinks.map(l => l.linkType).filter(Boolean))) as string[]
-
+  // 실제 존재하는 linkType 기반으로 탭 동적 생성 (순서 고정)
+  const TAB_ORDER = ['news', 'tool', 'keep', 'article', 'youtube', 'instagram']
+  const existingTypes = TAB_ORDER.filter(type =>
+    initialLinks.some(l => l.linkType === type)
+  )
   const tabs = [
     { value: 'all', label: '전체' },
     ...existingTypes.map(type => ({
@@ -51,13 +53,15 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
   async function handleRemove(link: SavedLink, e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    // 낙관적 업데이트
+    // 낙관적 삭제
     setLinks(prev => prev.filter(l => l.id !== link.id))
     fetch(`/api/saved/${link.id}`, { method: 'DELETE' }).catch(() => {
       // 실패 시 롤백
-      setLinks(prev => [...prev, link].sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ))
+      setLinks(prev =>
+        [...prev, link].sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      )
     })
   }
 
@@ -97,7 +101,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
           {filtered.map(link => (
             <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
               className="saved-link-item">
-              {/* 채워진 하트 — 클릭하면 삭제 */}
+              {/* 채워진 하트 — 클릭 시 삭제 */}
               <HeartButton
                 isSaved={true}
                 size={16}
@@ -115,7 +119,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
                     {link.memo}
                   </div>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   {link.linkType && (
                     <span style={{
                       fontSize: 10, fontFamily: 'var(--font-mono)',

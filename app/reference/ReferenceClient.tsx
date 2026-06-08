@@ -28,39 +28,64 @@ type Reference = {
   createdAt: Date | string
 }
 
-export default function ReferenceClient({ refs }: { refs: Reference[] }) {
+export default function ReferenceClient({
+  refs,
+  savedUrls,  // 서버에서 이미 저장된 URL 목록 전달
+}: {
+  refs: Reference[]
+  savedUrls: Record<string, number>  // url → savedLink id
+}) {
   const [activeTab, setActiveTab] = useState('all')
-  const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
+
+  // 서버 초기값으로 savedMap 초기화 → 새로고침해도 하트 유지
+  const [savedMap, setSavedMap] = useState<Map<string, number>>(
+    () => new Map(Object.entries(savedUrls))
+  )
+  // 클릭 중복 방지
+  const [pendingIds, setPendingIds] = useState<Set<number>>(new Set())
 
   const filtered = activeTab === 'all' ? refs : refs.filter(r => r.refType === activeTab)
 
   async function handleToggle(ref: Reference) {
-    const savedId = savedMap.get(ref.id)
+    if (pendingIds.has(ref.id)) return  // 중복 클릭 방지
 
-    if (savedId) {
-      setSavedMap(prev => { const next = new Map(prev); next.delete(ref.id); return next })
-      fetch(`/api/saved/${savedId}`, { method: 'DELETE' }).catch(() => {
-        setSavedMap(prev => new Map(prev).set(ref.id, savedId))
-      })
-    } else {
-      const tempId = -Date.now()
-      setSavedMap(prev => new Map(prev).set(ref.id, tempId))
-      fetch('/api/saved', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: ref.title,
-          url: ref.url,
-          linkType: 'keep',
-          category: ref.refType,
-          memo: ref.desc || null,
-        }),
-      })
-        .then(res => res.ok ? res.json() : Promise.reject())
-        .then(data => setSavedMap(prev => new Map(prev).set(ref.id, data.id)))
-        .catch(() => {
-          setSavedMap(prev => { const next = new Map(prev); next.delete(ref.id); return next })
+    setPendingIds(prev => new Set(prev).add(ref.id))
+
+    const savedId = savedMap.get(ref.url)
+    try {
+      if (savedId) {
+        // 낙관적 삭제
+        setSavedMap(prev => { const next = new Map(prev); next.delete(ref.url); return next })
+        const res = await fetch(`/api/saved/${savedId}`, { method: 'DELETE' })
+        if (!res.ok) {
+          // 롤백
+          setSavedMap(prev => new Map(prev).set(ref.url, savedId))
+        }
+      } else {
+        // 낙관적 저장 (tempId)
+        const tempId = -ref.id
+        setSavedMap(prev => new Map(prev).set(ref.url, tempId))
+        const res = await fetch('/api/saved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: ref.title,
+            url: ref.url,
+            linkType: 'keep',
+            category: ref.refType,
+            memo: ref.desc || null,
+          }),
         })
+        if (res.ok) {
+          const data = await res.json()
+          setSavedMap(prev => new Map(prev).set(ref.url, data.id))
+        } else {
+          // 롤백
+          setSavedMap(prev => { const next = new Map(prev); next.delete(ref.url); return next })
+        }
+      }
+    } finally {
+      setPendingIds(prev => { const next = new Set(prev); next.delete(ref.id); return next })
     }
   }
 
@@ -140,7 +165,7 @@ export default function ReferenceClient({ refs }: { refs: Reference[] }) {
                       {ref.url}
                     </span>
                     <HeartButton
-                      isSaved={savedMap.has(ref.id)}
+                      isSaved={savedMap.has(ref.url)}
                       size={16}
                       onClick={() => handleToggle(ref)}
                     />
