@@ -67,15 +67,15 @@ input, textarea, select {font: inherit}
 
 /* ── Light Mode ── */
 [data-theme="light"] {
-  --color-bg:          #F5F6FA;
-  --color-bg-2:        #ECEEF4;
-  --color-bg-3:        #E2E5EE;
-  --color-sidebar:     #ECEEF4;
+  --color-bg:          #FFFFFF;
+  --color-bg-2:        #F9FAFB;
+  --color-bg-3:        #F2F4F6;
+  --color-sidebar:     #F9FAFB;
 
-  --color-blue:        #2563EB;
-  --color-blue-dim:    #DBEAFE;
-  --color-blue-glow:   rgba(37, 99, 235, 0.08);
-  --color-blue-border: rgba(37, 99, 235, 0.22);
+  --color-blue:        #3182F6;
+  --color-blue-dim:    #EBF3FE;
+  --color-blue-glow:   rgba(49, 130, 246, 0.08);
+  --color-blue-border: rgba(49, 130, 246, 0.25);
 
   --color-cyan:        #0891B2;
   --color-indigo:      #4F46E5;
@@ -85,12 +85,12 @@ input, textarea, select {font: inherit}
   --color-green:       #059669;
   --color-orange:      #EA580C;
 
-  --color-text:        #111827;
-  --color-text-2:      #4B5563;
-  --color-text-3:      #9CA3AF;
+  --color-text:        #191F28;
+  --color-text-2:      #6B7684;
+  --color-text-3:      #B0B8C1;
 
-  --color-border:      rgba(0, 0, 0, 0.07);
-  --color-border-2:    rgba(0, 0, 0, 0.12);
+  --color-border:      #E5E8EB;
+  --color-border-2:    #CDD1D5;
 
   --cat-design:        #0891B2;
   --cat-code:          #7C3AED;
