@@ -180,17 +180,6 @@ export default function NewReferencePage() {
             onCategoriesChange={setRefTypes}
           />
 
-          {/* 분류 태그 */}
-          <div className="form-group">
-            <label className="form-label">분류 태그 (선택)</label>
-            <input
-              className="form-input"
-              value={form.category}
-              onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-              placeholder="예: design, frontend, ai"
-            />
-          </div>
-
           {/* 설명 */}
           <div className="form-group">
             <label className="form-label">설명 / 메모</label>

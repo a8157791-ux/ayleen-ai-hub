@@ -113,7 +113,7 @@ export default async function HomePage() {
         <div className="sec-hd">
           <h2 className="sec-title">오늘의 AI 뉴스</h2>
           <span className="sec-count">{statNews}건</span>
-          <Link href="/news" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
+          <Link href="/news" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
         </div>
         <div className="news-list">
           {news.slice(0, 7).map((item, i) => {
@@ -163,7 +163,7 @@ export default async function HomePage() {
           <div className="sec-hd">
             <h2 className="sec-title">레퍼런스</h2>
             <span className="sec-count">총 {statRef}개</span>
-            <Link href="/reference" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
+            <Link href="/reference" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {refs.map(ref => (
@@ -215,7 +215,7 @@ export default async function HomePage() {
           <div className="sec-hd">
             <h2 className="sec-title">최근 스터디룸</h2>
             <span className="sec-count">총 {statStudy}건</span>
-            <Link href="/study" className="sec-more">전체 보기 <i className="ti ti-arrow-right" /></Link>
+            <Link href="/study" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
           </div>
           <div className="study-grid">
             {studies.map(note => (

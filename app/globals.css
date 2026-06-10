@@ -176,7 +176,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .topbar-left {display: flex; align-items: center; gap: 10px; min-width: 0}
 .topbar-menu-btn {display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-md); color: var(--color-text-2); flex-shrink: 0; transition: background var(--duration)}
 .topbar-menu-btn:hover {background: rgba(255,255,255,0.05)}
-.topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.05em; white-space: nowrap}
+.topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); white-space: nowrap}
 .topbar-greeting {font-family: var(--font-serif); font-size: 12px; font-style: italic; color: var(--color-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none}
 .topbar-right {display: flex; align-items: center; gap: 8px; flex-shrink: 0}
 .topbar-pill {display: flex; align-items: center; gap: 5px; background: var(--color-bg-3); border: 1px solid var(--color-border); padding: 5px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); white-space: nowrap}
@@ -284,7 +284,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .form-select {width: 100%; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; color: var(--color-text); outline: none; cursor: pointer}
 .form-textarea {width: 100%; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; color: var(--color-text); resize: vertical; min-height: 100px; outline: none; transition: border-color var(--duration)}
 .form-textarea:focus {border-color: var(--color-blue)}
-.btn {display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; cursor: pointer; transition: all var(--duration); border: none}
+.btn {display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 12px; cursor: pointer; transition: all var(--duration); border: none}
 .btn-primary {background: var(--color-blue); color: white}
 .btn-primary:hover {background: #2563eb}
 .btn-ghost {background: transparent; border: 1px solid var(--color-border); color: var(--color-text-2)}

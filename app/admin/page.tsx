@@ -410,10 +410,6 @@ export default function AdminPage() {
                 display: 'flex', alignItems: 'center', gap: 12,
               }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>
-                    {l.linkType === 'keep' && <span style={{ marginRight: 5 }}>📌</span>}
-                    {l.title || l.url}
-                  </div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                     {l.linkType && (
                       <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>

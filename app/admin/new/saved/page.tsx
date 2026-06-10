@@ -81,16 +81,6 @@ export default function NewSavedPage() {
           />
 
           <div className="form-group">
-            <label className="form-label">분류 태그 (선택)</label>
-            <input
-              className="form-input"
-              value={form.category}
-              onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-              placeholder="예: AI, 디자인, 개발..."
-            />
-          </div>
-
-          <div className="form-group">
             <label className="form-label">메모</label>
             <textarea
               className="form-textarea"
