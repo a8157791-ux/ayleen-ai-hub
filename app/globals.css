@@ -139,12 +139,12 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .sb-logo {padding: 22px 20px 18px; border-bottom: 1px solid var(--color-border); flex-shrink: 0}
 .sb-logo-name {font-family: var(--font-display); font-size: 21px; font-weight: 300; font-style: italic; color: var(--color-text); letter-spacing: 0.01em; line-height: 1.1}
 .sb-logo-name span {color: var(--color-blue)}
-.sb-logo-sub {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px}
+.sb-logo-sub {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px}
 
 /* ── Nav ── */
 .sb-nav {flex: 1; padding: 8px 0}
 .sb-group {padding: 12px 0 4px}
-.sb-group-label {padding: 0 20px 6px; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase}
+.sb-group-label {padding: 0 20px 6px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase}
 .sb-divider {height: 1px; background: var(--color-border); margin: 4px 0}
 .sb-item {
   display: flex; align-items: center; gap: 9px; padding: 9px 20px;
@@ -156,12 +156,12 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .sb-item.active {color: var(--color-blue); border-left-color: var(--color-blue); background: var(--color-blue-glow)}
 .sb-item i {font-size: 15px; opacity: 0.65; flex-shrink: 0}
 .sb-item.active i {opacity: 1}
-.sb-item-badge {margin-left: auto; font-family: var(--font-mono); font-size: 9px; background: var(--color-blue-dim); color: var(--color-blue); padding: 1px 5px; border-radius: var(--radius-sm)}
+.sb-item-badge {margin-left: auto; font-family: var(--font-mono); font-size: 12px; background: var(--color-blue-dim); color: var(--color-blue); padding: 1px 5px; border-radius: var(--radius-sm)}
 
 /* ── Sidebar bottom ── */
 .sb-bottom {padding: 14px 20px; border-top: 1px solid var(--color-border); flex-shrink: 0}
 .sb-clock {font-family: var(--font-mono); font-size: 20px; font-weight: 300; color: var(--color-text); display: block; margin-bottom: 2px}
-.sb-location {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3); letter-spacing: 0.1em}
+.sb-location {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.1em}
 
 /* ── Main area ── */
 .aihub-main {flex: 1; min-width: 0; display: flex; flex-direction: column}
@@ -176,10 +176,10 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .topbar-left {display: flex; align-items: center; gap: 10px; min-width: 0}
 .topbar-menu-btn {display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-md); color: var(--color-text-2); flex-shrink: 0; transition: background var(--duration)}
 .topbar-menu-btn:hover {background: rgba(255,255,255,0.05)}
-.topbar-date {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3); letter-spacing: 0.05em; white-space: nowrap}
+.topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.05em; white-space: nowrap}
 .topbar-greeting {font-family: var(--font-serif); font-size: 12px; font-style: italic; color: var(--color-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none}
 .topbar-right {display: flex; align-items: center; gap: 8px; flex-shrink: 0}
-.topbar-pill {display: flex; align-items: center; gap: 5px; background: var(--color-bg-3); border: 1px solid var(--color-border); padding: 5px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-2); white-space: nowrap}
+.topbar-pill {display: flex; align-items: center; gap: 5px; background: var(--color-bg-3); border: 1px solid var(--color-border); padding: 5px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); white-space: nowrap}
 .topbar-icon-btn {display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; color: var(--color-text-2); transition: border-color var(--duration)}
 .topbar-icon-btn:hover {border-color: var(--color-border-2)}
 
@@ -190,48 +190,48 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .aihub-section {margin-bottom: 36px}
 .sec-hd {display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border)}
 .sec-title {font-family: var(--font-serif); font-size: 18px; font-weight: 400; color: var(--color-text)}
-.sec-count {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3)}
-.sec-more {margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--color-blue); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 3px; text-decoration: none; transition: opacity var(--duration)}
+.sec-count {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
+.sec-more {margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--color-blue); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 3px; text-decoration: none; transition: opacity var(--duration)}
 .sec-more:hover {opacity: 0.75}
 
 /* ── Ticker ── */
 .ticker-wrap {background: var(--color-bg-3); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: 6px 0; overflow: hidden; margin-bottom: 28px}
 .ticker-inner {display: flex; gap: 36px; width: max-content; animation: ticker-scroll 32s linear infinite}
 .ticker-wrap:hover .ticker-inner {animation-play-state: paused}
-.ticker-item {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3); white-space: nowrap; display: flex; align-items: center; gap: 7px}
-.ticker-item::before {content: '◆'; color: var(--color-blue); font-size: 6px}
+.ticker-item {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); white-space: nowrap; display: flex; align-items: center; gap: 7px}
+.ticker-item::before {content: '◆'; color: var(--color-blue); font-size: 12px}
 @keyframes ticker-scroll {0% {transform: translateX(0)} 100% {transform: translateX(-50%)}}
 
 /* ── Hero ── */
 .page-hero {margin-bottom: 24px}
-.hero-eyebrow {font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; color: var(--color-blue); text-transform: uppercase; margin-bottom: 8px}
+.hero-eyebrow {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--color-blue); text-transform: uppercase; margin-bottom: 8px}
 .hero-title {font-family: var(--font-display); font-size: 30px; font-weight: 300; font-style: italic; line-height: 1.2; color: var(--color-text); margin-bottom: 4px}
 .hero-title b {font-style: normal; font-weight: 300; color: var(--color-blue)}
-.hero-meta {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3)}
+.hero-meta {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 
 /* ── Stats row ── */
 .stats-row {display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px}
 .stat-card {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px}
-.stat-label {font-family: var(--font-mono); font-size: 8px; color: var(--color-text-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px}
+.stat-label {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px}
 .stat-value {font-family: var(--font-mono); font-size: 22px; font-weight: 300; color: var(--color-text); line-height: 1}
-.stat-desc {font-size: 10px; color: var(--color-text-3); margin-top: 3px}
+.stat-desc {font-size: 12px; color: var(--color-text-3); margin-top: 3px}
 
 /* ── News list ── */
 .news-list {display: flex; flex-direction: column}
 .news-item {display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border); cursor: pointer; position: relative; text-decoration: none; transition: background var(--duration), padding-left var(--duration)}
 .news-item:hover {background: rgba(255,255,255,0.015); padding-left: 8px}
-.news-num {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-3); min-width: 20px; padding-top: 2px; flex-shrink: 0}
+.news-num {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); min-width: 20px; padding-top: 2px; flex-shrink: 0}
 .news-body {flex: 1; min-width: 0}
-.news-cat {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px}
+.news-cat {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px}
 .news-title {font-family: var(--font-sans); font-size: 16px; font-weight: 400; line-height: 1.5; color: var(--color-text); transition: color var(--duration)}
 .news-item:hover .news-title {color: var(--color-blue)}
-.news-footer {display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
+.news-footer {display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 .news-source::before {content: '— '}
 
 /* ── Tab bar ── */
 .tab-bar {display: flex; gap: 0; border-bottom: 1px solid var(--color-border); margin-bottom: 16px; overflow-x: auto; scrollbar-width: none}
 .tab-bar::-webkit-scrollbar {display: none}
-.tab-btn {padding: 8px 14px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; color: var(--color-text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color var(--duration), border-color var(--duration); background: none; border-top: none; border-left: none; border-right: none}
+.tab-btn {padding: 8px 14px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--color-text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color var(--duration), border-color var(--duration); background: none; border-top: none; border-left: none; border-right: none}
 .tab-btn:hover {color: var(--color-text-2)}
 .tab-btn.active {color: var(--color-blue); border-bottom-color: var(--color-blue)}
 
@@ -240,12 +240,12 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .content-card {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: border-color 0.22s var(--ease); text-decoration: none; display: block}
 .content-card:hover {border-color: var(--color-blue-border)}
 .card-thumb {height: 160px; background: var(--color-bg-3); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center}
-.card-thumb-badge {position: absolute; top: 8px; right: 8px; font-family: var(--font-mono); font-size: 8px; background: rgba(0,0,0,0.6); color: var(--color-white); padding: 2px 7px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); z-index: 2}
+.card-thumb-badge {position: absolute; top: 8px; right: 8px; font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,0.6); color: var(--color-white); padding: 2px 7px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); z-index: 2}
 .card-thumb img {position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover}
 .card-body {padding: 12px}
-.card-cat {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px}
+.card-cat {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px}
 .card-title {font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--color-text); margin-bottom: 8px}
-.card-footer {display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
+.card-footer {display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 .card-footer-dot {width: 2px; height: 2px; border-radius: 50%; background: var(--color-text-3)}
 
 /* ── Study card ── */
@@ -255,9 +255,9 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .study-thumb {width: 80px; flex-shrink: 0; background: var(--color-bg-3); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden}
 .study-thumb img {position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover}
 .study-body {padding: 10px 12px; flex: 1; min-width: 0}
-.study-tool {font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-indigo); margin-bottom: 3px}
+.study-tool {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-indigo); margin-bottom: 3px}
 .study-title {font-family: var(--font-sans); font-size: 13px; line-height: 1.45; color: var(--color-text); margin-bottom: 5px}
-.study-date {font-family: var(--font-mono); font-size: 9px; color: var(--color-text-3)}
+.study-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 
 /* ── Saved link item (CSS hover, no JS needed) ── */
 .saved-link-item {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px; text-decoration: none; transition: border-color 0.2s var(--ease)}
@@ -272,19 +272,19 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .cat-plan {color: var(--cat-plan)}
 
 /* ── Badge ── */
-.badge {display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: var(--radius-sm)}
-.badge-new {background: var(--color-blue-dim); color: var(--color-blue); font-size: 7px}
+.badge {display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: var(--radius-sm)}
+.badge-new {background: var(--color-blue-dim); color: var(--color-blue); font-size: 12px}
 .badge-blue {background: var(--color-blue-dim); color: var(--color-blue)}
 
 /* ── Form styles (admin) ── */
 .form-group {margin-bottom: 16px}
-.form-label {display: block; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); margin-bottom: 6px}
+.form-label {display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); margin-bottom: 6px}
 .form-input {width: 100%; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; color: var(--color-text); transition: border-color var(--duration); outline: none}
 .form-input:focus {border-color: var(--color-blue)}
 .form-select {width: 100%; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; color: var(--color-text); outline: none; cursor: pointer}
 .form-textarea {width: 100%; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; color: var(--color-text); resize: vertical; min-height: 100px; outline: none; transition: border-color var(--duration)}
 .form-textarea:focus {border-color: var(--color-blue)}
-.btn {display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; cursor: pointer; transition: all var(--duration); border: none}
+.btn {display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; cursor: pointer; transition: all var(--duration); border: none}
 .btn-primary {background: var(--color-blue); color: white}
 .btn-primary:hover {background: #2563eb}
 .btn-ghost {background: transparent; border: 1px solid var(--color-border); color: var(--color-text-2)}
@@ -296,7 +296,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .admin-card {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px}
 .admin-card input[type="date"]::-webkit-calendar-picker-indicator {filter:invert(1)}
 .admin-table {width: 100%; border-collapse: collapse}
-.admin-table th {text-align: left; padding: 8px 12px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); border-bottom: 1px solid var(--color-border)}
+.admin-table th {text-align: left; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); border-bottom: 1px solid var(--color-border)}
 .admin-table td {padding: 10px 12px; border-bottom: 1px solid var(--color-border); font-size: 13px; color: var(--color-text-2)}
 .admin-table tr:hover td {background: rgba(255,255,255,0.02); color: var(--color-text)}
 
@@ -348,13 +348,13 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 
 /* 날짜+인사말 묶음 */
 .topbar-dateline {display: flex; align-items: center; gap: 5px; min-width: 0}
-.topbar-date {font-family: var(--font-mono); font-size: 10px; color: var(--color-text-2); letter-spacing: 0.03em; white-space: nowrap}
-.topbar-greeting {font-family: var(--font-serif); font-size: 11px; font-style: italic; color: var(--color-text-3); white-space: nowrap; display: none}
+.topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); letter-spacing: 0.03em; white-space: nowrap}
+.topbar-greeting {font-family: var(--font-serif); font-size: 12px; font-style: italic; color: var(--color-text-3); white-space: nowrap; display: none}
 
 /* 날씨 */
-.topbar-weather {display: none; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-2); padding: 4px 8px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; white-space: nowrap}
+.topbar-weather {display: none; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); padding: 4px 8px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; white-space: nowrap}
 .topbar-weather i {font-size: 12px; color: var(--color-amber)}
-.topbar-weather-city {color: var(--color-text-3); font-size: 9px}
+.topbar-weather-city {color: var(--color-text-3); font-size: 12px}
 
 /* 검색 폼 (열렸을 때) */
 .topbar-search-form {display: flex; align-items: center; gap: 6px; background: var(--color-bg-3); border: 1px solid var(--color-blue-border); border-radius: 20px; padding: 5px 10px; min-width: 200px}
@@ -371,7 +371,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 
 /* ===== AI 툴 트렌드 ===== */
 .tools-trend-banner {display:flex; align-items:center; gap:12px; background:var(--color-bg-2); border:1px solid var(--color-border-2); border-radius:8px; padding:10px 16px; margin-bottom:20px; flex-wrap:wrap}
-.tools-trend-label {display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px; color:var(--color-text-3); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap}
+.tools-trend-label {display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12px; color:var(--color-text-3); text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap}
 .tools-trend-label .ti {color:var(--color-green); font-size:14px}
 .tools-trend-links {display:flex; align-items:center; gap:10px; flex-wrap:wrap}
 .tools-trend-link {display:flex; align-items:center; gap:5px; font-size:12px; color:var(--color-blue); text-decoration:none; transition:color 0.15s}
@@ -385,9 +385,9 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .search-item {display:block; padding:14px 16px; background:var(--color-bg-2); border:1px solid var(--color-border); border-radius:10px; text-decoration:none; transition:border-color 0.15s, background 0.15s; cursor:pointer}
 .search-item:hover {border-color:var(--color-border-2); background:var(--color-bg-3)}
 .search-item-header {display:flex; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap}
-.search-item-badge {font-size:10px; padding:2px 7px; border-radius:4px; font-family:var(--font-mono); letter-spacing:0.06em}
-.search-item-cat {font-size:11px; color:var(--color-text-3); font-family:var(--font-mono)}
-.search-item-date {font-size:11px; color:var(--color-text-3); font-family:var(--font-mono); margin-left:auto}
+.search-item-badge {font-size:12px; padding:2px 7px; border-radius:4px; font-family:var(--font-mono); letter-spacing:0.06em}
+.search-item-cat {font-size:12px; color:var(--color-text-3); font-family:var(--font-mono)}
+.search-item-date {font-size:12px; color:var(--color-text-3); font-family:var(--font-mono); margin-left:auto}
 .search-item-title {font-size:14px; color:var(--color-text); font-weight:500; line-height:1.4}
 .search-item-desc {font-size:12px; color:var(--color-text-2); margin-top:4px; line-height:1.5}
 

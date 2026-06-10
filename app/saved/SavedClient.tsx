@@ -129,11 +129,6 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
                       {LINK_TYPE_LABELS[link.linkType] || link.linkType}
                     </span>
                   )}
-                  {link.category && (
-                    <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)' }}>
-                      {link.category}
-                    </span>
-                  )}
                   <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)' }}>
                     {formatDate(link.createdAt)}
                   </span>

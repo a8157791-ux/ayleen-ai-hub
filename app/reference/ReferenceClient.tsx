@@ -144,16 +144,6 @@ export default function ReferenceClient({
                           {REF_TYPE_LABELS[ref.refType] || ref.refType}
                         </span>
                       )}
-                      {ref.category && (
-                        <span style={{
-                          fontSize: 10, fontFamily: 'var(--font-mono)',
-                          padding: '2px 7px', borderRadius: 4,
-                          background: 'rgba(59,130,246,0.1)', color: 'var(--color-blue)',
-                          whiteSpace: 'nowrap', flexShrink: 0,
-                        }}>
-                          {ref.category}
-                        </span>
-                      )}
                     </div>
                     {ref.desc && (
                       <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
