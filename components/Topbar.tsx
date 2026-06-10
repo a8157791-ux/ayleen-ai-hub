@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toggleSidebar } from './Sidebar'
+import { useTheme } from './ThemeProvider'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -39,6 +40,7 @@ export default function Topbar() {
   const [searchVal, setSearchVal] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const { theme, toggle } = useTheme()
 
   useEffect(() => {
     const now = new Date()
@@ -121,6 +123,9 @@ export default function Topbar() {
             )}
             <button className="topbar-icon-btn" onClick={() => setSearchOpen(true)} aria-label="검색">
               <i className="ti ti-search" />
+            </button>
+            <button className="topbar-icon-btn topbar-theme-btn" onClick={toggle} aria-label="테마 전환">
+              <i className={`ti ${theme === 'dark' ? 'ti-sun' : 'ti-moon'}`} />
             </button>
           </>
         )}
