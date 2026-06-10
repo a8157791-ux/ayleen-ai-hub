@@ -67,7 +67,7 @@ function StudyItem({ item, q }: { item: any; q: string }) {
         <span className="search-item-date">{formatDate(item.studiedAt ?? item.createdAt)}</span>
       </div>
       <div className="search-item-title">{highlight(item.title, q)}</div>
-      {item.tags && <div className="search-item-desc">{item.tags}</div>}
+      {item.content && <div className="search-item-desc">{highlight(item.content.slice(0, 100), q)}...</div>}
     </Link>
   )
 }
