@@ -169,15 +169,15 @@ export default async function HomePage() {
             {refs.map(ref => (
               <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer"
                 className="home-ref-item" style={{ overflow: 'hidden' }}>
-                {/* 썸네일 있으면 좌측에 표시 */}
-                {(ref as any).imageUrl && (
+                {/* 썸네일 있으면 좌측에 표시 (인스타그램은 favicon만) */}
+                {(ref as any).imageUrl && !ref.url.includes('instagram.com') && (
                   <img
                     src={(ref as any).imageUrl}
                     alt=""
                     style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
                   />
                 )}
-                {!(ref as any).imageUrl && ref.faviconUrl && (
+                {(!(ref as any).imageUrl || ref.url.includes('instagram.com')) && ref.faviconUrl && (
                   <img src={ref.faviconUrl} width={16} height={16} alt=""
                     style={{ borderRadius: 3, flexShrink: 0 }} />
                 )}
