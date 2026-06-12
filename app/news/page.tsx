@@ -3,7 +3,7 @@ import NewsClient from './NewsClient'
 
 export const revalidate = 1800
 
-const PAGE_SIZE = 100
+const PAGE_SIZE = 50
 
 export default async function NewsPage() {
   if (!databaseEnabled) {

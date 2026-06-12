@@ -23,7 +23,7 @@ const API_MAP: Record<Exclude<Tab, 'news'>, string> = {
   reference: '/api/reference',
 }
 
-const NEWS_PAGE_SIZE = 100
+const NEWS_PAGE_SIZE = 50
 
 function SkeletonCard() {
   return (
