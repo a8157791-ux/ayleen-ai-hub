@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Pagination from '@/components/Pagination'
 
 type Tab = 'news' | 'study' | 'tools' | 'saved' | 'reference'
 
@@ -15,13 +16,14 @@ const TABS: { value: Tab; label: string }[] = [
   { value: 'reference', label: '레퍼런스' },
 ]
 
-const API_MAP: Record<Tab, string> = {
-  news: '/api/news?limit=100&sortBy=createdAt',
+const API_MAP: Record<Exclude<Tab, 'news'>, string> = {
   study: '/api/study',
   tools: '/api/tools?admin=1',
   saved: '/api/saved',
   reference: '/api/reference',
 }
+
+const NEWS_PAGE_SIZE = 100
 
 function SkeletonCard() {
   return (
@@ -63,20 +65,50 @@ export default function AdminPage() {
   const [bulkNewsThumb, setBulkNewsThumb] = useState(false)
   const [toast, setToast] = useState('')
 
-  const [data, setData] = useState<Record<Tab, any[] | null>>({
-    news: null, study: null, tools: null, saved: null, reference: null,
+  // 뉴스 외 탭 데이터
+  const [data, setData] = useState<Record<Exclude<Tab, 'news'>, any[] | null>>({
+    study: null, tools: null, saved: null, reference: null,
   })
-  const [loading, setLoading] = useState<Record<Tab, boolean>>({
-    news: false, study: false, tools: false, saved: false, reference: false,
+  const [loading, setLoading] = useState<Record<Exclude<Tab, 'news'>, boolean>>({
+    study: false, tools: false, saved: false, reference: false,
   })
+
+  // 뉴스 탭 — 페이지네이션
+  const [newsItems, setNewsItems] = useState<any[] | null>(null)
+  const [newsTotal, setNewsTotal] = useState(0)
+  const [newsPage, setNewsPage] = useState(1)
+  const [newsLoading, setNewsLoading] = useState(false)
+  const newsTotalPages = Math.max(1, Math.ceil(newsTotal / NEWS_PAGE_SIZE))
+
   const [translatingIds, setTranslatingIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
+    if (tab === 'news') {
+      if (newsItems === null) loadNewsPage(1)
+      return
+    }
     if (data[tab] !== null) return
     loadTab(tab)
   }, [tab])
 
-  async function loadTab(t: Tab) {
+  async function loadNewsPage(p: number) {
+    setNewsLoading(true)
+    try {
+      const res = await fetch(`/api/news?page=${p}&limit=${NEWS_PAGE_SIZE}&sortBy=createdAt`)
+      const json = await res.json()
+      setNewsItems(json.items ?? [])
+      setNewsTotal(json.total ?? 0)
+      setNewsPage(json.page ?? p)
+    } catch {}
+    finally { setNewsLoading(false) }
+  }
+
+  function handleNewsPage(p: number) {
+    if (p < 1 || p > newsTotalPages || p === newsPage) return
+    loadNewsPage(p)
+  }
+
+  async function loadTab(t: Exclude<Tab, 'news'>) {
     setLoading(p => ({ ...p, [t]: true }))
     try {
       const res = await fetch(API_MAP[t])
@@ -87,6 +119,10 @@ export default function AdminPage() {
   }
 
   function invalidateTab(t: Tab) {
+    if (t === 'news') {
+      setNewsItems(null)
+      return
+    }
     setData(p => ({ ...p, [t]: null }))
   }
 
@@ -105,6 +141,7 @@ export default function AdminPage() {
       const d = await res.json()
       showToast(`✅ ${d.created || 0}개 수집 완료`)
       invalidateTab('news')
+      if (tab === 'news') loadNewsPage(1)
     } catch { showToast('❌ 수집 중 오류 발생') }
     finally { setCollecting(false) }
   }
@@ -116,6 +153,7 @@ export default function AdminPage() {
       const d = await res.json()
       showToast(`✅ ${d.translated || 0}개 번역 완료`)
       invalidateTab('news')
+      if (tab === 'news') loadNewsPage(newsPage)
     } catch { showToast('❌ 번역 중 오류 발생') }
     finally { setTranslating(false) }
   }
@@ -146,6 +184,7 @@ export default function AdminPage() {
       }
       showToast(`✅ 뉴스 썸네일 ${totalUpdated}개 업데이트 완료`)
       invalidateTab('news')
+      if (tab === 'news') loadNewsPage(newsPage)
     } catch { showToast('❌ 뉴스 썸네일 업데이트 오류') }
     finally { setBulkNewsThumb(false) }
   }
@@ -157,12 +196,11 @@ export default function AdminPage() {
       const res = await fetch(`/api/news/${newsId}`, { method: 'PUT' })
       if (res.ok) {
         const d = await res.json()
-        setData(prev => ({
-          ...prev,
-          news: (prev.news ?? []).map(n =>
+        setNewsItems(prev =>
+          (prev ?? []).map(n =>
             n.id === newsId ? { ...n, titleKo: d.titleKo, summaryKo: d.summaryKo } : n
-          ),
-        }))
+          )
+        )
         showToast('✅ 번역 완료')
       } else {
         showToast('❌ 번역 실패')
@@ -176,7 +214,8 @@ export default function AdminPage() {
   async function handleDeleteNews(id: number) {
     if (!confirm('삭제하시겠습니까?')) return
     await fetch(`/api/news/${id}`, { method: 'DELETE' })
-    setData(p => ({ ...p, news: (p.news ?? []).filter(i => i.id !== id) }))
+    setNewsItems(prev => (prev ?? []).filter(i => i.id !== id))
+    setNewsTotal(t => Math.max(0, t - 1))
   }
 
   async function handleDelete(type: Exclude<Tab, 'news'>, id: number) {
@@ -234,8 +273,8 @@ export default function AdminPage() {
     )
   }
 
-  const currentData = data[tab]
-  const isLoading = loading[tab]
+  const currentData = tab === 'news' ? newsItems : data[tab]
+  const isLoading = tab === 'news' ? newsLoading : loading[tab]
 
   return (
     <div>
@@ -295,7 +334,12 @@ export default function AdminPage() {
             fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
           }}>
             {t.label}
-            {data[t.value] !== null && (
+            {t.value === 'news' && newsItems !== null && (
+              <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
+                {newsTotal}
+              </span>
+            )}
+            {t.value !== 'news' && data[t.value] !== null && (
               <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
                 {data[t.value]?.length}
               </span>
@@ -437,6 +481,10 @@ export default function AdminPage() {
                 editHref={`/admin/edit/reference/${r.id}`}
                 onDelete={() => handleDelete('reference', r.id)} />
             ))
+          )}
+
+          {tab === 'news' && (
+            <Pagination page={newsPage} totalPages={newsTotalPages} onPage={handleNewsPage} />
           )}
         </div>
       )}

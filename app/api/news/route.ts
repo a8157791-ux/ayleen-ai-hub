@@ -73,25 +73,47 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/news — 목록 조회
+// GET /api/news — 목록 조회 (페이지네이션 지원)
+// 쿼리: page (1-based, 기본 1), limit (기본 100, 최대 500), cat, sortBy
+// page 파라미터가 있으면 { items, total, page, totalPages } 형태로 반환
+// page 파라미터가 없으면 기존처럼 배열 그대로 반환 (하위호환)
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const cat = searchParams.get('cat')
-  const limit = Math.min(Number(searchParams.get('limit') ?? '200'), 500)
   const sortBy = searchParams.get('sortBy') === 'createdAt' ? 'createdAt' : 'publishedAt'
+  const pageParam = searchParams.get('page')
 
   const where = cat ? { category: cat } : {}
 
   try {
-    const news = await prisma.aiNews.findMany({
-      where,
-      orderBy:
-        sortBy === 'publishedAt'
-          ? [{ publishedAt: 'desc' }, { createdAt: 'desc' }]
-          : [{ createdAt: 'desc' }],
-      take: limit,
-    })
+    const orderBy =
+      sortBy === 'publishedAt'
+        ? [{ publishedAt: 'desc' as const }, { createdAt: 'desc' as const }]
+        : [{ createdAt: 'desc' as const }]
 
+    // ── 페이지네이션 모드 ──
+    if (pageParam) {
+      const limit = Math.min(Number(searchParams.get('limit') ?? '100'), 500)
+      const page = Math.max(Number(pageParam) || 1, 1)
+      const skip = (page - 1) * limit
+
+      const [items, total] = await Promise.all([
+        prisma.aiNews.findMany({ where, orderBy, skip, take: limit }),
+        prisma.aiNews.count({ where }),
+      ])
+
+      return NextResponse.json({
+        items,
+        total,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      })
+    }
+
+    // ── 기존 방식 (하위호환) ──
+    const limit = Math.min(Number(searchParams.get('limit') ?? '200'), 500)
+    const news = await prisma.aiNews.findMany({ where, orderBy, take: limit })
     return NextResponse.json(news)
   } catch (error) {
     console.error('News API DB error:', error)

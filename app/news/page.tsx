@@ -3,6 +3,8 @@ import NewsClient from './NewsClient'
 
 export const revalidate = 1800
 
+const PAGE_SIZE = 100
+
 export default async function NewsPage() {
   if (!databaseEnabled) {
     return (
@@ -19,7 +21,10 @@ export default async function NewsPage() {
 
   try {
     ;[news, total] = await Promise.all([
-      prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }),
+      prisma.aiNews.findMany({
+        orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+        take: PAGE_SIZE,
+      }),
       prisma.aiNews.count(),
     ])
   } catch (error) {
@@ -33,5 +38,5 @@ export default async function NewsPage() {
     )
   }
 
-  return <NewsClient news={news} total={total} />
+  return <NewsClient initialNews={news} total={total} pageSize={PAGE_SIZE} />
 }

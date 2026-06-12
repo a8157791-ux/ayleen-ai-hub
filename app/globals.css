@@ -394,4 +394,10 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 
 /* ── 홈 레퍼런스 아이템 */
 .home-ref-item {display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--color-bg-2); border:1px solid var(--color-border); border-radius:8px; text-decoration:none; transition:border-color 0.15s}
-.home-ref-item:hover {border-color:var(--color-border-2)}
+.home-ref-item:hover {border-color:var(--color-border-2)}/* ── Pagination (공통 컴포넌트) ── */
+.pagination {display:flex; align-items:center; justify-content:center; gap:6px; margin-top:28px; flex-wrap:wrap}
+.pagination-btn {min-width:32px; height:32px; padding:0 8px; display:flex; align-items:center; justify-content:center; background:var(--color-bg-2); border:1px solid var(--color-border); border-radius:6px; color:var(--color-text-2); font-family:var(--font-mono); font-size:12px; cursor:pointer; transition:border-color 0.15s, color 0.15s, background 0.15s}
+.pagination-btn:hover:not(:disabled) {border-color:var(--color-border-2); color:var(--color-text)}
+.pagination-btn.active {background:var(--color-blue); border-color:var(--color-blue); color:#fff}
+.pagination-btn:disabled {opacity:0.35; cursor:default}
+.pagination-ellipsis {color:var(--color-text-3); font-family:var(--font-mono); font-size:12px; padding:0 2px}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import HeartButton from '@/components/HeartButton'
+import Pagination from '@/components/Pagination'
 
 const catLabel: Record<string, string> = {
   design: 'Design', code: 'Coding', video: 'Video',
@@ -16,11 +17,59 @@ function timeAgo(date: Date): string {
   return `${Math.floor(h / 24)}일 전`
 }
 
-export default function NewsClient({ news, total }: { news: any[], total: number }) {
+export default function NewsClient({
+  initialNews,
+  total,
+  pageSize,
+}: {
+  initialNews: any[]
+  total: number
+  pageSize: number
+}) {
   const [cat, setCat] = useState<string | null>(null)
   const [savedMap, setSavedMap] = useState<Map<number, number>>(new Map())
 
-  const filtered = cat ? news.filter(item => item.category === cat) : news
+  const [news, setNews] = useState<any[]>(initialNews)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+
+  // 카테고리 필터 시에는 전체 건수가 달라지므로 별도 total 관리
+  const [listTotal, setListTotal] = useState(total)
+
+  const totalPages = Math.max(1, Math.ceil(listTotal / pageSize))
+
+  async function loadPage(nextPage: number, nextCat: string | null) {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        page: String(nextPage),
+        limit: String(pageSize),
+        sortBy: 'publishedAt',
+      })
+      if (nextCat) params.set('cat', nextCat)
+
+      const res = await fetch(`/api/news?${params.toString()}`)
+      const data = await res.json()
+      setNews(data.items ?? [])
+      setListTotal(data.total ?? 0)
+      setPage(data.page ?? nextPage)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch {
+      // 실패 시 조용히 무시 — 기존 목록 유지
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleCat(nextCat: string | null) {
+    setCat(nextCat)
+    loadPage(1, nextCat)
+  }
+
+  function handlePage(p: number) {
+    if (p < 1 || p > totalPages || p === page) return
+    loadPage(p, cat)
+  }
 
   async function handleToggle(item: any, e: React.MouseEvent) {
     e.preventDefault()
@@ -60,32 +109,32 @@ export default function NewsClient({ news, total }: { news: any[], total: number
       <div className="page-hero">
         <div className="hero-eyebrow">Trend Board</div>
         <h1 className="hero-title">트렌드 <b>보드</b></h1>
-        <div className="hero-meta">총 {total}건 수집됨</div>
+        <div className="hero-meta">총 {listTotal}건 수집됨</div>
       </div>
 
       <div className="tab-bar" style={{ marginBottom: 20 }}>
-        <button onClick={() => setCat(null)} className={`tab-btn ${!cat ? 'active' : ''}`}>전체</button>
+        <button onClick={() => handleCat(null)} className={`tab-btn ${!cat ? 'active' : ''}`}>전체</button>
         {Object.entries(catLabel).map(([val, label]) => (
-          <button key={val} onClick={() => setCat(val)} className={`tab-btn ${cat === val ? 'active' : ''}`}>
+          <button key={val} onClick={() => handleCat(val)} className={`tab-btn ${cat === val ? 'active' : ''}`}>
             {label}
           </button>
         ))}
       </div>
 
-      <div className="news-list">
-        {filtered.length === 0 && (
+      <div className="news-list" style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+        {news.length === 0 && (
           <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, padding: '24px 0' }}>
             아직 수집된 뉴스가 없습니다. 관리자 패널에서 뉴스를 수집해보세요.
           </div>
         )}
-        {filtered.map((item, i) => {
+        {news.map((item, i) => {
           const isNew = Date.now() - new Date(item.createdAt).getTime() < 86400000
           const displayTitle = item.titleKo || item.title
           const displaySummary = item.summaryKo || item.summary
           const isSaved = savedMap.has(item.id)
           return (
             <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
-              <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
+              <span className="news-num">{String((page - 1) * pageSize + i + 1).padStart(2, '0')}</span>
 
               {/* 썸네일 — 있을 때만 표시 */}
               {item.imageUrl && (
@@ -125,6 +174,8 @@ export default function NewsClient({ news, total }: { news: any[], total: number
           )
         })}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} onPage={handlePage} />
     </>
   )
 }
