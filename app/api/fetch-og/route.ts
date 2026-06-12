@@ -1,9 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// HTML entity 디코딩 (숫자/이름 엔티티 모두 처리)
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .trim()
+}
+
 // GET /api/fetch-og?url=https://example.com
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url')
   if (!url) return NextResponse.json({ error: 'url required' }, { status: 400 })
+
+  // 인스타그램 등 og 메타 크롤링 차단/오염 사이트 → 빈 값 반환 (파비콘 fallback 처리됨)
+  const isInstagram = /instagram\.com/i.test(url)
+  if (isInstagram) {
+    return NextResponse.json({
+      imageUrl: null,
+      title: null,
+      desc: null,
+    })
+  }
 
   try {
     const res = await fetch(url, {
@@ -32,9 +57,9 @@ export async function GET(req: NextRequest) {
       html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1]
 
     return NextResponse.json({
-      imageUrl: ogImage || null,
-      title: ogTitle?.trim() || null,
-      desc: ogDesc?.trim() || null,
+      imageUrl: ogImage ? decodeHtmlEntities(ogImage) : null,
+      title: ogTitle ? decodeHtmlEntities(ogTitle) : null,
+      desc: ogDesc ? decodeHtmlEntities(ogDesc) : null,
     })
   } catch {
     return NextResponse.json({ error: 'failed' }, { status: 500 })
