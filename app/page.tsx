@@ -40,7 +40,7 @@ export default async function HomePage() {
   try {
     ;[news, studies, refs, statNews, statStudy, statSaved, statRef] = await Promise.all([
       prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
-      prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
+      prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 6 }),
       prisma.reference.findMany({ orderBy: { createdAt: 'desc' }, take: 6 }),
       prisma.aiNews.count(),
       prisma.studyNote.count({ where: { published: true } }),
