@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { CategorySelect, ToolTagInput } from '@/components/CategoryManager'
 import { fetchConfig, DEFAULT_CONFIGS } from '@/lib/config'
+import ImageUpload from '@/components/ImageUpload'
 
 export default function NewStudyPage() {
   const { status } = useSession()
@@ -20,7 +21,6 @@ export default function NewStudyPage() {
     prompt: '',
     siteUrl: '',
     mediaUrl: '',
-    tags: '',
     studiedAt: new Date().toISOString().slice(0, 10),
     published: true,
   })
@@ -165,9 +165,9 @@ export default function NewStudyPage() {
 
           <div className="form-group">
             <label className="form-label">
-              이미지 / 영상 URL
+              이미지 / 영상
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginLeft: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Imgur · YouTube · Vimeo 등 외부 링크
+                Imgur · YouTube · Vimeo 등 외부 링크 또는 직접 업로드
               </span>
             </label>
             <input
@@ -183,21 +183,13 @@ export default function NewStudyPage() {
                 미리보기 열기
               </a>
             )}
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              태그
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginLeft: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                쉼표 구분
-              </span>
-            </label>
-            <input
-              className="form-input"
-              value={form.tags}
-              onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
-              placeholder="웹사이트, 영어, 스터디"
-            />
+            <div style={{ marginTop: 10 }}>
+              <ImageUpload
+                value={form.mediaUrl}
+                onChange={url => setForm(f => ({ ...f, mediaUrl: url }))}
+                folder="study"
+              />
+            </div>
           </div>
 
           <div className="form-group">

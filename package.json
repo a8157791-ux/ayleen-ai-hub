@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",  
+    "build": "prisma generate && next build",
     "start": "next start"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@supabase/supabase-js": "^2.108.1",
     "bcryptjs": "2.4.3",
     "next": "14.2.5",
     "next-auth": "4.24.7",

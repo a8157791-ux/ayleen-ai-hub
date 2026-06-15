@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import ImageUpload from '@/components/ImageUpload'
 
 const CATEGORIES = [
   { value: 'image', label: '이미지' },
@@ -24,7 +25,6 @@ export default function EditStudyPage({ params }: { params: { id: string } }) {
     prompt: '',
     siteUrl: '',
     mediaUrl: '',
-    tags: '',
     studiedAt: '',
     published: true,
   })
@@ -41,7 +41,6 @@ export default function EditStudyPage({ params }: { params: { id: string } }) {
           prompt: data.prompt ?? '',
           siteUrl: data.siteUrl ?? '',
           mediaUrl: data.mediaUrl ?? '',
-          tags: data.tags ?? '',
           studiedAt: data.studiedAt
             ? new Date(data.studiedAt).toISOString().slice(0, 10)
             : new Date().toISOString().slice(0, 10),
@@ -199,12 +198,12 @@ export default function EditStudyPage({ params }: { params: { id: string } }) {
             />
           </div>
 
-          {/* 이미지/영상 URL */}
+          {/* 이미지/영상 */}
           <div className="form-group">
             <label className="form-label">
-              이미지 / 영상 URL
+              이미지 / 영상
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginLeft: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Imgur · YouTube · Vimeo 등 외부 링크
+                Imgur · YouTube · Vimeo 등 외부 링크 또는 직접 업로드
               </span>
             </label>
             <input
@@ -227,22 +226,13 @@ export default function EditStudyPage({ params }: { params: { id: string } }) {
                 미리보기 열기
               </a>
             )}
-          </div>
-
-          {/* 태그 */}
-          <div className="form-group">
-            <label className="form-label">
-              태그
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)', marginLeft: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                쉼표 구분
-              </span>
-            </label>
-            <input
-              className="form-input"
-              value={form.tags}
-              onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
-              placeholder="웹사이트, 영어, 스터디"
-            />
+            <div style={{ marginTop: 10 }}>
+              <ImageUpload
+                value={form.mediaUrl}
+                onChange={url => setForm(f => ({ ...f, mediaUrl: url }))}
+                folder="study"
+              />
+            </div>
           </div>
 
           {/* 공개 여부 */}
