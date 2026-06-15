@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
+import CopyButton from '@/components/CopyButton'
 
 const catLabel: Record<string, string> = {
   image: '이미지',
@@ -205,12 +206,15 @@ export default async function StudyDetailPage({ params }: { params: { id: string
           background:'rgba(167,139,250,0.06)', border:'1px solid rgba(167,139,250,0.15)',
           borderRadius:'12px', padding:'20px', marginBottom:'20px',
         }}>
-          <h2 style={{
-            fontSize:'12px', fontFamily:'var(--font-mono)', color:'var(--color-purple)',
-            letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'12px',
-          }}>
-            PROMPT
-          </h2>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px'}}>
+            <h2 style={{
+              fontSize:'12px', fontFamily:'var(--font-mono)', color:'var(--color-purple)',
+              letterSpacing:'0.08em', textTransform:'uppercase', margin:0,
+            }}>
+              PROMPT
+            </h2>
+            <CopyButton text={note.prompt} />
+          </div>
           <p style={{
             fontSize:'14px', lineHeight:1.7, color:'var(--color-text-2)',
             whiteSpace:'pre-wrap', wordBreak:'break-word', fontFamily:'var(--font-mono)',
