@@ -37,8 +37,13 @@ export default async function HomePage() {
   let refs: any[] = []
   let statNews = 0, statNewsToday = 0, statStudy = 0, statSaved = 0, statRef = 0
 
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
+  // 서버는 UTC로 동작하므로 KST(UTC+9) 기준 "오늘 0시"를 UTC로 환산
+  const KST_OFFSET_MS = 9 * 60 * 60 * 1000
+  const nowKst = new Date(Date.now() + KST_OFFSET_MS)
+  const todayStartKstDate = new Date(
+    Date.UTC(nowKst.getUTCFullYear(), nowKst.getUTCMonth(), nowKst.getUTCDate(), 0, 0, 0)
+  )
+  const todayStart = new Date(todayStartKstDate.getTime() - KST_OFFSET_MS)
 
   try {
     ;[news, studies, refs, statNews, statNewsToday, statStudy, statSaved, statRef] = await Promise.all([
