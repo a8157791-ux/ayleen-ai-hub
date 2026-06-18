@@ -35,14 +35,18 @@ export default async function HomePage() {
   let news: any[] = []
   let studies: any[] = []
   let refs: any[] = []
-  let statNews = 0, statStudy = 0, statSaved = 0, statRef = 0
+  let statNews = 0, statNewsToday = 0, statStudy = 0, statSaved = 0, statRef = 0
+
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
 
   try {
-    ;[news, studies, refs, statNews, statStudy, statSaved, statRef] = await Promise.all([
+    ;[news, studies, refs, statNews, statNewsToday, statStudy, statSaved, statRef] = await Promise.all([
       prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
       prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 6 }),
       prisma.reference.findMany({ orderBy: { createdAt: 'desc' }, take: 6 }),
       prisma.aiNews.count(),
+      prisma.aiNews.count({ where: { createdAt: { gte: todayStart } } }),
       prisma.studyNote.count({ where: { published: true } }),
       prisma.savedLink.count(),
       prisma.reference.count(),
@@ -72,8 +76,8 @@ export default async function HomePage() {
       <div className="stats-row">
         <div className="stat-card">
           <div className="stat-label">수집 뉴스</div>
-          <div className="stat-value">{statNews}</div>
-          <div className="stat-desc">AI 뉴스 기사</div>
+          <div className="stat-value">{statNewsToday}</div>
+          <div className="stat-desc">오늘 수집된 기사</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">스터디 노트</div>

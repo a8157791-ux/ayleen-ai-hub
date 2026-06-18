@@ -44,7 +44,7 @@ const RSS_FEEDS = [
   { url: 'https://abduzeedo.com/rss.xml', source: 'Abduzeedo', category: 'design' },
   { url: 'https://blog.secondbrush.co.kr/rss/', source: 'Daily Prompt', category: 'design' },
   { url: 'https://designcompass.org/feed', source: 'Design Compass', category: 'design' },
-  { url: 'https://toss.tech/feed.xml', source: 'Toss Tech', category: 'design' },
+  { url: 'https://toss.tech/rss.xml', source: 'Toss Tech', category: 'design' },
 
   // 🎬 AI 영상
   { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
@@ -337,6 +337,7 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
   const results = await Promise.allSettled([
     ...RSS_FEEDS.map(f => parseRSSFeed(f)),
     fetchFromNewsAPI(),
+    fetchTossCareerArticles(),
   ])
 
   const all: NewsItem[] = []
@@ -359,4 +360,50 @@ export async function fetchAllAINews(): Promise<NewsItem[]> {
   })
 
   return unique
+}
+
+
+async function fetchTossCareerArticles(): Promise<NewsItem[]> {
+  try {
+    const res = await fetch('https://toss.im/career/article', {
+      headers: { 'User-Agent': 'AyleenAIHub/2.0' },
+      signal: AbortSignal.timeout(8000),
+    })
+
+    if (!res.ok) return []
+
+    const html = await res.text()
+    const matches = Array.from(html.matchAll(/href=["'](\/career\/article\/[^"']+)["'][\s\S]*?>([^<]+)</g))
+
+    const items: NewsItem[] = []
+
+    for (const match of matches) {
+      const path = match[1]
+      const rawTitle = match[2]
+
+      const title = rawTitle
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&nbsp;/g, ' ')
+        .trim()
+
+      if (!title || title.length < 5) continue
+
+      const url = `https://toss.im${path}`
+
+      items.push({
+        title,
+        url,
+        source: 'Toss Career',
+        category: guessCategory(title) || 'plan',
+        publishedAt: undefined,
+      })
+
+      if (items.length >= ITEMS_PER_FEED) break
+    }
+
+    return items
+  } catch {
+    return []
+  }
 }
