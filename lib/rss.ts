@@ -45,9 +45,12 @@ const RSS_FEEDS = [
   { url: 'https://blog.secondbrush.co.kr/rss/', source: 'Daily Prompt', category: 'design' },
   { url: 'https://designcompass.org/feed', source: 'Design Compass', category: 'design' },
   { url: 'https://toss.tech/rss.xml', source: 'Toss Tech', category: 'design' },
+  { url: 'https://medium.com/feed/@mkt_brand_design', source: 'MKT Brand Design', category: 'design' },
+  { url:'https://uxplanet.org/feed', source:'UX Planet', category:'design' },
 
   // 🎬 AI 영상
   { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
+  
 
   // 💻 AI 코딩 툴
   { url: 'https://www.joshwcomeau.com/rss.xml', source: 'Josh W Comeau', category: 'code' },
@@ -88,6 +91,8 @@ const RSS_FEEDS = [
   { url: ytRss('UCowbfOj8HKvTeL6KGIt2waw'), source: '페이퍼로지', category: 'plan' },
   { url: ytRss('UCvh79XDQNnQRns5XSxWnmvw'), source: 'AI아스트라', category: 'research' },
   { url: ytRss('UCjf8cxzqPlayWaJpmtvNC-A'), source: '김이솝의AI가이드', category: 'research' },
+  { url: ytRss('UCNkdLSKIRtTtoRNjvkLO1aQ'), source: '동테크', category: 'productivity' },
+  
 ]
 
 const ITEMS_PER_FEED = 5
