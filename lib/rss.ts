@@ -46,7 +46,8 @@ const RSS_FEEDS = [
   { url: 'https://designcompass.org/feed', source: 'Design Compass', category: 'design' },
   { url: 'https://toss.tech/rss.xml', source: 'Toss Tech', category: 'design' },
   { url: 'https://medium.com/feed/@mkt_brand_design', source: 'MKT Brand Design', category: 'design' },
-  { url:'https://uxplanet.org/feed', source:'UX Planet', category:'design' },
+  { url: 'https://medium.com/daangn/feed', source: 'Daangn', category: 'design' },
+  // { url:'https://uxplanet.org/feed', source:'UX Planet', category:'design' },
 
   // 🎬 AI 영상
   { url: 'https://runwayml.com/blog/rss', source: 'Runway Blog', category: 'video' },
