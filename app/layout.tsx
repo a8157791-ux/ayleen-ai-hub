@@ -68,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="aihub-main">
               <Topbar />
               <main className="aihub-content">
-                {children}
+                <div className="aihub-inner">{children}</div>
               </main>
             </div>
           </div>
