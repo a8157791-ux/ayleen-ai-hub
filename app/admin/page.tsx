@@ -27,10 +27,7 @@ const NEWS_PAGE_SIZE = 50
 
 function SkeletonCard() {
   return (
-    <div style={{
-      background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
-      borderRadius: 10, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12,
-    }}>
+    <div className="admin-row">
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 7 }}>
         <div style={{ height: 14, borderRadius: 4, background: 'var(--color-bg-2)', width: '60%', animation: 'skeleton-pulse 1.4s ease-in-out infinite' }} />
         <div style={{ height: 12, borderRadius: 4, background: 'var(--color-bg-2)', width: '35%', animation: 'skeleton-pulse 1.4s ease-in-out 0.2s infinite' }} />
@@ -228,46 +225,19 @@ export default function AdminPage() {
     setData(p => ({ ...p, [type]: (p[type] ?? []).filter((i: any) => i.id !== id) }))
   }
 
-  const editBtn: React.CSSProperties = {
-    fontSize: 12, padding: '5px 11px', borderRadius: 6,
-    border: '1px solid var(--color-border-2)',
-    color: 'var(--color-text)', background: 'transparent',
-    textDecoration: 'none', whiteSpace: 'nowrap', cursor: 'pointer',
-  }
-  const delBtn: React.CSSProperties = {
-    fontSize: 12, padding: '5px 11px', borderRadius: 6,
-    border: '1px solid rgba(239,68,68,0.3)',
-    color: '#f87171', background: 'transparent',
-    whiteSpace: 'nowrap', cursor: 'pointer',
-  }
-
   function ItemCard({ title, sub, badge, editHref, onDelete }: {
     title: string; sub?: string; badge?: string; editHref?: string; onDelete: () => void
   }) {
     return (
-      <div style={{
-        background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
-        borderRadius: 10, padding: '12px 14px',
-        display: 'flex', alignItems: 'center', gap: 12,
-      }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, color: 'var(--color-text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {title || '(제목 없음)'}
-          </div>
-          {sub && (
-            <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {sub}
-            </div>
-          )}
-          {badge && (
-            <span style={{ display: 'inline-block', marginTop: 5, fontSize: 12, fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
-              {badge}
-            </span>
-          )}
+      <div className="admin-row">
+        <div className="admin-row-body">
+          <div className="admin-row-title">{title || '(제목 없음)'}</div>
+          {sub && <div className="admin-row-sub">{sub}</div>}
+          {badge && <span className="admin-badge">{badge}</span>}
         </div>
-        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-          {editHref && <Link href={editHref} style={editBtn}>편집</Link>}
-          <button onClick={onDelete} style={delBtn}>삭제</button>
+        <div className="admin-actions">
+          {editHref && <Link href={editHref} className="admin-btn"><i className="ti ti-pencil" style={{ fontSize: 12 }} />편집</Link>}
+          <button onClick={onDelete} className="admin-btn danger"><i className="ti ti-trash" style={{ fontSize: 12 }} />삭제</button>
         </div>
       </div>
     )
@@ -288,7 +258,7 @@ export default function AdminPage() {
           position: 'fixed', top: 70, right: 16, zIndex: 999,
           background: 'var(--color-bg-2)', border: '1px solid var(--color-border-2)',
           borderRadius: 10, padding: '12px 18px', fontSize: 13, color: 'var(--color-text)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+          boxShadow: 'var(--shadow-md)',
         }}>
           {toast}
         </div>
@@ -300,52 +270,44 @@ export default function AdminPage() {
         <p style={{ color: 'var(--color-text-3)', fontSize: 13, marginTop: 4 }}>{session.user?.email}</p>
       </div>
 
+      {/* 액션 툴바 */}
       <div className="admin-card" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button className="btn btn-primary" onClick={handleCollect} disabled={collecting}>
-            <i className={`ti ${collecting ? 'ti-loader-2' : 'ti-refresh'}`} style={{ marginRight: 6, ...(collecting ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            <i className={`ti ${collecting ? 'ti-loader-2' : 'ti-refresh'}`} style={collecting ? { animation: 'spin 1s linear infinite' } : undefined} />
             {collecting ? '수집 중...' : 'AI 뉴스 지금 수집'}
           </button>
           <button className="btn btn-ghost" onClick={handleTranslate} disabled={translating}>
-            <i className={`ti ${translating ? 'ti-loader-2' : 'ti-language'}`} style={{ marginRight: 6, ...(translating ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            <i className={`ti ${translating ? 'ti-loader-2' : 'ti-language'}`} style={translating ? { animation: 'spin 1s linear infinite' } : undefined} />
             {translating ? '번역 중...' : '번역 보충'}
           </button>
           <button className="btn btn-ghost" onClick={handleBulkThumbnail} disabled={bulkThumb}>
-            <i className={`ti ${bulkThumb ? 'ti-loader-2' : 'ti-photo'}`} style={{ marginRight: 6, ...(bulkThumb ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            <i className={`ti ${bulkThumb ? 'ti-loader-2' : 'ti-photo'}`} style={bulkThumb ? { animation: 'spin 1s linear infinite' } : undefined} />
             {bulkThumb ? '업데이트 중...' : '레퍼런스 썸네일'}
           </button>
           <button className="btn btn-ghost" onClick={handleBulkNewsThumbnail} disabled={bulkNewsThumb}>
-            <i className={`ti ${bulkNewsThumb ? 'ti-loader-2' : 'ti-news'}`} style={{ marginRight: 6, ...(bulkNewsThumb ? { animation: 'spin 1s linear infinite' } : {}) }} />
+            <i className={`ti ${bulkNewsThumb ? 'ti-loader-2' : 'ti-news'}`} style={bulkNewsThumb ? { animation: 'spin 1s linear infinite' } : undefined} />
             {bulkNewsThumb ? '업데이트 중...' : '뉴스 썸네일'}
           </button>
-          <Link href="/admin/new/study" className="btn btn-ghost">+ 스터디룸</Link>
-          <Link href="/admin/new/tool" className="btn btn-ghost">+ 툴</Link>
-          <Link href="/admin/new/reference" className="btn btn-ghost">+ 레퍼런스</Link>
+          <div style={{ width: 1, alignSelf: 'stretch', background: 'var(--color-border)', margin: '0 2px' }} />
+          <Link href="/admin/new/study" className="btn btn-ghost"><i className="ti ti-plus" />스터디룸</Link>
+          <Link href="/admin/new/tool" className="btn btn-ghost"><i className="ti ti-plus" />툴</Link>
+          <Link href="/admin/new/reference" className="btn btn-ghost"><i className="ti ti-plus" />레퍼런스</Link>
         </div>
       </div>
 
-      {/* 탭 */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 16, borderBottom: '1px solid var(--color-border)', overflowX: 'auto' }}>
-        {TABS.map(t => (
-          <button key={t.value} onClick={() => setTab(t.value)} style={{
-            padding: '8px 16px', border: 'none', background: 'transparent',
-            color: tab === t.value ? 'var(--color-blue)' : 'var(--color-text-3)',
-            borderBottom: tab === t.value ? '2px solid var(--color-blue)' : '2px solid transparent',
-            fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-          }}>
-            {t.label}
-            {t.value === 'news' && newsItems !== null && (
-              <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
-                {newsTotal}
-              </span>
-            )}
-            {t.value !== 'news' && data[t.value] !== null && (
-              <span style={{ marginLeft: 5, fontSize: 12, opacity: 0.6, fontFamily: 'var(--font-mono)' }}>
-                {data[t.value]?.length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* 타입별 탭 */}
+      <div className="tab-bar" style={{ marginBottom: 16 }}>
+        {TABS.map(t => {
+          const c = t.value === 'news' ? (newsItems !== null ? newsTotal : null) : (data[t.value] !== null ? data[t.value]?.length : null)
+          return (
+            <button key={t.value} onClick={() => setTab(t.value)}
+              className={`tab-btn${tab === t.value ? ' active' : ''}`}>
+              {t.label}
+              {c !== null && c !== undefined && <span className="tab-count">{c}</span>}
+            </button>
+          )
+        })}
       </div>
 
       {isLoading && <SkeletonList />}
@@ -354,9 +316,7 @@ export default function AdminPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
           {tab === 'news' && (currentData.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>
-                아직 수집된 뉴스가 없습니다.
-              </div>
+            ? <div className="admin-empty">아직 수집된 뉴스가 없습니다.</div>
             : currentData.map(n => {
                 const title = n.titleKo || n.title
                 const hasKo = n.titleKo && n.titleKo !== n.title
@@ -364,45 +324,19 @@ export default function AdminPage() {
                 const needsTranslation = !n.titleKo && !isKoreanOriginal
                 const isTranslatingThis = translatingIds.has(n.id)
                 return (
-                  <div key={n.id} style={{
-                    background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
-                    borderRadius: 10, padding: '12px 14px',
-                    display: 'flex', alignItems: 'flex-start', gap: 12,
-                  }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, color: 'var(--color-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3 }}>
-                        {title}
-                      </div>
-                      {hasKo && (
-                        <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>
-                          {n.title}
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                        {n.category && (
-                          <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
-                            {n.category}
-                          </span>
-                        )}
-                        {n.source && (
-                          <span style={{ fontSize: 12, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>
-                            {n.source}
-                          </span>
-                        )}
+                  <div key={n.id} className="admin-row top">
+                    <div className="admin-row-body">
+                      <div className="admin-row-title">{title}</div>
+                      {hasKo && <div className="admin-row-sub">{n.title}</div>}
+                      <div className="admin-row-meta">
+                        {n.category && <span className="admin-badge">{n.category}</span>}
+                        {n.source && <span className="admin-source">{n.source}</span>}
                         {needsTranslation && (
                           <button
                             onClick={() => handleTranslateOne(n.id)}
                             disabled={isTranslatingThis}
-                            style={{
-                              fontSize: 11, padding: '2px 9px', borderRadius: 4,
-                              border: '1px solid rgba(251,191,36,0.4)',
-                              background: isTranslatingThis ? 'rgba(251,191,36,0.1)' : 'transparent',
-                              color: 'var(--color-amber)',
-                              cursor: isTranslatingThis ? 'default' : 'pointer',
-                              fontFamily: 'var(--font-mono)',
-                              display: 'flex', alignItems: 'center', gap: 4,
-                              transition: 'background 0.15s',
-                            }}
+                            className="admin-btn warn"
+                            style={{ padding: '2px 9px', fontFamily: 'var(--font-mono)', fontSize: 11 }}
                           >
                             {isTranslatingThis
                               ? <><i className="ti ti-loader-2" style={{ fontSize: 11, animation: 'spin 1s linear infinite' }} /> 번역 중</>
@@ -411,15 +345,15 @@ export default function AdminPage() {
                           </button>
                         )}
                         {isKoreanOriginal && !n.titleKo && (
-                          <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, background: 'rgba(52,211,153,0.1)', color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 'var(--radius-sm)', background: 'rgba(5,150,105,0.1)', color: 'var(--color-green)', fontFamily: 'var(--font-mono)' }}>
                             한국어
                           </span>
                         )}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                      <a href={n.url} target="_blank" rel="noopener noreferrer" style={editBtn}>링크</a>
-                      <button onClick={() => handleDeleteNews(n.id)} style={delBtn}>삭제</button>
+                    <div className="admin-actions">
+                      <a href={n.url} target="_blank" rel="noopener noreferrer" className="admin-btn"><i className="ti ti-external-link" style={{ fontSize: 12 }} />링크</a>
+                      <button onClick={() => handleDeleteNews(n.id)} className="admin-btn danger"><i className="ti ti-trash" style={{ fontSize: 12 }} />삭제</button>
                     </div>
                   </div>
                 )
@@ -427,7 +361,7 @@ export default function AdminPage() {
           )}
 
           {tab === 'study' && (currentData.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 스터디룸이 없습니다.</div>
+            ? <div className="admin-empty">등록된 스터디룸이 없습니다.</div>
             : currentData.map(n => (
               <ItemCard key={n.id} title={n.title} sub={n.siteUrl || n.mediaUrl || ''}
                 badge={n.category} editHref={`/admin/edit/study/${n.id}`}
@@ -436,7 +370,7 @@ export default function AdminPage() {
           )}
 
           {tab === 'tools' && (currentData.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 툴이 없습니다.</div>
+            ? <div className="admin-empty">등록된 툴이 없습니다.</div>
             : currentData.map(t => (
               <ItemCard key={t.id} title={t.name} sub={t.url}
                 badge={[t.category, t.pricing].filter(Boolean).join(' · ')}
@@ -446,35 +380,26 @@ export default function AdminPage() {
           )}
 
           {tab === 'saved' && (currentData.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>저장한 글이 없습니다.</div>
+            ? <div className="admin-empty">저장한 글이 없습니다.</div>
             : currentData.map(l => (
-              <div key={l.id} style={{
-                background: 'var(--color-bg-3)', border: '1px solid var(--color-border)',
-                borderRadius: 10, padding: '12px 14px',
-                display: 'flex', alignItems: 'center', gap: 12,
-              }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                    {l.linkType && (
-                      <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', padding: '2px 7px', borderRadius: 4, background: 'var(--color-bg-2)', color: 'var(--color-text-3)' }}>
-                        {l.linkType}
-                      </span>
-                    )}
-                    {l.category && (
-                      <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)' }}>{l.category}</span>
-                    )}
+              <div key={l.id} className="admin-row">
+                <div className="admin-row-body">
+                  <div className="admin-row-title">{l.title || l.url}</div>
+                  <div className="admin-row-meta">
+                    {l.linkType && <span className="admin-badge">{l.linkType}</span>}
+                    {l.category && <span className="admin-source">{l.category}</span>}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                  <a href={l.url} target="_blank" rel="noopener noreferrer" style={editBtn}>링크</a>
-                  <button onClick={() => handleDelete('saved', l.id)} style={delBtn}>삭제</button>
+                <div className="admin-actions">
+                  <a href={l.url} target="_blank" rel="noopener noreferrer" className="admin-btn"><i className="ti ti-external-link" style={{ fontSize: 12 }} />링크</a>
+                  <button onClick={() => handleDelete('saved', l.id)} className="admin-btn danger"><i className="ti ti-trash" style={{ fontSize: 12 }} />삭제</button>
                 </div>
               </div>
             ))
           )}
 
           {tab === 'reference' && (currentData.length === 0
-            ? <div style={{ textAlign: 'center', padding: 40, color: 'var(--color-text-3)', fontSize: 13 }}>등록된 레퍼런스가 없습니다.</div>
+            ? <div className="admin-empty">등록된 레퍼런스가 없습니다.</div>
             : currentData.map(r => (
               <ItemCard key={r.id} title={r.title || r.url} sub={r.url}
                 badge={[r.refType, r.category].filter(Boolean).join(' · ')}

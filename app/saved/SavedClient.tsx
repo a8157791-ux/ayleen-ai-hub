@@ -80,21 +80,17 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
             className={`tab-btn${activeTab === tab.value ? ' active' : ''}`}>
             {tab.label}
             {count(tab.value) > 0 && (
-              <span style={{
-                marginLeft: 5, fontSize: 10, padding: '1px 5px', borderRadius: 10,
-                background: activeTab === tab.value ? 'rgba(255,255,255,0.2)' : 'var(--color-bg-3)',
-                fontFamily: 'var(--font-mono)',
-              }}>
-                {count(tab.value)}
-              </span>
+              <span className="tab-count">{count(tab.value)}</span>
             )}
           </button>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, padding: '40px 0', textAlign: 'center' }}>
-          저장된 항목이 없어요.
+        <div className="saved-empty">
+          <i className="ti ti-heart" />
+          <p>{activeTab === 'all' ? '저장한 글이 아직 없어요.' : '이 탭에 저장된 항목이 없어요.'}</p>
+          <span>마음에 드는 글을 하트로 저장해보세요.</span>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -108,30 +104,13 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
                 onClick={(e) => handleRemove(link, e)}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 3,
-                }}>
-                  {link.title || link.url}
-                </div>
-                {link.memo && (
-                  <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 4, lineHeight: 1.5 }}>
-                    {link.memo}
-                  </div>
-                )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div className="saved-title">{link.title || link.url}</div>
+                {link.memo && <div className="saved-memo">{link.memo}</div>}
+                <div className="saved-metarow">
                   {link.linkType && (
-                    <span style={{
-                      fontSize: 10, fontFamily: 'var(--font-mono)',
-                      padding: '2px 7px', borderRadius: 4,
-                      background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
-                    }}>
-                      {LINK_TYPE_LABELS[link.linkType] || link.linkType}
-                    </span>
+                    <span className="saved-type">{LINK_TYPE_LABELS[link.linkType] || link.linkType}</span>
                   )}
-                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--color-text-3)' }}>
-                    {formatDate(link.createdAt)}
-                  </span>
+                  <span className="saved-date">{formatDate(link.createdAt)}</span>
                 </div>
               </div>
             </a>

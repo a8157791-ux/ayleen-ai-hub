@@ -61,7 +61,7 @@ export default function ImageUpload({ value, onChange, folder = 'misc' }: ImageU
           style={{display:'none'}}
         />
       </div>
-      {error && <div style={{fontSize:12, color:'#f87171'}}>{error}</div>}
+      {error && <div style={{fontSize:12, color:'var(--color-danger)'}}>{error}</div>}
       {value && /\.(jpg|jpeg|png|webp|gif)$/i.test(value) && (
         <img src={value} alt="미리보기" style={{maxWidth:200, borderRadius:8, border:'1px solid var(--color-border)'}} />
       )}

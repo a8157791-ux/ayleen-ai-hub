@@ -25,8 +25,8 @@ export default function HeartButton({ isSaved, isLoading = false, size = 18, onC
       <svg
         width={size} height={size}
         viewBox="0 0 24 24"
-        fill={isSaved ? 'var(--color-text)' : 'none'}
-        stroke="var(--color-text)"
+        fill={isSaved ? 'var(--color-blue)' : 'none'}
+        stroke={isSaved ? 'var(--color-blue)' : 'var(--color-text)'}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

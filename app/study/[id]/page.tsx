@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import CopyButton from '@/components/CopyButton'
+import StudyToc from './StudyToc'
 
 const catLabel: Record<string, string> = {
   image: '이미지',
@@ -47,200 +48,172 @@ function getYouTubeEmbedUrl(url: string) {
 }
 
 export default async function StudyDetailPage({ params }: { params: { id: string } }) {
-  const note = await prisma.studyNote.findUnique({
-    where: { id: parseInt(params.id) },
-  })
+  const id = parseInt(params.id)
+  const note = await prisma.studyNote.findUnique({ where: { id } })
 
   if (!note || !note.published) notFound()
+
+  // 이전 / 다음 (published, id 기준)
+  const [prev, next] = await Promise.all([
+    prisma.studyNote.findFirst({
+      where: { published: true, id: { lt: id } },
+      orderBy: { id: 'desc' },
+      select: { id: true, title: true },
+    }),
+    prisma.studyNote.findFirst({
+      where: { published: true, id: { gt: id } },
+      orderBy: { id: 'asc' },
+      select: { id: true, title: true },
+    }),
+  ])
 
   const tags = note.tags ? note.tags.split(',').map(t => t.trim()).filter(Boolean) : []
   const embedUrl = note.mediaUrl && isYouTube(note.mediaUrl)
     ? getYouTubeEmbedUrl(note.mediaUrl)
     : null
 
+  // TOC 섹션 (실제로 존재하는 것만)
+  const sections = [
+    note.mediaUrl && { id: 'sd-preview', label: '미리보기' },
+    note.content && { id: 'sd-note', label: '노트' },
+    note.prompt && { id: 'sd-prompt', label: '프롬프트' },
+    tags.length > 0 && { id: 'sd-tags', label: '태그' },
+  ].filter(Boolean) as { id: string; label: string }[]
+
   return (
-    <div className="page-container">
-      {/* 브레드크럼 */}
-      <div style={{display:'flex', alignItems:'center', gap:'6px', marginBottom:'20px'}}>
-        <Link href="/study" style={{color:'var(--color-text-3)', fontSize:'13px', textDecoration:'none'}}>
-          스터디룸
-        </Link>
-        <span style={{color:'var(--color-text-3)', fontSize:'13px'}}>/</span>
-        <span style={{color:'var(--color-text-2)', fontSize:'13px'}}>{note.title}</span>
-      </div>
-
-      {/* 헤더 */}
-      <div style={{marginBottom:'28px'}}>
-        <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px', flexWrap:'wrap'}}>
-          {note.category && (
-            <span className={`cat-badge ${catClass[note.category] ?? ''}`}>
-              {catLabel[note.category] ?? note.category}
-            </span>
-          )}
-          {note.tool && (
-            <span style={{
-              fontSize:'11px', padding:'3px 8px',
-              background:'var(--color-bg-3)', color:'var(--color-text-2)',
-              border:'1px solid var(--color-border)', borderRadius:'5px',
-              fontFamily:'var(--font-mono)',
-            }}>
-              {note.tool}
-            </span>
-          )}
+    <div className="sd-wrap">
+      <article className="sd-main">
+        {/* 브레드크럼 */}
+        <div className="sd-crumb">
+          <Link href="/study">스터디룸</Link>
+          <span className="sep">/</span>
+          <span className="here">{note.title}</span>
         </div>
 
-        <h1 style={{
-          fontFamily:'var(--font-serif)', fontSize:'clamp(22px, 4vw, 32px)',
-          color:'var(--color-text)', lineHeight:1.4, marginBottom:'14px',
-        }}>
-          {note.title}
-        </h1>
-
-        {/* 메타 행 — 날짜 + 웹사이트 바로가기 */}
-        <div style={{display:'flex', alignItems:'center', gap:'16px', flexWrap:'wrap'}}>
-          {note.studiedAt && (
-            <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
-              <i className="ti ti-calendar" style={{fontSize:'14px', color:'var(--color-text-3)'}} />
-              <span style={{
-                fontSize:'12px', color:'var(--color-text-3)',
-                fontFamily:'var(--font-mono)',
-              }}>
-                {formatStudiedAt(note.studiedAt)}
+        {/* 헤더 */}
+        <header>
+          <div className="sd-chips">
+            {note.category && (
+              <span className={`cat-badge ${catClass[note.category] ?? ''}`}>
+                {catLabel[note.category] ?? note.category}
               </span>
-            </div>
-          )}
-
-          {note.siteUrl && (
-            <a
-              href={note.siteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display:'inline-flex', alignItems:'center', gap:'6px',
-                padding:'5px 12px',
-                background:'rgba(59,130,246,0.1)',
-                border:'1px solid rgba(59,130,246,0.25)',
-                borderRadius:'20px',
-                color:'var(--color-blue)',
-                fontSize:'12px',
-                textDecoration:'none',
-                transition:'all 0.15s',
-              }}
-            >
-              <i className="ti ti-world" style={{fontSize:'13px'}} />
-              웹사이트 바로가기
-              <i className="ti ti-external-link" style={{fontSize:'11px', opacity:0.7}} />
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* 미디어 — YouTube 임베드 or 이미지 */}
-      {note.mediaUrl && (
-        <div style={{marginBottom:'28px'}}>
-          {embedUrl ? (
-            <div style={{
-              position:'relative', paddingTop:'56.25%',
-              background:'var(--color-bg-2)', borderRadius:'12px', overflow:'hidden',
-              border:'1px solid var(--color-border)',
-            }}>
-              <iframe
-                src={embedUrl}
-                style={{position:'absolute', top:0, left:0, width:'100%', height:'100%', border:'none'}}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <div style={{borderRadius:'12px', overflow:'hidden', border:'1px solid var(--color-border)'}}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={note.mediaUrl}
-                alt={note.title}
-                style={{width:'100%', maxHeight:'480px', objectFit:'contain', background:'var(--color-bg-2)', display:'block'}}
-              />
-            </div>
-          )}
-          {!embedUrl && (
-            <a
-              href={note.mediaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display:'inline-flex', alignItems:'center', gap:'4px',
-                marginTop:'8px', fontSize:'11px', color:'var(--color-text-3)',
-                textDecoration:'none',
-              }}
-            >
-              <i className="ti ti-external-link" style={{fontSize:'12px'}} />
-              원본 링크 열기
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* 본문 */}
-      {note.content && (
-        <div style={{
-          background:'var(--color-bg-2)', border:'1px solid var(--color-border)',
-          borderRadius:'12px', padding:'24px', marginBottom:'20px',
-        }}>
-          <h2 style={{
-            fontSize:'12px', fontFamily:'var(--font-mono)', color:'var(--color-text-3)',
-            letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'14px',
-          }}>
-            NOTE
-          </h2>
-          <p style={{
-            fontSize:'15px', lineHeight:1.8, color:'var(--color-text)',
-            whiteSpace:'pre-wrap', wordBreak:'break-word',
-          }}>
-            {note.content}
-          </p>
-        </div>
-      )}
-
-      {/* 프롬프트 */}
-      {note.prompt && (
-        <div style={{
-          background:'rgba(167,139,250,0.06)', border:'1px solid rgba(167,139,250,0.15)',
-          borderRadius:'12px', padding:'20px', marginBottom:'20px',
-        }}>
-          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px'}}>
-            <h2 style={{
-              fontSize:'12px', fontFamily:'var(--font-mono)', color:'var(--color-purple)',
-              letterSpacing:'0.08em', textTransform:'uppercase', margin:0,
-            }}>
-              PROMPT
-            </h2>
-            <CopyButton text={note.prompt} />
+            )}
+            {note.tool && <span className="sd-tool">{note.tool}</span>}
           </div>
-          <p style={{
-            fontSize:'14px', lineHeight:1.7, color:'var(--color-text-2)',
-            whiteSpace:'pre-wrap', wordBreak:'break-word', fontFamily:'var(--font-mono)',
-          }}>
-            {note.prompt}
-          </p>
-        </div>
-      )}
 
-      {/* 태그 */}
-      {tags.length > 0 && (
-        <div style={{display:'flex', flexWrap:'wrap', gap:'6px'}}>
-          {tags.map(tag => (
-            <span
-              key={tag}
-              style={{
-                fontSize:'11px', padding:'4px 10px',
-                background:'var(--color-bg-3)', color:'var(--color-text-3)',
-                border:'1px solid var(--color-border)', borderRadius:'20px',
-              }}
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
-      )}
+          <h1 className="sd-title">{note.title}</h1>
+
+          <div className="sd-meta">
+            {note.studiedAt && (
+              <div className="sd-meta-item">
+                <i className="ti ti-calendar" style={{ fontSize: 14 }} />
+                {formatStudiedAt(note.studiedAt)}
+              </div>
+            )}
+            {note.category && (
+              <div className="sd-meta-item">
+                <i className="ti ti-folder" style={{ fontSize: 14 }} />
+                {catLabel[note.category] ?? note.category}
+              </div>
+            )}
+            {note.siteUrl && (
+              <a href={note.siteUrl} target="_blank" rel="noopener noreferrer" className="sd-site">
+                <i className="ti ti-world" style={{ fontSize: 13 }} />
+                웹사이트 바로가기
+                <i className="ti ti-external-link" style={{ fontSize: 11, opacity: 0.7 }} />
+              </a>
+            )}
+          </div>
+        </header>
+
+        {/* 미디어 — 16:9 히어로 */}
+        {note.mediaUrl && (
+          <section id="sd-preview" className="sd-section" style={{ marginTop: 0 }}>
+            <div className="sd-hero">
+              {embedUrl ? (
+                <iframe
+                  src={embedUrl}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={note.mediaUrl}
+                  alt={note.title}
+                  className={note.category === 'image' ? 'contain' : ''}
+                />
+              )}
+            </div>
+            {!embedUrl && (
+              <a href={note.mediaUrl} target="_blank" rel="noopener noreferrer" className="sd-caption">
+                <i className="ti ti-external-link" style={{ fontSize: 12 }} />
+                원본 링크 열기
+              </a>
+            )}
+          </section>
+        )}
+
+        {/* 노트 본문 */}
+        {note.content && (
+          <section id="sd-note" className="sd-section">
+            <div className="sd-eyebrow">
+              <h2>노트</h2>
+            </div>
+            <div className="sd-prose">{note.content}</div>
+          </section>
+        )}
+
+        {/* 프롬프트 — 라벨 코드블록 */}
+        {note.prompt && (
+          <section id="sd-prompt" className="sd-section">
+            <div className="sd-code">
+              <div className="sd-code-bar">
+                <span>Prompt</span>
+                <CopyButton text={note.prompt} />
+              </div>
+              <pre>{note.prompt}</pre>
+            </div>
+          </section>
+        )}
+
+        {/* 태그 */}
+        {tags.length > 0 && (
+          <section id="sd-tags" className="sd-section">
+            <div className="sd-eyebrow">
+              <h2>태그</h2>
+            </div>
+            <div className="sd-tags">
+              {tags.map(tag => (
+                <span key={tag} className="sd-tag">#{tag}</span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 이전 / 다음 */}
+        {(prev || next) && (
+          <nav className="sd-nav">
+            {prev ? (
+              <Link href={`/study/${prev.id}`} className="sd-navcard prev">
+                <span className="dir"><i className="ti ti-arrow-left" style={{ fontSize: 12 }} />이전</span>
+                <span className="t">{prev.title}</span>
+              </Link>
+            ) : <span />}
+            {next ? (
+              <Link href={`/study/${next.id}`} className="sd-navcard next">
+                <span className="dir">다음<i className="ti ti-arrow-right" style={{ fontSize: 12 }} /></span>
+                <span className="t">{next.title}</span>
+              </Link>
+            ) : <span />}
+          </nav>
+        )}
+      </article>
+
+      {/* 우측 TOC */}
+      <aside className="sd-toc">
+        <StudyToc sections={sections} />
+      </aside>
     </div>
   )
 }

@@ -3,7 +3,7 @@
    CSS Variables · Reset · Typography · Dark Mode
 ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Mono:wght@300;400;500&display=swap');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 /* ── Reset ── */
@@ -16,66 +16,20 @@ button {cursor: pointer; border: none; background: none; font: inherit}
 ul, ol {list-style: none}
 input, textarea, select {font: inherit}
 
-/* ── Color tokens ── */
+/* ── Color tokens ── LIGHT is the default (Clean Editorial) ── */
 :root {
-  --color-bg:          #080B12;
-  --color-bg-2:        #0E1219;
-  --color-bg-3:        #141925;
-  --color-sidebar:     #090C14;
-
-  --color-blue:        #3B82F6;
-  --color-blue-dim:    #1E3A5F;
-  --color-blue-glow:   rgba(59, 130, 246, 0.12);
-  --color-blue-border: rgba(59, 130, 246, 0.25);
-
-  --color-cyan:        #06B6D4;
-  --color-indigo:      #6366F1;
-  --color-purple:      #A78BFA;
-  --color-pink:        #F472B6;
-  --color-amber:       #FBBF24;
-  --color-green:       #34D399;
-  --color-orange:      #FB923C;
-  --color-white:       #FFFFFF;
-
-  --color-text:        #E8EAF0;
-  --color-text-2:      #8B92A8;
-  --color-text-3:      #50586E;
-
-  --color-border:      rgba(255, 255, 255, 0.06);
-  --color-border-2:    rgba(255, 255, 255, 0.10);
-
-  --cat-design:        #06B6D4;
-  --cat-code:          #A78BFA;
-  --cat-video:         #F472B6;
-  --cat-research:      #34D399;
-  --cat-3d:            #FBBF24;
-  --cat-plan:          #FB923C;
-
-  --font-serif:    'Nanum Myeongjo', Georgia, serif;
-  --font-display:  'Black Han Sans', sans-serif;
-  --font-mono:     'DM Mono', 'Fira Mono', monospace;
-  --font-sans:     'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  --sidebar-w:     224px;
-  --topbar-h:      52px;
-  --radius-sm:     3px;
-  --radius-md:     5px;
-  --radius-lg:     8px;
-  --ease:          cubic-bezier(0.4, 0, 0.2, 1);
-  --duration:      0.18s;
-}
-
-/* ── Light Mode ── */
-[data-theme="light"] {
+  /* Surfaces — neutral grays, no blue tint */
   --color-bg:          #FFFFFF;
-  --color-bg-2:        #F9FAFB;
-  --color-bg-3:        #F2F4F6;
-  --color-sidebar:     #F9FAFB;
+  --color-bg-2:        #FAFAFA;
+  --color-bg-3:        #EBEBEB;
+  --color-sidebar:     #EEEEEE;
 
-  --color-blue:        #3182F6;
-  --color-blue-dim:    #EBF3FE;
-  --color-blue-glow:   rgba(49, 130, 246, 0.08);
-  --color-blue-border: rgba(49, 130, 246, 0.25);
+  /* Brand blue — ACCENT ONLY (AA on white) */
+  --color-blue:        #2563EB;
+  --color-blue-strong: #1D4ED8;
+  --color-blue-dim:    #E7EEFE;
+  --color-blue-glow:   rgba(37, 99, 235, 0.07);
+  --color-blue-border: rgba(37, 99, 235, 0.28);
 
   --color-cyan:        #0891B2;
   --color-indigo:      #4F46E5;
@@ -84,30 +38,134 @@ input, textarea, select {font: inherit}
   --color-amber:       #D97706;
   --color-green:       #059669;
   --color-orange:      #EA580C;
+  --color-white:       #FFFFFF;
+  --color-danger:      #DC2626;
 
-  --color-text:        #191F28;
-  --color-text-2:      #5B6472;
-  --color-text-3:      #8A92A0;
+  /* Text — neutral gray ramp */
+  --color-text:        #1A1A1A;
+  --color-text-2:      #5C5C5C;
+  --color-text-3:      #9A9A9A;
 
-  --color-border:      #E5E8EB;
-  --color-border-2:    #CDD1D5;
+  /* Hairlines — neutral gray */
+  --color-border:      #E5E5E5;
+  --color-border-2:    #D4D4D4;
 
+  /* Category taxonomy (light) */
   --cat-design:        #0891B2;
   --cat-code:          #7C3AED;
   --cat-video:         #DB2777;
   --cat-research:      #059669;
   --cat-3d:            #D97706;
   --cat-plan:          #EA580C;
+
+  /* Elevation — real soft shadows (light) */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:  0 6px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg:  0 16px 40px rgba(0, 0, 0, 0.12);
+
+  --font-display:  'Black Han Sans', 'Pretendard', sans-serif;
+  --font-mono:     'DM Mono', 'Fira Mono', 'SF Mono', monospace;
+  --font-sans:     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  --sidebar-w:     224px;
+  --topbar-h:      52px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --ease:          cubic-bezier(0.4, 0, 0.2, 1);
+  --duration:      0.18s;
 }
 
-[data-theme="light"] .sb-item:hover {background: rgba(0,0,0,0.04)}
-[data-theme="light"] .topbar-menu-btn:hover {background: rgba(0,0,0,0.06)}
-[data-theme="light"] .news-item:hover {background: rgba(0,0,0,0.03)}
-[data-theme="light"] .admin-table tr:hover td {background: rgba(0,0,0,0.02)}
+/* ── Dark Mode — polished scope, raised contrast vs legacy ── */
+[data-theme="dark"] {
+  --color-bg:          #0A0D14;
+  --color-bg-2:        #12161F;
+  --color-bg-3:        #1A1F2B;
+  --color-sidebar:     #080B12;
+
+  --color-blue:        #3B82F6;
+  --color-blue-strong: #60A5FA;
+  --color-blue-dim:    #16294A;
+  --color-blue-glow:   rgba(59, 130, 246, 0.14);
+  --color-blue-border: rgba(59, 130, 246, 0.30);
+
+  --color-cyan:        #22D3EE;
+  --color-indigo:      #818CF8;
+  --color-purple:      #A78BFA;
+  --color-pink:        #F472B6;
+  --color-amber:       #FBBF24;
+  --color-green:       #34D399;
+  --color-orange:      #FB923C;
+  --color-danger:      #F87171;
+
+  --color-text:        #E9ECF3;
+  --color-text-2:      #97A0B5;
+  --color-text-3:      #5B647B;
+
+  --color-border:      rgba(255, 255, 255, 0.09);
+  --color-border-2:    rgba(255, 255, 255, 0.15);
+
+  --cat-design:        #22D3EE;
+  --cat-code:          #A78BFA;
+  --cat-video:         #F472B6;
+  --cat-research:      #34D399;
+  --cat-3d:            #FBBF24;
+  --cat-plan:          #FB923C;
+
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.50);
+  --shadow-md:  0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-lg:  0 20px 48px rgba(0, 0, 0, 0.60);
+
+  /* ── Families ── */
+  --font-sans:     'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display:  'Black Han Sans', 'Pretendard', sans-serif;
+  --font-mono:     'DM Mono', 'Fira Mono', 'SF Mono', monospace;
+
+  /* ── Type scale (px) — editorial, roomy ── */
+  --text-hero:     44px;  /* page hero, sans bold */
+  --text-display:  32px;  /* page title / logo lockup, Black Han Sans */
+  --text-h1:       28px;  /* big section / article title, sans */
+  --text-h2:       22px;  /* section title, sans semibold */
+  --text-h3:       18px;  /* card headline, sans semibold */
+  --text-lead:     17px;  /* feed headline / lead paragraph */
+  --text-body:     15px;  /* default body / UI */
+  --text-sm:       14px;  /* dense body, secondary */
+  --text-meta:     13px;  /* mono meta, source·time */
+  --text-label:    12px;  /* eyebrows, kickers, field labels (mono, tracked) */
+  --text-xs:       11px;  /* micro caption, original-title line */
+
+  /* ── Weights ── */
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ── Line heights ── */
+  --leading-tight:   1.15;   /* hero / display */
+  --leading-snug:    1.3;    /* headlines */
+  --leading-normal:  1.55;   /* body */
+  --leading-relaxed: 1.7;    /* long-form summaries */
+
+  /* ── Tracking ── */
+  --tracking-kicker: 0.16em;  /* uppercase mono eyebrows / group labels */
+  --tracking-label:  0.08em;  /* field labels, category tags */
+  --tracking-tight: -0.01em;  /* large headlines */
+  --tracking-normal: 0;
+}
+
+/* Dark-scope hovers (base hovers below are light/dark-tint on white) */
+[data-theme="dark"] .sb-item:hover {background: rgba(255,255,255,0.025)}
+[data-theme="dark"] .topbar-menu-btn:hover {background: rgba(255,255,255,0.05)}
+[data-theme="dark"] .news-item:hover {background: rgba(255,255,255,0.015)}
+[data-theme="dark"] .admin-table tr:hover td {background: rgba(255,255,255,0.02)}
 
 /* ── Base ── */
 html {transition: background-color 0.2s, color 0.2s}
-body {font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text)}
+body {font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text); font-size: 15px}
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {width: 4px; height: 4px}
@@ -115,13 +173,13 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 ::-webkit-scrollbar-thumb {background: rgba(128,128,128,0.2); border-radius: 2px}
 ::-webkit-scrollbar-thumb:hover {background: rgba(128,128,128,0.35)}
 
-/* ── Shell ── */
-.aihub-shell {display: flex; min-height: 100vh; position: relative}
+/* ── Shell ── gray frame + rounded white canvas */
+.aihub-shell {display: flex; height: 100vh; overflow: hidden; position: relative; background: var(--color-sidebar)}
 
 /* ── Sidebar ── */
 .aihub-sidebar {
   width: var(--sidebar-w); flex-shrink: 0;
-  background: var(--color-sidebar); border-right: 1px solid var(--color-border);
+  background: var(--color-sidebar); border-right: none;
   display: flex; flex-direction: column;
   position: fixed; top: 0; left: 0; height: 100vh;
   z-index: 100; overflow-y: auto;
@@ -136,10 +194,18 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .sidebar-overlay.active {opacity: 1; display: block}
 
 /* ── Logo ── */
-.sb-logo {padding: 22px 20px 18px; border-bottom: 1px solid var(--color-border); flex-shrink: 0}
-.sb-logo-name {font-family: var(--font-display); font-size: 21px; font-weight: 300; font-style: italic; color: var(--color-text); letter-spacing: 0.01em; line-height: 1.1}
+.sb-logo {padding: 22px 20px 18px; flex-shrink: 0}
+.sb-logo-name {font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--color-text); letter-spacing: 0; line-height: 1.1}
 .sb-logo-name span {color: var(--color-blue)}
 .sb-logo-sub {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px}
+
+/* ── Sidebar search (⌘K) ── */
+.sb-search {display: flex; align-items: center; gap: 8px; margin: 12px; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); flex-shrink: 0; transition: border-color var(--duration) var(--ease)}
+.sb-search:focus-within {border-color: var(--color-blue-border)}
+.sb-search i {font-size: 15px; color: var(--color-text-3); flex-shrink: 0}
+.sb-search-input {flex: 1; min-width: 0; background: none; border: none; outline: none; font-family: var(--font-sans); font-size: 13px; color: var(--color-text)}
+.sb-search-input::placeholder {color: var(--color-text-3)}
+.sb-search-kbd {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1px 5px; flex-shrink: 0}
 
 /* ── Nav ── */
 .sb-nav {flex: 1; padding: 8px 0}
@@ -147,13 +213,21 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .sb-group-label {padding: 0 20px 6px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.18em; text-transform: uppercase}
 .sb-divider {height: 1px; background: var(--color-border); margin: 4px 0}
 .sb-item {
-  display: flex; align-items: center; gap: 9px; padding: 9px 20px;
-  font-size: 12.5px; color: var(--color-text-2); cursor: pointer;
-  border-left: 2px solid transparent;
-  transition: color var(--duration) var(--ease), background var(--duration) var(--ease), border-color var(--duration) var(--ease)
+  display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 1px 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-2);
+    background: transparent;
+    transition: color var(--duration) var(--ease), background var(--duration) var(--ease);
 }
-.sb-item:hover {color: var(--color-text); background: rgba(255,255,255,0.025)}
-.sb-item.active {color: var(--color-blue); border-left-color: var(--color-blue); background: var(--color-blue-glow)}
+.sb-item:hover {color: var(--color-text); background: rgba(0,0,0,0.04)}
+.sb-item.active {color: var(--color-text); background: color-mix(in srgb, var(--color-text) 8%, transparent); font-weight: 600}
 .sb-item i {font-size: 15px; opacity: 0.65; flex-shrink: 0}
 .sb-item.active i {opacity: 1}
 .sb-item-badge {margin-left: auto; font-family: var(--font-mono); font-size: 12px; background: var(--color-blue-dim); color: var(--color-blue); padding: 1px 5px; border-radius: var(--radius-sm)}
@@ -163,33 +237,43 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .sb-clock {font-family: var(--font-mono); font-size: 20px; font-weight: 300; color: var(--color-text); display: block; margin-bottom: 2px}
 .sb-location {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); letter-spacing: 0.1em}
 
+/* ── Sidebar footer — theme segment toggle ── */
+.sb-footer {display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px; border-top: 1px solid var(--color-border); flex-shrink: 0}
+.sb-clock {display: flex; flex-direction: column; gap: 3px; min-width: 0}
+.sb-clock-time {font-family: var(--font-mono); font-size: 18px; font-weight: 400; color: var(--color-text); letter-spacing: 0.03em; line-height: 1}
+.sb-clock-sub {font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-3)}
+.sb-theme-seg {display: inline-flex; gap: 2px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius:999px; padding: 3px; flex-shrink: 0}
+.sb-theme-opt {width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--color-text-3); border: none; background: none; cursor: pointer; transition: color var(--duration) var(--ease), background var(--duration) var(--ease)}
+.sb-theme-opt i {font-size: 15px}
+.sb-theme-opt:hover {color: var(--color-text-2)}
+.sb-theme-opt.active {color: var(--color-text); background: var(--color-bg); box-shadow: var(--shadow-xs)}
+
 /* ── Main area ── */
-.aihub-main {flex: 1; min-width: 0; display: flex; flex-direction: column}
+.aihub-main {flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--color-sidebar)}
 
 /* ── Topbar ── */
 .aihub-topbar {
   height: var(--topbar-h); display: flex; align-items: center;
   justify-content: space-between; padding: 0 16px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg); position: sticky; top: 0; z-index: 50; gap: 12px
+  background: transparent; position: relative; z-index: 50; gap: 12px; flex-shrink: 0
 }
 .topbar-left {display: flex; align-items: center; gap: 10px; min-width: 0}
 .topbar-menu-btn {display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--radius-md); color: var(--color-text-2); flex-shrink: 0; transition: background var(--duration)}
-.topbar-menu-btn:hover {background: rgba(255,255,255,0.05)}
+.topbar-menu-btn:hover {background: rgba(0,0,0,0.06)}
 .topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); white-space: nowrap}
-.topbar-greeting {font-family: var(--font-serif); font-size: 12px; font-style: italic; color: var(--color-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none}
+.topbar-greeting {font-family: var(--font-sans); font-size: 12px; color: var(--color-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none}
 .topbar-right {display: flex; align-items: center; gap: 8px; flex-shrink: 0}
 .topbar-pill {display: flex; align-items: center; gap: 5px; background: var(--color-bg-3); border: 1px solid var(--color-border); padding: 5px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); white-space: nowrap}
 .topbar-icon-btn {display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; color: var(--color-text-2); transition: border-color var(--duration)}
 .topbar-icon-btn:hover {border-color: var(--color-border-2)}
 
-/* ── Page content ── */
-.aihub-content {flex: 1; padding: 20px 16px 48px}
+/* ── Page content ── white canvas panel, scrolls internally */
+.aihub-content {flex: 1; min-height: 0; overflow-y: auto; background: var(--color-bg); padding: 20px 16px 48px}
 
 /* ── Section ── */
 .aihub-section {margin-bottom: 36px}
 .sec-hd {display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--color-border)}
-.sec-title {font-family: var(--font-serif); font-size: 18px; font-weight: 400; color: var(--color-text)}
+.sec-title {font-family: var(--font-sans); font-size: 20px; font-weight: 600; color: var(--color-text)}
 .sec-count {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 .sec-more {margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--color-blue); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 3px; text-decoration: none; transition: opacity var(--duration)}
 .sec-more:hover {opacity: 0.75}
@@ -205,8 +289,8 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 /* ── Hero ── */
 .page-hero {margin-bottom: 24px}
 .hero-eyebrow {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--color-blue); text-transform: uppercase; margin-bottom: 8px}
-.hero-title {font-family: var(--font-display); font-size: 30px; font-weight: 300; font-style: italic; line-height: 1.2; color: var(--color-text); margin-bottom: 4px}
-.hero-title b {font-style: normal; font-weight: 300; color: var(--color-blue)}
+.hero-title {font-family: var(--font-sans); font-size: 32px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; color: var(--color-text); margin-bottom: 4px}
+.hero-title b {font-weight: 700; color: var(--color-blue)}
 .hero-meta {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
 
 /* ── Stats row ── */
@@ -219,7 +303,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 /* ── News list ── */
 .news-list {display: flex; flex-direction: column}
 .news-item {display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border); cursor: pointer; position: relative; text-decoration: none; transition: background var(--duration), padding-left var(--duration)}
-.news-item:hover {background: rgba(255,255,255,0.015); padding-left: 8px}
+.news-item:hover {background: rgba(0,0,0,0.03); padding-left: 8px}
 .news-num {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3); min-width: 20px; padding-top: 2px; flex-shrink: 0}
 .news-body {flex: 1; min-width: 0}
 .news-cat {font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px}
@@ -262,6 +346,21 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 /* ── Saved link item (CSS hover, no JS needed) ── */
 .saved-link-item {background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px; text-decoration: none; transition: border-color 0.2s var(--ease)}
 .saved-link-item:hover {border-color: var(--color-blue-border)}
+.saved-title {font-size: 14px; color: var(--color-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px}
+.saved-memo {font-size: 12px; color: var(--color-text-2); margin-bottom: 5px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden}
+.saved-metarow {display: flex; align-items: center; gap: 8px; flex-wrap: wrap}
+.saved-type {font-size: 10px; font-family: var(--font-mono); letter-spacing: 0.04em; padding: 2px 7px; border-radius: var(--radius-sm); background: var(--color-bg-3); color: var(--color-text-3)}
+.saved-date {font-size: 10px; font-family: var(--font-mono); color: var(--color-text-3)}
+
+/* tab count pill (works with underline tabs) */
+.tab-count {margin-left: 6px; font-size: 10px; font-family: var(--font-mono); padding: 1px 6px; border-radius: 10px; background: var(--color-bg-3); color: var(--color-text-3)}
+.tab-btn.active .tab-count {background: var(--color-blue-dim); color: var(--color-blue)}
+
+/* empty state */
+.saved-empty {display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 64px 0; text-align: center}
+.saved-empty i {font-size: 32px; color: var(--color-border-2)}
+.saved-empty p {margin: 0; font-size: 13px; color: var(--color-text-3)}
+.saved-empty span {font-size: 12px; font-family: var(--font-mono); color: var(--color-text-3); opacity: 0.7}
 
 /* ── Category colors ── */
 .cat-design {color: var(--cat-design)}
@@ -298,7 +397,25 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .admin-table {width: 100%; border-collapse: collapse}
 .admin-table th {text-align: left; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); border-bottom: 1px solid var(--color-border)}
 .admin-table td {padding: 10px 12px; border-bottom: 1px solid var(--color-border); font-size: 13px; color: var(--color-text-2)}
-.admin-table tr:hover td {background: rgba(255,255,255,0.02); color: var(--color-text)}
+.admin-table tr:hover td {background: rgba(0,0,0,0.02); color: var(--color-text)}
+
+/* admin list rows */
+.admin-row {display: flex; align-items: center; gap: 12px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px; transition: border-color var(--duration) var(--ease)}
+.admin-row.top {align-items: flex-start}
+.admin-row:hover {border-color: var(--color-border-2)}
+.admin-row-body {flex: 1; min-width: 0}
+.admin-row-title {font-size: 14px; font-weight: 500; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px}
+.admin-row-sub {font-size: 12px; font-family: var(--font-mono); color: var(--color-text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 5px}
+.admin-row-meta {display: flex; align-items: center; gap: 8px; flex-wrap: wrap}
+.admin-badge {font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--radius-sm); background: var(--color-bg-2); color: var(--color-text-3)}
+.admin-source {font-size: 11px; font-family: var(--font-mono); color: var(--color-text-3)}
+.admin-actions {display: flex; gap: 6px; flex-shrink: 0}
+.admin-btn {display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 5px 11px; border-radius: var(--radius-md); border: 1px solid var(--color-border-2); color: var(--color-text); background: transparent; text-decoration: none; white-space: nowrap; cursor: pointer; transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease)}
+.admin-btn:hover {border-color: var(--color-text-3)}
+.admin-btn.danger {border-color: rgba(239,68,68,0.3); color: #ef4444}
+.admin-btn.danger:hover {border-color: rgba(239,68,68,0.55); background: rgba(239,68,68,0.06)}
+.admin-btn.warn {border-color: rgba(217,119,6,0.4); color: var(--color-amber)}
+.admin-empty {text-align: center; padding: 48px 0; color: var(--color-text-3); font-size: 13px}
 
 /* ── Toast ── */
 .toast {position: fixed; bottom: 24px; right: 24px; background: var(--color-bg-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text); z-index: 999; animation: toast-in 0.2s var(--ease)}
@@ -314,7 +431,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
   .stats-row {grid-template-columns: repeat(4, 1fr)}
   .cards-grid {grid-template-columns: repeat(2, 1fr)}
   .study-grid {grid-template-columns: repeat(2, 1fr)}
-  .hero-title {font-size: 34px}
+  .hero-title {font-size: 38px}
   .card-thumb {height: 200px}
   .study-thumb {width: 90px}
 }
@@ -324,20 +441,20 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
   .aihub-sidebar {transform: translateX(0); position: sticky; top: 0; height: 100vh; align-self: flex-start}
   .aihub-main {margin-left: 0}
   .topbar-menu-btn {display: none}
-  .aihub-content {padding: 28px 32px 60px}
+  .aihub-content {padding: 28px 32px 60px; border-top-left-radius: 16px; border-top: 1px solid var(--color-border); border-left: 1px solid var(--color-border)}
   .aihub-topbar {padding: 0 32px}
   .cards-grid {grid-template-columns: repeat(3, 1fr)}
-  .hero-title {font-size: 36px}
+  .hero-title {font-size: 42px}
 }
 
 /* ── 1400px ── */
 @media (min-width: 1400px) {
   :root {--sidebar-w: 240px}
   .aihub-content {padding: 32px 40px 72px}
-  .sec-title {font-size: 20px}
+  .sec-title {font-size: 22px}
   .cards-grid {grid-template-columns: repeat(4, 1fr)}
   .study-grid {grid-template-columns: repeat(3, 1fr)}
-  .hero-title {font-size: 40px}
+  .hero-title {font-size: 44px}
 }
 
 
@@ -349,7 +466,7 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 /* 날짜+인사말 묶음 */
 .topbar-dateline {display: flex; align-items: center; gap: 5px; min-width: 0}
 .topbar-date {font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); letter-spacing: 0.03em; white-space: nowrap}
-.topbar-greeting {font-family: var(--font-serif); font-size: 12px; font-style: italic; color: var(--color-text-3); white-space: nowrap; display: none}
+.topbar-greeting {font-family: var(--font-sans); font-size: 12px; color: var(--color-text-3); white-space: nowrap; display: none}
 
 /* 날씨 */
 .topbar-weather {display: none; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-2); padding: 4px 8px; background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: 20px; white-space: nowrap}
@@ -401,3 +518,80 @@ body {font-family: var(--font-sans); background: var(--color-bg); color: var(--c
 .pagination-btn.active {background:var(--color-blue); border-color:var(--color-blue); color:#fff}
 .pagination-btn:disabled {opacity:0.35; cursor:default}
 .pagination-ellipsis {color:var(--color-text-3); font-family:var(--font-mono); font-size:12px; padding:0 2px}
+
+/* ══════════════════════════════════════════════
+   Study detail — document layout
+   ══════════════════════════════════════════════ */
+.sd-wrap {max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px}
+.sd-main {min-width: 0; max-width: 680px}
+.sd-toc {display: none}
+
+/* breadcrumb */
+.sd-crumb {display: flex; align-items: center; gap: 6px; margin-bottom: 22px; font-size: 13px}
+.sd-crumb a {color: var(--color-text-3); text-decoration: none}
+.sd-crumb a:hover {color: var(--color-text-2)}
+.sd-crumb span.sep {color: var(--color-border-2)}
+.sd-crumb span.here {color: var(--color-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 340px}
+
+/* header */
+.sd-chips {display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px}
+.sd-tool {font-family: var(--font-mono); font-size: 11px; padding: 3px 9px; background: var(--color-bg-3); color: var(--color-text-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm)}
+.sd-title {font-family: var(--font-sans); font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; color: var(--color-text); margin: 0 0 14px}
+.sd-lead {font-size: 17px; line-height: 1.6; color: var(--color-text-2); margin: 0 0 20px; text-wrap: pretty}
+.sd-meta {display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 24px; border-bottom: 1px solid var(--color-border)}
+.sd-meta-item {display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-3)}
+.sd-site {display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; background: var(--color-blue-dim); border: 1px solid var(--color-blue-border); border-radius: 20px; color: var(--color-blue); font-size: 12px; text-decoration: none; transition: filter var(--duration) var(--ease)}
+.sd-site:hover {filter: brightness(0.97)}
+
+/* hero */
+.sd-hero {position: relative; aspect-ratio: 16 / 9; margin: 28px 0 8px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-bg-3)}
+.sd-hero img, .sd-hero iframe {position: absolute; inset: 0; width: 100%; height: 100%; border: none; object-fit: cover; display: block}
+.sd-hero img.contain {object-fit: contain; background: var(--color-bg-3)}
+.sd-caption {display: inline-flex; align-items: center; gap: 5px; margin: 0 0 28px; font-size: 12px; color: var(--color-text-3); text-decoration: none}
+.sd-caption:hover {color: var(--color-text-2)}
+
+/* sections */
+.sd-section {margin: 36px 0}
+.sd-eyebrow {display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px}
+.sd-eyebrow h2 {font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-3); margin: 0}
+
+/* prose (note body) */
+.sd-prose {font-size: 16px; line-height: 1.85; color: var(--color-text); white-space: pre-wrap; word-break: break-word; text-wrap: pretty}
+.sd-prose a {color: var(--color-blue)}
+
+/* code block (prompt) */
+.sd-code {background: var(--color-bg-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden}
+.sd-code-bar {display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--color-border); background: var(--color-bg-2)}
+.sd-code-bar span {font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-3)}
+.sd-code pre {margin: 0; padding: 16px 14px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7; color: var(--color-text-2); white-space: pre-wrap; word-break: break-word}
+
+/* info callout */
+.sd-callout {display: flex; gap: 10px; padding: 14px 16px; background: var(--color-blue-dim); border: 1px solid var(--color-blue-border); border-radius: var(--radius-md); font-size: 14px; line-height: 1.65; color: var(--color-text-2)}
+.sd-callout i {color: var(--color-blue); font-size: 16px; flex-shrink: 0; margin-top: 1px}
+
+/* tags */
+.sd-tags {display: flex; flex-wrap: wrap; gap: 6px}
+.sd-tag {font-size: 11px; padding: 4px 11px; background: var(--color-bg-3); color: var(--color-text-3); border: 1px solid var(--color-border); border-radius: 20px}
+
+/* prev / next */
+.sd-nav {display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--color-border)}
+.sd-navcard {display: flex; flex-direction: column; gap: 6px; padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); text-decoration: none; background: var(--color-bg-2); transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease)}
+.sd-navcard:hover {border-color: var(--color-border-2); background: var(--color-bg-3)}
+.sd-navcard.next {text-align: right; align-items: flex-end}
+.sd-navcard .dir {font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-3); display: flex; align-items: center; gap: 5px}
+.sd-navcard .t {font-size: 14px; font-weight: 500; color: var(--color-text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden}
+
+/* TOC — right rail */
+@media (min-width: 1024px) {
+  .sd-wrap {grid-template-columns: minmax(0, 680px) 200px; gap: 56px; justify-content: center}
+  .sd-toc {display: block; position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow-y: auto}
+}
+.sd-toc-label {font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-3); margin: 0 0 14px; padding-left: 11px}
+.sd-toc-list {list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid var(--color-border)}
+.sd-toc-list a {display: block; padding: 5px 0 5px 11px; margin-left: -1px; border-left: 2px solid transparent; font-size: 13px; color: var(--color-text-3); text-decoration: none; transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease)}
+.sd-toc-list a:hover {color: var(--color-text-2)}
+.sd-toc-list a.active {color: var(--color-blue); border-left-color: var(--color-blue)}
+
+@media (max-width: 640px) {
+  .sd-nav {grid-template-columns: 1fr}
+}

@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
+import { useTheme } from './ThemeProvider'
 
 const mainNav = [
   { href: '/', label: '오늘의 AI', icon: 'ti-layout-dashboard' },
@@ -22,10 +23,47 @@ export function toggleSidebar() {
   _setOpen?.(prev => !prev)
 }
 
+function Clock() {
+  const [now, setNow] = useState('')
+  useEffect(() => {
+    const tick = () => {
+      setNow(
+        new Date().toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Seoul',
+        })
+      )
+    }
+    tick()
+    const id = setInterval(tick, 30_000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="sb-clock">
+      <div className="sb-clock-time">{now || '--:--'}</div>
+      <div className="sb-clock-sub">Seoul · KST</div>
+    </div>
+  )
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
+  const { theme, toggle } = useTheme()
   const [open, setOpen] = useState(false)
+  const [searchVal, setSearchVal] = useState('')
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = searchVal.trim()
+    if (!q) return
+    router.push(`/search?q=${encodeURIComponent(q)}`)
+    setSearchVal('')
+    setOpen(false)
+  }
 
   useEffect(() => {
     _setOpen = setOpen
@@ -59,6 +97,19 @@ export default function Sidebar() {
             <div className="sb-logo-sub">Trend Archive</div>
           </Link>
         </div>
+
+        {/* 검색 */}
+        <form className="sb-search" onSubmit={handleSearch}>
+          <i className="ti ti-search" />
+          <input
+            className="sb-search-input"
+            value={searchVal}
+            onChange={e => setSearchVal(e.target.value)}
+            placeholder="통합 검색..."
+            aria-label="통합 검색"
+          />
+          <span className="sb-search-kbd">⌘K</span>
+        </form>
 
         {/* 네비게이션 */}
         <nav className="sb-nav">
@@ -116,6 +167,29 @@ export default function Sidebar() {
             </Link>
           )}
         </nav>
+
+        {/* 푸터 — 시계 + 아이콘 테마 토글 */}
+        <div className="sb-footer">
+          <Clock />
+          <div className="sb-theme-seg" role="group" aria-label="테마">
+            <button
+              className={`sb-theme-opt${theme === 'light' ? ' active' : ''}`}
+              onClick={() => { if (theme !== 'light') toggle() }}
+              aria-label="라이트 모드"
+              aria-pressed={theme === 'light'}
+            >
+              <i className="ti ti-sun" />
+            </button>
+            <button
+              className={`sb-theme-opt${theme === 'dark' ? ' active' : ''}`}
+              onClick={() => { if (theme !== 'dark') toggle() }}
+              aria-label="다크 모드"
+              aria-pressed={theme === 'dark'}
+            >
+              <i className="ti ti-moon" />
+            </button>
+          </div>
+        </div>
       </aside>
     </>
   )

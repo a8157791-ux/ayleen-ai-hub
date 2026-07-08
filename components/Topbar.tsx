@@ -1,10 +1,6 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { toggleSidebar } from './Sidebar'
-import { useTheme } from './ThemeProvider'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -24,7 +20,6 @@ function getGreeting(): string {
 
 function weatherIcon(code: number): string {
   if (code === 0) return 'ti-sun'
-  if (code <= 2) return 'ti-cloud'
   if (code <= 3) return 'ti-cloud'
   if (code <= 49) return 'ti-cloud-fog'
   if (code <= 67) return 'ti-cloud-rain'
@@ -36,11 +31,6 @@ export default function Topbar() {
   const [dateStr, setDateStr] = useState('')
   const [greeting, setGreeting] = useState('')
   const [weather, setWeather] = useState<{ temp: number; icon: string } | null>(null)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchVal, setSearchVal] = useState('')
-  const searchRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
-  const { theme, toggle } = useTheme()
 
   useEffect(() => {
     const now = new Date()
@@ -59,27 +49,6 @@ export default function Topbar() {
       .catch(() => {})
   }, [])
 
-  useEffect(() => {
-    if (searchOpen) searchRef.current?.focus()
-  }, [searchOpen])
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setSearchOpen(false); setSearchVal('') }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const q = searchVal.trim()
-    if (!q) return
-    router.push(`/search?q=${encodeURIComponent(q)}`)
-    setSearchOpen(false)
-    setSearchVal('')
-  }
-
   return (
     <header className="aihub-topbar">
       <div className="topbar-left">
@@ -93,41 +62,12 @@ export default function Topbar() {
       </div>
 
       <div className="topbar-right">
-        {searchOpen ? (
-          <form onSubmit={handleSearch} className="topbar-search-form">
-            <i className="ti ti-search" style={{ color: 'var(--color-text-3)', fontSize: 13 }} />
-            <input
-              ref={searchRef}
-              value={searchVal}
-              onChange={e => setSearchVal(e.target.value)}
-              placeholder="통합 검색..."
-              className="topbar-search-input"
-            />
-            <button
-              type="button"
-              onClick={() => { setSearchOpen(false); setSearchVal('') }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-3)', display: 'flex', alignItems: 'center', padding: 0 }}
-              aria-label="닫기"
-            >
-              <i className="ti ti-x" style={{ fontSize: 13 }} />
-            </button>
-          </form>
-        ) : (
-          <>
-            {weather && (
-              <div className="topbar-pill">
-                <i className={`ti ${weather.icon}`} style={{ color: 'var(--color-cyan)', fontSize: 13 }} />
-                <span>{weather.temp}°C</span>
-                <span style={{ color: 'var(--color-text-3)' }}>Seoul</span>
-              </div>
-            )}
-            <button className="topbar-icon-btn" onClick={() => setSearchOpen(true)} aria-label="검색">
-              <i className="ti ti-search" />
-            </button>
-            <button className="topbar-icon-btn topbar-theme-btn" onClick={toggle} aria-label="테마 전환">
-              <i className={`ti ${theme === 'dark' ? 'ti-sun' : 'ti-moon'}`} />
-            </button>
-          </>
+        {weather && (
+          <div className="topbar-pill">
+            <i className={`ti ${weather.icon}`} style={{ color: 'var(--color-cyan)', fontSize: 13 }} />
+            <span>{weather.temp}°C</span>
+            <span style={{ color: 'var(--color-text-3)' }}>Seoul</span>
+          </div>
         )}
       </div>
     </header>

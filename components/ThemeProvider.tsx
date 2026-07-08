@@ -4,16 +4,16 @@ import { createContext, useContext, useEffect, useState } from 'react'
 type Theme = 'dark' | 'light'
 
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
-  theme: 'dark',
+  theme: 'light',
   toggle: () => {},
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
 
   useEffect(() => {
     const stored = localStorage.getItem('aihub-theme') as Theme | null
-    const preferred = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     const initial = stored ?? preferred
     setTheme(initial)
     document.documentElement.setAttribute('data-theme', initial)
@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => {
     setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark'
+      const next = prev === 'light' ? 'dark' : 'light'
       localStorage.setItem('aihub-theme', next)
       document.documentElement.setAttribute('data-theme', next)
       return next

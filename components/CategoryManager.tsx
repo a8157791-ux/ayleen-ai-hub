@@ -56,7 +56,7 @@ export function CategorySelect({
           onClick={() => { setAdding(a => !a); setNewCat('') }}
           style={{
             fontSize: 10, padding: '2px 8px', borderRadius: 4, border: 'none', cursor: 'pointer',
-            background: adding ? 'rgba(255,255,255,0.08)' : 'rgba(59,130,246,0.15)',
+            background: adding ? 'var(--color-bg-3)' : 'var(--color-blue-dim)',
             color: adding ? 'var(--color-text-2)' : 'var(--color-blue)',
             fontFamily: 'var(--font-mono)', letterSpacing: '0.06em',
           }}
@@ -98,7 +98,7 @@ export function CategorySelect({
               display: 'inline-flex', alignItems: 'center', gap: 4,
               padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
               border: `1px solid ${value === cat ? 'var(--color-blue)' : 'var(--color-border-2)'}`,
-              background: value === cat ? 'rgba(59,130,246,0.15)' : 'var(--color-bg-3)',
+              background: value === cat ? 'var(--color-blue-dim)' : 'var(--color-bg-3)',
               color: value === cat ? 'var(--color-blue)' : 'var(--color-text-2)',
               fontSize: 12, fontFamily: 'var(--font-mono)',
               transition: 'all 0.15s',
@@ -176,7 +176,7 @@ export function ToolTagInput({
           onClick={() => { setAdding(a => !a); setNewTag('') }}
           style={{
             fontSize: 10, padding: '2px 8px', borderRadius: 4, border: 'none', cursor: 'pointer',
-            background: adding ? 'rgba(255,255,255,0.08)' : 'rgba(59,130,246,0.15)',
+            background: adding ? 'var(--color-bg-3)' : 'var(--color-blue-dim)',
             color: adding ? 'var(--color-text-2)' : 'var(--color-blue)',
             fontFamily: 'var(--font-mono)', letterSpacing: '0.06em',
           }}
@@ -194,7 +194,7 @@ export function ToolTagInput({
               display: 'inline-flex', alignItems: 'center', gap: 4,
               padding: '3px 10px', borderRadius: 20, cursor: 'pointer',
               border: `1px solid ${value === tag ? 'var(--color-purple)' : 'var(--color-border-2)'}`,
-              background: value === tag ? 'rgba(167,139,250,0.15)' : 'var(--color-bg-3)',
+              background: value === tag ? 'color-mix(in srgb, var(--color-purple) 14%, transparent)' : 'var(--color-bg-3)',
               color: value === tag ? 'var(--color-purple)' : 'var(--color-text-3)',
               fontSize: 11, fontFamily: 'var(--font-mono)',
               transition: 'all 0.15s',
