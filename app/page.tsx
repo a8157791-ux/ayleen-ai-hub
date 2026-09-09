@@ -1,250 +1,129 @@
-import { databaseEnabled, prisma } from '@/lib/db'
 import Link from 'next/link'
+import EditorialCard from '@/components/EditorialCard'
+import { databaseEnabled, prisma } from '@/lib/db'
 
-const catLabel: Record<string, string> = {
-  design: 'Design', code: 'Coding', video: 'Video',
-  '3d': '3D', plan: 'Planning', research: 'Research', image: 'Image',
+export const revalidate = 1800
+
+const categoryLabel: Record<string, string> = {
+  design: 'DESIGN', code: 'CODING', video: 'VIDEO', '3d': '3D',
+  plan: 'PLANNING', research: 'RESEARCH', image: 'IMAGE',
 }
 
-const REF_TYPE_LABELS: Record<string, string> = {
-  website: 'Website', portfolio: 'Portfolio', tool: 'Tool',
-  article: 'Article', inspiration: 'Inspiration',
+function SectionTitle({ title, caption, href }: { title: string; caption: string; href: string }) {
+  return (
+    <header className="edit-section-heading">
+      <div><h2>{title}</h2><p>{caption}</p></div>
+      <Link href={href}>전체보기 <span>↗</span></Link>
+    </header>
+  )
 }
-
-function timeAgo(date: Date): string {
-  const diff = Date.now() - date.getTime()
-  const h = Math.floor(diff / 3600000)
-  if (h < 1) return '방금 전'
-  if (h < 24) return `${h}시간 전`
-  return `${Math.floor(h / 24)}일 전`
-}
-
-export const revalidate = 3600
 
 export default async function HomePage() {
-  if (!databaseEnabled) {
-    return (
-      <div className="page-hero">
-        <div className="hero-eyebrow">Daily Digest</div>
-        <h1 className="hero-title">오늘의 <b>AI</b> 트렌드</h1>
-        <div className="hero-meta">데이터베이스 연결 정보가 없습니다. DATABASE_URL 환경 변수를 설정해주세요.</div>
-      </div>
-    )
-  }
-
   let news: any[] = []
   let studies: any[] = []
-  let refs: any[] = []
-  let statNews = 0, statNewsToday = 0, statStudy = 0, statSaved = 0, statRef = 0
+  let references: any[] = []
+  let tools: any[] = []
 
-  // 서버는 UTC로 동작하므로 KST(UTC+9) 기준 "오늘 0시"를 UTC로 환산
-  const KST_OFFSET_MS = 9 * 60 * 60 * 1000
-  const nowKst = new Date(Date.now() + KST_OFFSET_MS)
-  const todayStartKstDate = new Date(
-    Date.UTC(nowKst.getUTCFullYear(), nowKst.getUTCMonth(), nowKst.getUTCDate(), 0, 0, 0)
-  )
-  const todayStart = new Date(todayStartKstDate.getTime() - KST_OFFSET_MS)
-
-  try {
-    ;[news, studies, refs, statNews, statNewsToday, statStudy, statSaved, statRef] = await Promise.all([
-      prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 10 }),
-      prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 6 }),
-      prisma.reference.findMany({ orderBy: { createdAt: 'desc' }, take: 6 }),
-      prisma.aiNews.count(),
-      prisma.aiNews.count({ where: { createdAt: { gte: todayStart } } }),
-      prisma.studyNote.count({ where: { published: true } }),
-      prisma.savedLink.count(),
-      prisma.reference.count(),
-    ])
-  } catch (error) {
-    console.error('Home page DB error:', error)
-    return (
-      <div className="page-hero">
-        <div className="hero-eyebrow">Daily Digest</div>
-        <h1 className="hero-title">데이터베이스 연결에 실패했습니다</h1>
-        <div className="hero-meta">로컬 DB 또는 DATABASE_URL 설정을 확인해주세요.</div>
-      </div>
-    )
+  if (!databaseEnabled && process.env.AYLEEN_DEMO === '1') {
+    const now = new Date()
+    const covers = ['ai-editorial.webp', 'chrome.webp', 'brand.webp', 'default-editorial.webp']
+    news = [
+      ['새로운 창작의 방식을 탐구하다', 'AI와 함께 발견한 새로운 창작의 기준'],
+      ['아이디어를 형태로 만드는 AI', '생각을 빠르게 시각화하고 비교하는 방법'],
+      ['브랜드의 다음 가능성', '기술과 문화 사이에서 발견한 새로운 인상'],
+      ['질문을 다듬는 작은 습관', null], ['내 작업에 맞는 AI 워크플로', null],
+      ['결과보다 과정을 기록하기', null], ['정보를 나의 인사이트로 바꾸기', null],
+    ].map((item, index) => ({ id: index + 1, title: item[0], titleKo: item[0], summaryKo: item[1], url: '#', source: 'Creative edit', category: 'design', createdAt: now, imageUrl: `/images/${covers[index % 4]}` }))
+    references = [
+      ['형태와 여백의 새로운 균형', 'architecture.webp'], ['타이포그래피로 만드는 인상', 'typography.webp'],
+      ['디지털 경험의 작은 차이', 'glass.webp'], ['차분한 화면을 만드는 여백', null],
+      ['재료에서 발견한 새로운 감각', null], ['오래 보고 싶은 색의 조합', null], ['편집 디자인의 작은 리듬', null],
+    ].map((item, index) => ({ id: index + 1, title: item[0], url: '#', imageUrl: item[1] ? `/images/${item[1]}` : null, refType: 'inspiration', category: 'design', desc: index < 3 ? '오래 들여다보고 싶은 시각적 기준을 수집합니다.' : null, createdAt: now }))
+    studies = ['Ayleen’s AI Hub 만들기', '무선 헤드폰 포스터', '포트폴리오 사이트 제작', '나만의 학습 노트 정리하기']
+      .map((title, index) => ({ id: index + 1, title, mediaUrl: null, tool: ['BUILD', 'CHATGPT', 'FIGMA', 'NOTES'][index], category: 'design', content: '배우고 직접 시도한 과정을 짧게 기록합니다.', createdAt: now, studiedAt: now }))
+    tools = ['Figma', 'ChatGPT', 'Aside', 'Notion'].map((name, index) => ({ id: index + 1, name, category: 'workflow', description: '생각을 발견하고 작업으로 옮길 때 사용하는 도구', url: '#' }))
   }
 
-  const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  if (databaseEnabled) {
+    try {
+      ;[news, studies, references, tools] = await Promise.all([
+        prisma.aiNews.findMany({ orderBy: { createdAt: 'desc' }, take: 7 }),
+        prisma.studyNote.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
+        prisma.reference.findMany({ orderBy: { createdAt: 'desc' }, take: 7 }),
+        prisma.aiTool.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 4 }),
+      ])
+    } catch (error) {
+      console.error('Home page DB error:', error)
+    }
+  }
+
+  const today = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short',
+  })
 
   return (
     <>
-      <div className="page-hero">
-        <div className="hero-eyebrow">Daily Digest</div>
-        <h1 className="hero-title">오늘의 <b>AI</b> 트렌드</h1>
-        <div className="hero-meta">{today} · {statNews}건 수집됨</div>
-      </div>
+      <div className="edit-date"><time>{today}</time></div>
 
-      {/* Stats */}
-      <div className="stats-row">
-        <div className="stat-card">
-          <div className="stat-label">수집 뉴스</div>
-          <div className="stat-value">{statNewsToday}</div>
-          <div className="stat-desc">오늘 수집된 기사</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">스터디 노트</div>
-          <div className="stat-value">{statStudy}</div>
-          <div className="stat-desc">누적 학습 기록</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">저장한 글</div>
-          <div className="stat-value">{statSaved}</div>
-          <div className="stat-desc">북마크 아이템</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">레퍼런스</div>
-          <div className="stat-value">{statRef}</div>
-          <div className="stat-desc">참고 사이트</div>
-        </div>
-      </div>
-
-      {/* 티커 */}
-      {news.length > 0 && (
-        <div className="ticker-wrap" aria-hidden="true">
-          <div className="ticker-inner">
-            {[...news, ...news].map((n, i) => {
-              const tickerTitle = (n as any).titleKo || n.title
-              return (
-                <span key={i} className="ticker-item">
-                  {tickerTitle.slice(0, 40)}{tickerTitle.length > 40 ? '...' : ''}
-                </span>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 오늘의 AI 뉴스 */}
-      <section className="aihub-section">
-        <div className="sec-hd">
-          <h2 className="sec-title">오늘의 AI 뉴스</h2>
-          <span className="sec-count">{statNews}건</span>
-          <Link href="/news" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
-        </div>
-        <div className="news-list">
-          {news.slice(0, 7).map((item, i) => {
-            const isNew = Date.now() - item.createdAt.getTime() < 86400000
-            const displayTitle = (item as any).titleKo || item.title
-            const displaySummary = (item as any).summaryKo || item.summary
-            return (
-              <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
-                <span className="news-num">{String(i + 1).padStart(2, '0')}</span>
-                {(item as any).imageUrl && (
-                  <img
-                    src={(item as any).imageUrl}
-                    alt=""
-                    style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
-                  />
-                )}
-                <div className="news-body">
-                  {item.category && (
-                    <div className={`news-cat cat-${item.category}`}>{catLabel[item.category] ?? item.category}</div>
-                  )}
-                  <div className="news-title">{displayTitle}</div>
-                  {(item as any).titleKo && item.title !== (item as any).titleKo && (
-                    <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
-                      {item.title}
-                    </div>
-                  )}
-                  {displaySummary && (
-                    <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {displaySummary}
-                    </div>
-                  )}
-                  <div className="news-footer">
-                    <span>{timeAgo(item.createdAt)}</span>
-                    {item.source && <span className="news-source">{item.source}</span>}
-                    {isNew && <span className="badge badge-new">NEW</span>}
-                  </div>
-                </div>
-              </a>
-            )
-          })}
-        </div>
+      <section className="edit-section">
+        <SectionTitle title="지금 주목할 AI" caption="THE CURRENT EDIT" href="/news" />
+        {news.length ? (
+          <>
+            <div className="editorial-grid featured-grid">
+              {news.slice(0, 3).map((item, index) => (
+                <EditorialCard key={item.id} href={item.url} external title={item.titleKo || item.title}
+                  image={item.imageUrl} eyebrow={categoryLabel[item.category] || item.source || 'AI'}
+                  description={item.summaryKo || item.summary} date={item.publishedAt || item.createdAt} priority={index < 3} />
+              ))}
+            </div>
+            {news.length > 3 && <div className="editorial-grid compact-grid separated-grid">
+              {news.slice(3).map(item => <EditorialCard compact key={item.id} href={item.url} external
+                title={item.titleKo || item.title} image={item.imageUrl}
+                eyebrow={categoryLabel[item.category] || item.source || 'AI'} date={item.publishedAt || item.createdAt} />)}
+            </div>}
+          </>
+        ) : <EmptySection text="아직 표시할 인사이트가 없어요." />}
       </section>
 
-      {/* 레퍼런스 */}
-      {refs.length > 0 && (
-        <section className="aihub-section">
-          <div className="sec-hd">
-            <h2 className="sec-title">레퍼런스</h2>
-            <span className="sec-count">총 {statRef}개</span>
-            <Link href="/reference" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {refs.map(ref => (
-              <a key={ref.id} href={ref.url} target="_blank" rel="noopener noreferrer"
-                className="home-ref-item" style={{ overflow: 'hidden' }}>
-                {/* 썸네일 있으면 좌측에 표시 (인스타그램은 favicon만) */}
-                {(ref as any).imageUrl && !ref.url.includes('instagram.com') && (
-                  <img
-                    src={(ref as any).imageUrl}
-                    alt=""
-                    style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }}
-                  />
-                )}
-                {(!(ref as any).imageUrl || ref.url.includes('instagram.com')) && ref.faviconUrl && (
-                  <img src={ref.faviconUrl} width={16} height={16} alt=""
-                    style={{ borderRadius: 3, flexShrink: 0 }} />
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: 13, color: 'var(--color-text)', fontWeight: 500,
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {ref.title || ref.url}
-                  </div>
-                  {ref.desc && (
-                    <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {ref.desc}
-                    </div>
-                  )}
-                </div>
-                {ref.refType && (
-                  <span style={{
-                    fontSize: 9, fontFamily: 'var(--font-mono)', padding: '2px 6px', borderRadius: 3,
-                    background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
-                    whiteSpace: 'nowrap', flexShrink: 0,
-                  }}>
-                    {REF_TYPE_LABELS[ref.refType] || ref.refType}
-                  </span>
-                )}
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="edit-section">
+        <SectionTitle title="영감을 넓히는 레퍼런스" caption="SELECTED REFERENCES" href="/reference" />
+        {references.length ? (
+          <>
+            <div className="editorial-grid featured-grid">
+              {references.slice(0, 3).map(ref => <EditorialCard key={ref.id} href={ref.url} external
+                title={ref.title || ref.url} image={ref.imageUrl} eyebrow={ref.refType || ref.category || 'REFERENCE'}
+                description={ref.desc} date={ref.createdAt} />)}
+            </div>
+            {references.length > 3 && <div className="editorial-grid compact-grid separated-grid">
+              {references.slice(3).map(ref => <EditorialCard compact key={ref.id} href={ref.url} external
+                title={ref.title || ref.url} image={ref.imageUrl} eyebrow={ref.refType || ref.category || 'REFERENCE'} date={ref.createdAt} />)}
+            </div>}
+          </>
+        ) : <EmptySection text="아직 표시할 레퍼런스가 없어요." />}
+      </section>
 
-      {/* 최근 스터디룸 */}
-      {studies.length > 0 && (
-        <section className="aihub-section">
-          <div className="sec-hd">
-            <h2 className="sec-title">최근 스터디룸</h2>
-            <span className="sec-count">총 {statStudy}건</span>
-            <Link href="/study" className="sec-more">전체보기 <i className="ti ti-arrow-right" /></Link>
-          </div>
-          <div className="study-grid">
-            {studies.map(note => (
-              <Link key={note.id} href={`/study/${note.id}`} className="study-card">
-                <div className="study-thumb">
-                  {note.mediaUrl
-                    ? <img src={note.mediaUrl} alt="" loading="lazy" />
-                    : <i className="ti ti-photo-ai" style={{ fontSize: 20, color: 'var(--color-indigo)', opacity: 0.45 }} />
-                  }
-                </div>
-                <div className="study-body">
-                  {note.tool && <div className="study-tool">{note.tool}</div>}
-                  <div className="study-title">{note.title}</div>
-                  <div className="study-date">{note.createdAt.toLocaleDateString('ko-KR')}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="edit-section tools-home">
+        <SectionTitle title="작업에 도움이 되는 도구" caption="TOOLS FOR THOUGHT" href="/tools" />
+        {tools.length ? <div className="home-tools-grid">{tools.map(tool => (
+          <a key={tool.id} href={tool.url || '/tools'} target={tool.url ? '_blank' : undefined} rel="noopener noreferrer" className="home-tool-card">
+            <span>{tool.category || 'TOOL'}</span><h3>{tool.name}</h3><p>{tool.description || tool.review || '작업에 활용하는 도구입니다.'}</p><b>↗</b>
+          </a>
+        ))}</div> : <EmptySection text="아직 표시할 도구가 없어요." />}
+      </section>
+
+      <section className="edit-section">
+        <SectionTitle title="배우고, 직접 해본 것들" caption="NOTES IN PROGRESS" href="/study" />
+        {studies.length ? <div className="editorial-grid compact-grid study-home-grid">
+          {studies.map(note => <EditorialCard compact key={note.id} href={`/study/${note.id}`}
+            title={note.title} image={note.mediaUrl} eyebrow={note.tool || note.category || 'STUDY'}
+            description={note.content ? note.content.replace(/<[^>]+>/g, '').slice(0, 90) : null}
+            date={note.studiedAt || note.createdAt} />)}
+        </div> : <EmptySection text="아직 표시할 스터디 기록이 없어요." />}
+      </section>
     </>
   )
+}
+
+function EmptySection({ text }: { text: string }) {
+  return <div className="edit-empty"><span>[ e ]</span><p>{text}</p>{!databaseEnabled && <small>로컬 미리보기에는 DATABASE_URL이 연결되어 있지 않습니다.</small>}</div>
 }

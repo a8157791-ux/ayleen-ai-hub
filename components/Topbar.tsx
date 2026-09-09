@@ -1,75 +1,34 @@
 'use client'
-import { useState, useEffect } from 'react'
+
+import Link from 'next/link'
+import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { List, MagnifyingGlass, Moon, Sun, X } from '@phosphor-icons/react'
 import { toggleSidebar } from './Sidebar'
-
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December']
-
-function formatDate(d: Date): string {
-  return `${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
-}
-
-function getGreeting(): string {
-  const h = new Date().getHours()
-  if (h >= 5 && h < 12) return '좋은 아침이에요'
-  if (h >= 12 && h < 17) return '좋은 오후예요'
-  if (h >= 17 && h < 21) return '좋은 저녁이에요'
-  return '늦은 밤이네요'
-}
-
-function weatherIcon(code: number): string {
-  if (code === 0) return 'ti-sun'
-  if (code <= 3) return 'ti-cloud'
-  if (code <= 49) return 'ti-cloud-fog'
-  if (code <= 67) return 'ti-cloud-rain'
-  if (code <= 77) return 'ti-snowflake'
-  return 'ti-cloud-storm'
-}
+import { useTheme } from './ThemeProvider'
 
 export default function Topbar() {
-  const [dateStr, setDateStr] = useState('')
-  const [greeting, setGreeting] = useState('')
-  const [weather, setWeather] = useState<{ temp: number; icon: string } | null>(null)
-
-  useEffect(() => {
-    const now = new Date()
-    setDateStr(formatDate(now))
-    setGreeting(getGreeting())
-  }, [])
-
-  useEffect(() => {
-    fetch('/api/weather')
-      .then(r => r.json())
-      .then(data => {
-        const temp = Math.round(data.current?.temperature_2m ?? 0)
-        const code = data.current?.weathercode ?? 0
-        setWeather({ temp, icon: weatherIcon(code) })
-      })
-      .catch(() => {})
-  }, [])
+  const [query, setQuery] = useState('')
+  const input = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const { theme, toggle } = useTheme()
 
   return (
     <header className="aihub-topbar">
-      <div className="topbar-left">
-        <button className="topbar-menu-btn" onClick={toggleSidebar} aria-label="메뉴 열기">
-          <i className="ti ti-menu-2" />
-        </button>
-        <div className="topbar-dateline">
-          <span className="topbar-date">{dateStr}</span>
-          {greeting && <span className="topbar-greeting">— {greeting}</span>}
-        </div>
-      </div>
-
-      <div className="topbar-right">
-        {weather && (
-          <div className="topbar-pill">
-            <i className={`ti ${weather.icon}`} style={{ color: 'var(--color-cyan)', fontSize: 13 }} />
-            <span>{weather.temp}°C</span>
-            <span style={{ color: 'var(--color-text-3)' }}>Seoul</span>
-          </div>
-        )}
-      </div>
+      <button className="topbar-menu-btn" onClick={toggleSidebar} aria-label="메뉴 열기"><List size={23} weight="thin" /></button>
+      <Link href="/" className="topbar-brand">
+        <strong>Ayleen [<em>Edit</em>]</strong>
+        <span>배우고, 발견하고, 기록합니다.</span>
+      </Link>
+      <form className="topbar-search" onSubmit={event => { event.preventDefault(); if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`) }}>
+        <MagnifyingGlass size={21} weight="thin" aria-hidden="true" />
+        <input ref={input} value={query} onChange={event => setQuery(event.target.value)} placeholder="Search the archive" aria-label="아카이브 검색" />
+        {query ? <button type="button" onClick={() => { setQuery(''); input.current?.focus() }} aria-label="검색어 지우기"><X size={15} /></button> : <kbd>⌘ K</kbd>}
+      </form>
+      <span className="topbar-divider" />
+      <button className="theme-toggle" onClick={toggle} aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}>
+        {theme === 'dark' ? <Moon size={25} weight="thin" /> : <Sun size={25} weight="thin" />}
+      </button>
     </header>
   )
 }
