@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { supabaseAdmin, UPLOAD_BUCKET } from '@/lib/supabase-admin'
+import { getSupabaseAdmin, UPLOAD_BUCKET } from '@/lib/supabase-admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +12,16 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: '권한이 없습니다' }, { status: 401 })
+  }
+
+  let supabaseAdmin
+  try {
+    supabaseAdmin = getSupabaseAdmin()
+  } catch {
+    return NextResponse.json(
+      { error: '이미지 업로드 설정이 완료되지 않았습니다' },
+      { status: 503 }
+    )
   }
 
   const formData = await req.formData()
