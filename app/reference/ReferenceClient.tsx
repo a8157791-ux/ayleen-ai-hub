@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import HeartButton from '@/components/HeartButton'
+import EditorialCard from '@/components/EditorialCard'
 
 const REF_TYPE_LABELS: Record<string, string> = {
   website: 'Website', portfolio: 'Portfolio', tool: 'Tool',
@@ -98,78 +99,25 @@ export default function ReferenceClient({
           레퍼런스가 없어요.
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {filtered.map(ref => (
-            <div key={ref.id} style={{
-              background: 'var(--color-bg-2)', border: '1px solid var(--color-border)',
-              borderRadius: 10, overflow: 'hidden',
-              display: 'flex', flexDirection: 'row', alignItems: 'stretch',
-            }}>
-              {/* 좌측 썸네일 */}
-              {ref.imageUrl && !ref.url.includes('instagram.com') && (
-                <a href={ref.url} target="_blank" rel="noopener noreferrer"
-                  style={{ flexShrink: 0, display: 'block', width: 120 }}>
-                  <img
-                    src={ref.imageUrl}
-                    alt=""
-                    style={{ width: 120, height: '100%', minHeight: 80, objectFit: 'cover', display: 'block' }}
-                    onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }}
-                  />
-                </a>
-              )}
-
-              {/* 우측 본문 */}
-              <div style={{ flex: 1, minWidth: 0, padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  {(!ref.imageUrl || ref.url.includes('instagram.com')) && ref.faviconUrl && (
-                    <img src={ref.faviconUrl} width={18} height={18} alt=""
-                      style={{ borderRadius: 4, flexShrink: 0, marginTop: 2 }}
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                  )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                      <a href={ref.url} target="_blank" rel="noopener noreferrer" style={{
-                        fontSize: 14, color: 'var(--color-text)', fontWeight: 500,
-                        textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {ref.title || ref.url}
-                      </a>
-                      {ref.refType && (
-                        <span style={{
-                          fontSize: 10, fontFamily: 'var(--font-mono)',
-                          padding: '2px 7px', borderRadius: 4,
-                          background: 'var(--color-bg-3)', color: 'var(--color-text-3)',
-                          whiteSpace: 'nowrap', flexShrink: 0,
-                        }}>
-                          {REF_TYPE_LABELS[ref.refType] || ref.refType}
-                        </span>
-                      )}
-                    </div>
-                    {ref.desc && (
-                      <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {ref.desc}
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <span style={{
-                        fontSize: 11, color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {ref.url}
-                      </span>
-                      <HeartButton
-                        isSaved={savedMap.has(ref.url)}
-                        size={16}
-                        onClick={() => handleToggle(ref)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="archive-results">
+          <div className="editorial-grid featured-grid archive-featured-grid">
+            {filtered.slice(0, 3).map(ref => <ReferenceCard key={ref.id} refItem={ref} compact={false} saved={savedMap.has(ref.url)} onToggle={handleToggle} />)}
+          </div>
+          {filtered.length > 3 && <div className="editorial-grid compact-grid separated-grid archive-compact-grid">
+            {filtered.slice(3).map(ref => <ReferenceCard key={ref.id} refItem={ref} compact saved={savedMap.has(ref.url)} onToggle={handleToggle} />)}
+          </div>}
         </div>
       )}
     </div>
   )
+}
+
+function ReferenceCard({ refItem, compact, saved, onToggle }: { refItem: Reference; compact: boolean; saved: boolean; onToggle: (ref: Reference) => void }) {
+  return <div className="editorial-card-wrap">
+    <EditorialCard compact={compact} href={refItem.url} external title={refItem.title || refItem.url}
+      image={refItem.url.includes('instagram.com') ? null : refItem.imageUrl}
+      eyebrow={refItem.refType ? (REF_TYPE_LABELS[refItem.refType] || refItem.refType) : refItem.category || 'REFERENCE'}
+      description={compact ? null : refItem.desc} date={new Date(refItem.createdAt)} />
+    <div className="editorial-card-save"><HeartButton isSaved={saved} size={16} onClick={() => onToggle(refItem)} /></div>
+  </div>
 }

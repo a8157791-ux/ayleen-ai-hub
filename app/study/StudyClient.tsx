@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import EditorialCard from '@/components/EditorialCard'
 
 const catLabel: Record<string, string> = {
   image: 'Image', design: 'Design', video: 'Video', '3d': '3D', plan: 'Planning',
@@ -55,37 +56,13 @@ export default function StudyClient({ notes, total }: { notes: Note[], total: nu
         ))}
       </div>
 
-      <div className="cards-grid">
+      <div className="editorial-grid compact-grid study-archive-grid">
         {filtered.map(note => {
           const thumbSrc = !failedThumbs.has(note.id) ? getThumbSrc(note.mediaUrl) : null
           return (
-            <Link key={note.id} href={`/study/${note.id}`} className="content-card">
-              <div className="card-thumb">
-                {thumbSrc ? (
-                  <img
-                    src={thumbSrc}
-                    alt={note.title}
-                    loading="lazy"
-                    onError={() => markFailed(note.id)}
-                  />
-                ) : (
-                  <i className="ti ti-photo-ai" style={{ fontSize: 32, color: 'var(--color-blue)', opacity: 0.35 }} />
-                )}
-                {note.category && (
-                  <span className="card-thumb-badge">{catLabel[note.category] ?? note.category}</span>
-                )}
-              </div>
-              <div className="card-body">
-                {note.category && (
-                  <div className={`card-cat cat-${note.category}`}>{catLabel[note.category] ?? note.category}</div>
-                )}
-                <div className="card-title">{note.title}</div>
-                <div className="card-footer">
-                  {/* {note.tool && <><span>{note.tool}</span><span className="card-footer-dot" /></>} */}
-                  <span>{new Date(note.studiedAt ?? note.createdAt).toLocaleDateString('ko-KR')}</span>
-                </div>
-              </div>
-            </Link>
+            <EditorialCard compact key={note.id} href={`/study/${note.id}`} title={note.title}
+              image={thumbSrc} eyebrow={note.tool || (note.category ? catLabel[note.category] : 'STUDY')}
+              date={new Date(note.studiedAt ?? note.createdAt)} />
           )
         })}
         {filtered.length === 0 && (

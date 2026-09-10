@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import HeartButton from '@/components/HeartButton'
 import Pagination from '@/components/Pagination'
+import EditorialCard from '@/components/EditorialCard'
 
 const catLabel: Record<string, string> = {
   design: 'Design', code: 'Coding', video: 'Video',
@@ -121,58 +122,39 @@ export default function NewsClient({
         ))}
       </div>
 
-      <div className="news-list" style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.15s' }}>
+      <div className="archive-results" style={{ opacity: loading ? 0.48 : 1 }} aria-busy={loading}>
         {news.length === 0 && (
           <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, padding: '24px 0' }}>
             아직 수집된 뉴스가 없습니다. 관리자 패널에서 뉴스를 수집해보세요.
           </div>
         )}
-        {news.map((item, i) => {
+        {news.length > 0 && <>
+          <div className="editorial-grid featured-grid archive-featured-grid">
+          {news.slice(0, 3).map((item, i) => {
           const isNew = Date.now() - new Date(item.createdAt).getTime() < 86400000
           const displayTitle = item.titleKo || item.title
           const displaySummary = item.summaryKo || item.summary
           const isSaved = savedMap.has(item.id)
-          return (
-            <a key={item.id} href={item.url} className="news-item" target="_blank" rel="noopener noreferrer">
-              <span className="news-num">{String((page - 1) * pageSize + i + 1).padStart(2, '0')}</span>
-
-              {/* 썸네일 — 있을 때만 표시 */}
-              {item.imageUrl && (
-                <img
-                  src={item.imageUrl}
-                  alt=""
-                  style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }}
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-                />
-              )}
-
-              <div className="news-body">
-                {item.category && (
-                  <div className={`news-cat cat-${item.category}`}>
-                    {catLabel[item.category] ?? item.category}
-                  </div>
-                )}
-                <div className="news-title">{displayTitle}</div>
-                {item.titleKo && item.titleKo !== item.title && (
-                  <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
-                    {item.title}
-                  </div>
-                )}
-                {displaySummary && (
-                  <div style={{ fontSize: 13, color: 'var(--color-text-2)', marginTop: 4, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {displaySummary}
-                  </div>
-                )}
-                <div className="news-footer">
-                  <span>{timeAgo(item.createdAt)}</span>
-                  {item.source && <span className="news-source">{item.source}</span>}
-                  {isNew && <span className="badge badge-new">NEW</span>}
-                </div>
-              </div>
-              <HeartButton isSaved={isSaved} size={17} onClick={(e) => handleToggle(item, e)} />
-            </a>
-          )
+          return <div className="editorial-card-wrap" key={item.id}>
+            <EditorialCard href={item.url} external title={displayTitle} image={item.imageUrl}
+              eyebrow={catLabel[item.category] ?? item.source ?? (isNew ? 'NEW' : 'INSIGHT')}
+              description={displaySummary} date={new Date(item.publishedAt || item.createdAt)} priority={i < 3} />
+            <div className="editorial-card-save"><HeartButton isSaved={isSaved} size={17} onClick={(e) => handleToggle(item, e)} /></div>
+          </div>
         })}
+          </div>
+          {news.length > 3 && <div className="editorial-grid compact-grid separated-grid archive-compact-grid">
+            {news.slice(3).map(item => {
+              const displayTitle = item.titleKo || item.title
+              const isSaved = savedMap.has(item.id)
+              return <div className="editorial-card-wrap" key={item.id}>
+                <EditorialCard compact href={item.url} external title={displayTitle} image={item.imageUrl}
+                  eyebrow={catLabel[item.category] ?? item.source ?? 'INSIGHT'} date={new Date(item.publishedAt || item.createdAt)} />
+                <div className="editorial-card-save"><HeartButton isSaved={isSaved} size={16} onClick={(e) => handleToggle(item, e)} /></div>
+              </div>
+            })}
+          </div>}
+        </>}
       </div>
 
       <Pagination page={page} totalPages={totalPages} onPage={handlePage} />

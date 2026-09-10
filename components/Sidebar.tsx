@@ -46,10 +46,10 @@ export default function Sidebar() {
       <aside className={`aihub-sidebar${open ? ' open' : ''}`} aria-label="사이드바">
         <Link href="/" className="rail-logo" aria-label="Ayleen Edit 홈"><span>[<em>e</em>]</span></Link>
         <nav className="rail-nav" aria-label="주요 메뉴">
-          {navigation.map(({ href, label, icon: Icon }) => {
+          {navigation.map(({ href, label, icon: Icon }, index) => {
             const selected = active(href)
             return (
-              <Link key={href} href={href} className={`rail-link${selected ? ' active' : ''}`} aria-label={label} aria-current={selected ? 'page' : undefined}>
+              <Link key={href} href={href} className={`rail-link rail-link-${index + 1}${selected ? ' active' : ''}`} aria-label={label} aria-current={selected ? 'page' : undefined}>
                 <Icon size={24} weight={selected ? 'fill' : 'thin'} aria-hidden="true" />
                 <span>{label}</span>
               </Link>
