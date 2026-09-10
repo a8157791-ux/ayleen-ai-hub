@@ -906,7 +906,7 @@ body.dialog-open {overflow: hidden}
 .study-dialog-body {position: relative}
 .study-dialog-close {position: sticky; top: 15px; margin: 15px 15px -51px auto; width: 36px; height: 36px; border-radius: 50%; background: color-mix(in srgb, var(--color-bg-2) 92%, transparent); border: 1px solid var(--color-border); color: var(--color-text); z-index: 2; display: grid; place-items: center; backdrop-filter: blur(8px); cursor: pointer; transition: transform .2s ease, background .2s ease}
 .study-dialog-close:hover {transform: rotate(8deg); background: var(--color-bg-3)}
-.study-dialog-image {aspect-ratio: 16/9; overflow: hidden; background: var(--color-bg-3)}
+.study-dialog-image {aspect-ratio: 16/9; overflow: hidden; background: var(--color-bg-3); position: relative}
 .study-dialog-image img {width: 100%; height: 100%; display: block; object-fit: cover}
 .study-dialog-content {padding: 35px 42px 42px}
 .study-dialog-meta {display: flex; justify-content: space-between; gap: 18px; color: var(--color-text-3); font-size: 10px; letter-spacing: .08em; text-transform: uppercase}

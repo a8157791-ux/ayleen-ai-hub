@@ -19,7 +19,14 @@ export default function EditorialCard(props: CardProps) {
   const content = (
     <>
       <div className="editorial-card-image">
-        <EditorialImage src={props.image} alt={props.title} priority={props.priority} />
+        <EditorialImage
+          src={props.image}
+          alt={props.title}
+          priority={props.priority}
+          sizes={props.compact
+            ? '(max-width: 600px) 50vw, (max-width: 1100px) 50vw, 25vw'
+            : '(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 33vw'}
+        />
         <span className="editorial-card-mark" aria-hidden="true">
           <i className="ti ti-book" />
         </span>

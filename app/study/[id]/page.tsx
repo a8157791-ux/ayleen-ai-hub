@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db'
 import CopyButton from '@/components/CopyButton'
 import StudyToc from './StudyToc'
 
+export const revalidate = 600
+
 const catLabel: Record<string, string> = {
   image: '이미지',
   video: '영상',

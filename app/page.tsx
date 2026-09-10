@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import EditorialCard from '@/components/EditorialCard'
+import StudyCards from '@/components/StudyCards'
 import { databaseEnabled, prisma } from '@/lib/db'
 
 export const revalidate = 1800
@@ -113,12 +114,9 @@ export default async function HomePage() {
 
       <section className="edit-section">
         <SectionTitle title="배우고, 직접 해본 것들" caption="NOTES IN PROGRESS" href="/study" />
-        {studies.length ? <div className="editorial-grid compact-grid study-home-grid">
-          {studies.map(note => <EditorialCard compact key={note.id} href={`/study/${note.id}`}
-            title={note.title} image={note.mediaUrl} eyebrow={note.tool || note.category || 'STUDY'}
-            description={note.content ? note.content.replace(/<[^>]+>/g, '').slice(0, 90) : null}
-            date={note.studiedAt || note.createdAt} />)}
-        </div> : <EmptySection text="아직 표시할 스터디 기록이 없어요." />}
+        {studies.length ? (
+          <StudyCards notes={studies} className="editorial-grid compact-grid study-home-grid" showDescription />
+        ) : <EmptySection text="아직 표시할 스터디 기록이 없어요." />}
       </section>
     </>
   )
