@@ -42,6 +42,7 @@
 - Tools, saved items, search results, and study detail now use the same quiet line-based editorial treatment. Live navigation across these routes produced zero browser console errors.
 - Study cards on both the homepage and `/study` now open the same centered native dialog without changing the route. The dialog locks background scrolling and closes by its close control, backdrop, or Escape; modified clicks and the explicit full-page link preserve the shareable `/study/[id]` route.
 - The open-dialog state was captured in the in-app browser and compared with the previously approved prototype dialog: centered 740px reading surface, dimmed/blurred backdrop, 16:9 lead image, compact metadata, restrained typography, and clear close control are preserved.
+- Dialog centering is explicit rather than relying on browser defaults: at the 1280 × 720 verification viewport its bounds were 740 × 648 at x=270, y=36, with a measured center delta of x=0, y=0.
 - Study dialog data is included with the initial card payload, eliminating the additional detail API wait on click. Public study-list queries are cached for 10 minutes, and card/dialog images now use responsive Next.js image optimization instead of downloading multi-megabyte originals at thumbnail size.
 - Console: no visible runtime error overlay or failed application render was observed. A full automated console capture was not available on this surface.
 
