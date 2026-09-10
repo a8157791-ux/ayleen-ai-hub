@@ -1,11 +1,10 @@
-import { prisma } from '@/lib/db'
-import { unstable_cache } from 'next/cache'
+import { databaseEnabled, prisma } from '@/lib/db'
 import StudyClient from './StudyClient'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 600
 
-const getPublishedStudyNotes = unstable_cache(
-  () => prisma.studyNote.findMany({
+export default async function StudyPage() {
+  const notes = databaseEnabled ? await prisma.studyNote.findMany({
     where: { published: true },
     orderBy: [{ studiedAt: 'desc' }, { createdAt: 'desc' }],
     select: {
@@ -21,13 +20,7 @@ const getPublishedStudyNotes = unstable_cache(
       studiedAt: true,
       createdAt: true,
     },
-  }),
-  ['published-study-notes'],
-  { revalidate: 600, tags: ['study-notes'] },
-)
-
-export default async function StudyPage() {
-  const notes = await getPublishedStudyNotes()
+  }) : []
 
   return <StudyClient notes={notes} total={notes.length} />
 }
