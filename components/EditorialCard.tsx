@@ -27,7 +27,7 @@ export default function EditorialCard(props: CardProps) {
         <h3>{props.title}</h3>
         {props.description && <p>{props.description}</p>}
         <div className="editorial-card-meta">
-          {props.date && <time>{props.date.toLocaleDateString('ko-KR')}</time>}
+          {props.date && <time>{props.date.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}</time>}
           <span>VIEW <i className="ti ti-arrow-up-right" /></span>
         </div>
       </div>

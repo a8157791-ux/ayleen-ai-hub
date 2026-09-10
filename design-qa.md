@@ -32,6 +32,10 @@
 - Desktop and mobile layouts were rendered in the in-app browser. No horizontal overflow was observed.
 - Production build completed successfully across all 29 routes.
 - Browser accessibility tree contained all primary navigation links, search input, theme control, headings and card links.
+- Live production `/news`, `/reference`, and `/study` routes were inspected with real records after the archive redesign. Images, generated fallbacks, active filled rail icons, filters, headings, and responsive two-column tablet state rendered without clipping or horizontal overflow.
+- Archive rules now match the selected design: news/reference begin with three featured cards and continue in four-column compact rows; study uses four-column compact rows. At mobile width the featured cards become one column and compact cards become two columns.
+- Each desktop rail icon has a small icon-specific hover motion, while `prefers-reduced-motion` continues to disable all animation.
+- Editorial card dates use an explicit Asia/Seoul timezone to keep server and browser text identical during hydration.
 - Console: no visible runtime error overlay or failed application render was observed. A full automated console capture was not available on this surface.
 
 **Comparison history**
@@ -55,5 +59,7 @@
 - [x] Add shared fallback thumbnail behavior.
 - [x] Preserve application routes and backend APIs.
 - [x] Validate production build, desktop, mobile and theme state.
+- [x] Extend the editorial card system to insight, reference and study archives.
+- [x] Add rail hover motion and verify active filled icon states.
 
 final result: passed
