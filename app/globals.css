@@ -505,7 +505,7 @@ html {background: var(--color-bg); scroll-behavior: smooth}
 body {background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans)}
 ::-webkit-scrollbar-thumb {background: color-mix(in srgb, var(--color-text) 14%, transparent)}
 
-.aihub-shell {display: block; min-height: 100vh}
+.aihub-shell {display: block; height: auto; min-height: 100vh; overflow: visible}
 .aihub-sidebar {
   width: 72px; height: 100dvh; position: fixed; inset: 0 auto 0 0;
   transform: none; overflow: visible; align-items: center; z-index: 100;
@@ -542,7 +542,7 @@ body {background: var(--color-bg); color: var(--color-text); font-family: var(--
 .rail-link:hover > span, .rail-link:focus-visible > span {opacity: 1; visibility: visible}
 .rail-bottom {margin-top: auto; margin-bottom: 24px; display: flex; flex-direction: column; align-items: center; gap: 15px}
 
-.aihub-main {margin-left: 72px; min-height: 100vh; display: flex}
+.aihub-main {margin-left: 72px; min-height: 100vh; display: flex; flex-direction: column}
 .aihub-topbar {
   height: 90px; padding: 0 38px; background: var(--color-bg); border-bottom: 1px solid var(--color-border);
   position: sticky; top: 0; z-index: 50; display: flex; gap: 20px;
@@ -564,7 +564,7 @@ body {background: var(--color-bg); color: var(--color-text); font-family: var(--
 .theme-toggle svg {transition: transform .35s ease}
 .theme-toggle:hover svg {transform: rotate(45deg)}
 
-.aihub-content {padding: 29px 38px 0; width: 100%; border: 0; border-radius: 0}
+.aihub-content {padding: 29px 38px 0; width: 100%; min-height: auto; overflow: visible; border: 0; border-radius: 0}
 .edit-date {height: 0; text-align: right; padding-right: 14px; color: var(--color-text-2); font-size: 11px}
 .edit-section {padding-bottom: 38px; margin-bottom: 33px; border-bottom: 1px solid var(--color-border)}
 .edit-section-heading {height: 39px; margin: 0 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px}
@@ -895,4 +895,36 @@ body {background: var(--color-bg); color: var(--color-text); font-family: var(--
   .saved-editorial-list {grid-template-columns: 1fr}
   .saved-link-item:nth-child(odd), .saved-link-item:nth-child(even) {border-right: 0; padding-inline: 0}
   .tool-library-card {min-height: 190px; padding-inline: 13px}
+}
+
+/* Study story dialog — list-first reading flow from the approved prototype. */
+body.dialog-open {overflow: hidden}
+.study-card-shell {min-width: 0; transition: opacity .16s ease}
+.study-card-shell.loading {opacity: .48; pointer-events: none}
+.study-story-dialog {border: 0; padding: 0; color: var(--color-text); background: var(--color-bg); width: min(740px, calc(100% - 40px)); max-width: 740px; max-height: 90dvh; border-radius: 8px; overflow: auto; overscroll-behavior: contain; box-shadow: 0 24px 80px rgb(0 0 0 / .24)}
+.study-story-dialog::backdrop {background: rgb(0 0 0 / .42); backdrop-filter: blur(4px)}
+.study-dialog-body {position: relative}
+.study-dialog-close {position: sticky; top: 15px; margin: 15px 15px -51px auto; width: 36px; height: 36px; border-radius: 50%; background: color-mix(in srgb, var(--color-bg-2) 92%, transparent); border: 1px solid var(--color-border); color: var(--color-text); z-index: 2; display: grid; place-items: center; backdrop-filter: blur(8px); cursor: pointer; transition: transform .2s ease, background .2s ease}
+.study-dialog-close:hover {transform: rotate(8deg); background: var(--color-bg-3)}
+.study-dialog-image {aspect-ratio: 16/9; overflow: hidden; background: var(--color-bg-3)}
+.study-dialog-image img {width: 100%; height: 100%; display: block; object-fit: cover}
+.study-dialog-content {padding: 35px 42px 42px}
+.study-dialog-meta {display: flex; justify-content: space-between; gap: 18px; color: var(--color-text-3); font-size: 10px; letter-spacing: .08em; text-transform: uppercase}
+.study-dialog-content h2 {font-size: 26px; line-height: 1.45; letter-spacing: -.6px; margin: 16px 0 20px; font-weight: 500}
+.study-dialog-copy {font-size: 14px; line-height: 1.9; color: var(--color-text-2); white-space: pre-wrap; word-break: break-word}
+.study-dialog-prompt {margin-top: 30px; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: 20px 0}
+.study-dialog-prompt header {display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--color-text-3); font-size: 10px; letter-spacing: .12em}
+.study-dialog-prompt pre {margin: 16px 0 0; font: 400 12px/1.75 var(--font-sans); white-space: pre-wrap; word-break: break-word; color: var(--color-text-2)}
+.study-dialog-tags {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; color: var(--color-text-3); font-size: 11px}
+.study-dialog-footer {display: flex; align-items: center; justify-content: flex-end; gap: 18px; margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--color-border)}
+.study-dialog-footer a {display: flex; align-items: center; gap: 5px; color: var(--color-text-2); font-size: 11px}
+.study-dialog-footer a:hover {color: var(--color-text)}
+.study-dialog-footer i {transition: transform .2s ease}
+.study-dialog-footer a:hover i {transform: translateX(2px)}
+
+@media (max-width: 600px) {
+  .study-story-dialog {width: calc(100% - 24px); max-height: 88dvh}
+  .study-dialog-content {padding: 26px 24px 30px}
+  .study-dialog-content h2 {font-size: 22px}
+  .study-dialog-footer {align-items: flex-start; flex-direction: column}
 }

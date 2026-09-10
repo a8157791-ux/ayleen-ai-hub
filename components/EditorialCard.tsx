@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { MouseEventHandler } from 'react'
 import EditorialImage from './EditorialImage'
 
 type CardProps = {
@@ -11,6 +12,7 @@ type CardProps = {
   external?: boolean
   priority?: boolean
   compact?: boolean
+  onClick?: MouseEventHandler<HTMLAnchorElement>
 }
 
 export default function EditorialCard(props: CardProps) {
@@ -36,10 +38,10 @@ export default function EditorialCard(props: CardProps) {
 
   const className = `editorial-card${props.compact ? ' compact' : ''}`
   return props.external ? (
-    <a className={className} href={props.href} target="_blank" rel="noopener noreferrer">
+    <a className={className} href={props.href} target="_blank" rel="noopener noreferrer" onClick={props.onClick}>
       {content}
     </a>
   ) : (
-    <Link className={className} href={props.href}>{content}</Link>
+    <Link className={className} href={props.href} onClick={props.onClick}>{content}</Link>
   )
 }
