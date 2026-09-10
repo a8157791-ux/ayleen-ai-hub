@@ -13,6 +13,7 @@
 - Responsive evidence: `qa/integrated-mobile-visible.png`.
 - Desktop state: light theme, home route, local visual-verification data. CSS viewport 1440 × 1024 at 1×; in-app content capture 1436 × 1021. Source is 1440 × 1024 at 1×. The comparison contains both within equal 1440 × 1024 surfaces.
 - Mobile state: light theme, home route, top of featured feed. CSS viewport 390 × 844 at 1×; in-app content capture 386 × 835.
+- Archive refinement references: the two user-provided screenshots showing the misaligned page-heading/card axes and the study archive grid. Live production captures of `/study`, `/tools`, `/saved`, and `/study/6` were compared against those references after deployment.
 
 **Required fidelity surfaces**
 
@@ -36,6 +37,9 @@
 - Archive rules now match the selected design: news/reference begin with three featured cards and continue in four-column compact rows; study uses four-column compact rows. At mobile width the featured cards become one column and compact cards become two columns.
 - Each desktop rail icon has a small icon-specific hover motion, while `prefers-reduced-motion` continues to disable all animation.
 - Editorial card dates use an explicit Asia/Seoul timezone to keep server and browser text identical during hydration.
+- Page heading, category navigation, and list/card grids now share the same horizontal start and end edges. Browser geometry checks returned the same left coordinate for the study heading, first category, and first card.
+- The category bar's full-width bottom border was removed; only the active category's short underline remains. The hero divider stays as the single section separator.
+- Tools, saved items, search results, and study detail now use the same quiet line-based editorial treatment. Live navigation across these routes produced zero browser console errors.
 - Console: no visible runtime error overlay or failed application render was observed. A full automated console capture was not available on this surface.
 
 **Comparison history**
@@ -61,5 +65,7 @@
 - [x] Validate production build, desktop, mobile and theme state.
 - [x] Extend the editorial card system to insight, reference and study archives.
 - [x] Add rail hover motion and verify active filled icon states.
+- [x] Align archive titles, category navigation, and content grids.
+- [x] Remove the redundant category rule and refine remaining public detail routes.
 
 final result: passed
