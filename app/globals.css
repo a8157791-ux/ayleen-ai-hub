@@ -821,3 +821,78 @@ body {background: var(--color-bg); color: var(--color-text); font-family: var(--
 @media (max-width: 640px) {
   .sd-nav {grid-template-columns: 1fr}
 }
+
+/* ============================================================
+   Public archives — aligned editorial index
+============================================================ */
+.page-hero {margin-inline: 0}
+.tab-bar {border-bottom: 0; gap: 26px; padding: 0; overflow-y: hidden}
+.tab-btn {padding: 8px 0 10px; margin: 0; border-bottom-width: 1px; letter-spacing: .02em}
+.archive-featured-grid, .archive-compact-grid, .study-archive-grid,
+.tool-library-grid, .saved-editorial-list, .search-results {width: 100%}
+
+/* Tools — quiet editorial library, not dashboard tiles. */
+.tools-trend-banner {background: transparent; border: 0; border-radius: 0; padding: 0 0 18px; margin: -4px 0 18px; border-bottom: 1px solid var(--color-border)}
+.tools-trend-label {font-size: 10px; letter-spacing: .1em}
+.tools-trend-link {color: var(--color-text-2)}
+.tools-trend-link:hover {color: var(--color-text)}
+.tool-library-grid {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--color-border)}
+.tool-library-card {min-height: 210px; padding: 23px 18px 18px; border-right: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; transition: background .2s ease}
+.tool-library-card:nth-child(4n) {border-right: 0}
+.tool-library-card:hover {background: var(--color-bg-2)}
+.tool-card-head {display: flex; align-items: center; gap: 10px}
+.tool-card-head > img {border-radius: 5px; flex: 0 0 auto; filter: grayscale(1); transition: filter .2s ease}
+.tool-library-card:hover .tool-card-head > img {filter: grayscale(0)}
+.tool-card-head h2 {font-size: 16px; font-weight: 500; line-height: 1.3; flex: 1; min-width: 0}
+.tool-price {font-size: 9px; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-3)}
+.tool-library-card > p {font-size: 12px; line-height: 1.65; color: var(--color-text-2); margin-top: 18px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden}
+.tool-rating {display: flex; gap: 2px; margin-top: auto; padding-top: 18px}
+.tool-rating i {font-size: 10px; color: var(--color-border-2)}
+.tool-rating i[data-active='true'] {color: var(--color-text)}
+.tool-card-footer {display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-border); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-3)}
+.tool-card-footer a {display: flex; align-items: center; gap: 4px; color: var(--color-text-2)}
+.tool-card-footer a i {transition: transform .22s ease}
+.tool-card-footer a:hover i {transform: translate(2px,-2px)}
+.archive-empty {grid-column: 1/-1; color: var(--color-text-3); font-size: 12px; padding: 30px 0}
+
+/* Saved and search — magazine index rows. */
+.saved-editorial-list {display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--color-border)}
+.saved-link-item {border: 0; border-radius: 0; border-bottom: 1px solid var(--color-border); padding: 20px 14px 20px 0; min-height: 116px; align-items: flex-start; background: transparent}
+.saved-link-item:nth-child(odd) {border-right: 1px solid var(--color-border); padding-right: 24px}
+.saved-link-item:nth-child(even) {padding-left: 24px}
+.saved-link-item:hover {background: var(--color-bg-2); border-color: var(--color-border)}
+.saved-copy {flex: 1; min-width: 0}
+.saved-title {font-size: 15px; font-weight: 400; line-height: 1.5; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical}
+.saved-type {padding: 0; background: transparent; border-radius: 0; text-transform: uppercase; letter-spacing: .08em}
+.saved-arrow {font-size: 14px; color: var(--color-text-3); opacity: 0; transform: translate(-3px,3px); transition: opacity .18s ease, transform .22s ease}
+.saved-link-item:hover .saved-arrow {opacity: 1; transform: translate(0,0)}
+.archive-search-wrap {max-width: 720px; margin-bottom: 32px}
+.archive-search-box {display: flex; align-items: stretch; border-bottom: 1px solid var(--color-text)}
+.archive-search-box .form-input {flex: 1; font-size: 15px; background: transparent; border: 0; border-radius: 0; padding: 13px 2px; outline: 0}
+.archive-search-submit {width: 44px; display: grid; place-items: center; color: var(--color-text); background: transparent; border: 0; cursor: pointer}
+.search-results {gap: 0; border-top: 1px solid var(--color-border)}
+.search-item {border: 0; border-radius: 0; border-bottom: 1px solid var(--color-border); padding: 18px 0; background: transparent}
+.search-item:hover {border-color: var(--color-border); background: transparent; padding-left: 8px}
+.search-item-badge {padding: 0; border-radius: 0 !important; background: transparent !important; color: var(--color-text-3) !important; font-size: 10px; letter-spacing: .08em; text-transform: uppercase}
+.search-item-title {font-size: 15px; font-weight: 400}
+
+/* Study article — lighter editorial document treatment. */
+.sd-main {max-width: 720px}
+.sd-title {font-size: clamp(26px, 3vw, 38px); font-weight: 500; letter-spacing: -.035em; line-height: 1.25}
+.sd-hero {border: 0; border-radius: 6px}
+.sd-prose {font-size: 15px; line-height: 1.95}
+.sd-navcard {border-radius: 0; border-width: 1px 0 0; padding: 16px 0; background: transparent}
+.sd-navcard:hover {background: transparent; border-color: var(--color-text)}
+
+@media (max-width: 850px) {
+  .tool-library-grid {grid-template-columns: repeat(2, minmax(0, 1fr))}
+  .tool-library-card:nth-child(4n) {border-right: 1px solid var(--color-border)}
+  .tool-library-card:nth-child(2n) {border-right: 0}
+}
+
+@media (max-width: 600px) {
+  .tab-bar {gap: 22px}
+  .saved-editorial-list {grid-template-columns: 1fr}
+  .saved-link-item:nth-child(odd), .saved-link-item:nth-child(even) {border-right: 0; padding-inline: 0}
+  .tool-library-card {min-height: 190px; padding-inline: 13px}
+}

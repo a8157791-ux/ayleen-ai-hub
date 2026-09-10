@@ -47,7 +47,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
   }
 
   function formatDate(d: Date | string) {
-    return new Date(d).toLocaleDateString('ko-KR')
+    return new Date(d).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })
   }
 
   async function handleRemove(link: SavedLink, e: React.MouseEvent) {
@@ -93,7 +93,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
           <span>마음에 드는 글을 하트로 저장해보세요.</span>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="saved-editorial-list">
           {filtered.map(link => (
             <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
               className="saved-link-item">
@@ -103,7 +103,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
                 size={16}
                 onClick={(e) => handleRemove(link, e)}
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="saved-copy">
                 <div className="saved-title">{link.title || link.url}</div>
                 {link.memo && <div className="saved-memo">{link.memo}</div>}
                 <div className="saved-metarow">
@@ -113,6 +113,7 @@ export default function SavedClient({ links: initialLinks }: { links: SavedLink[
                   <span className="saved-date">{formatDate(link.createdAt)}</span>
                 </div>
               </div>
+              <i className="ti ti-arrow-up-right saved-arrow" aria-hidden="true" />
             </a>
           ))}
         </div>

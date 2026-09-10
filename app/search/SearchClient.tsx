@@ -221,18 +221,17 @@ export default function SearchClient({
       </div>
 
       {/* 검색 입력 */}
-      <div style={{ maxWidth: 640, marginBottom: 28 }}>
-        <div style={{ display: 'flex', gap: 8 }}>
+      <div className="archive-search-wrap">
+        <div className="archive-search-box">
           <input
             className="form-input"
-            style={{ flex: 1, fontSize: 15 }}
             value={inputVal}
             onChange={e => setInputVal(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
             placeholder="뉴스, 스터디, 툴 등 전체 검색..."
             autoFocus
           />
-          <button onClick={handleSearch} className="btn btn-primary" style={{ padding: '0 20px', flexShrink: 0 }}>
+          <button onClick={handleSearch} className="archive-search-submit" aria-label="검색">
             <i className="ti ti-search" style={{ fontSize: 16 }} />
           </button>
         </div>

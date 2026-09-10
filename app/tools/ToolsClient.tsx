@@ -6,10 +6,6 @@ const catLabel: Record<string, string> = {
   image: 'Image', video: 'Video', '3d': '3D', code: 'Code',
   plan: 'Planning', music: 'Music', presentation: 'Presentation',
 }
-const pricingColor: Record<string, string> = {
-  free: 'var(--color-green)', paid: 'var(--color-amber)', freemium: 'var(--color-blue)',
-}
-
 function getFaviconUrl(url?: string | null): string | null {
   if (!url) return null
   try {
@@ -103,19 +99,19 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
         ))}
       </div>
 
-      <div className="cards-grid">
+      <div className="tool-library-grid">
         {filtered.map(tool => {
           const favicon = getFaviconUrl(tool.url)
           const isSaved = savedMap.has(tool.id)
           return (
-            <div key={tool.id} style={{ background: 'var(--color-bg-2)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <article key={tool.id} className="tool-library-card">
+              <div className="tool-card-head">
                 {favicon && (
-                  <img src={favicon} alt="" width={20} height={20} style={{ borderRadius: 4, flexShrink: 0 }} />
+                  <img src={favicon} alt="" width={24} height={24} />
                 )}
-                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--color-text)', flex: 1, minWidth: 0 }}>{tool.name}</div>
+                <h2>{tool.name}</h2>
                 {tool.pricing && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, padding: '2px 7px', borderRadius: 'var(--radius-sm)', background: `${pricingColor[tool.pricing]}20`, color: pricingColor[tool.pricing], flexShrink: 0 }}>
+                  <span className="tool-price">
                     {tool.pricing}
                   </span>
                 )}
@@ -124,29 +120,29 @@ export default function ToolsClient({ tools }: { tools: Tool[] }) {
                 )}
               </div>
               {tool.review && (
-                <div style={{ fontSize: 12, color: 'var(--color-text-2)', lineHeight: 1.5, marginBottom: 10 }}>{tool.review}</div>
+                <p>{tool.review}</p>
               )}
               {tool.rating && (
-                <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
+                <div className="tool-rating" aria-label={`평점 ${tool.rating}점`}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <i key={i} className={`ti ti-star${i < Math.round(tool.rating!) ? '-filled' : ''}`}
-                      style={{ fontSize: 11, color: i < Math.round(tool.rating!) ? 'var(--color-amber)' : 'var(--color-text-3)' }} />
+                      data-active={i < Math.round(tool.rating!)} />
                   ))}
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--color-border)', fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--color-text-3)' }}>
+              <footer className="tool-card-footer">
                 <span>{tool.category ? (catLabel[tool.category] ?? tool.category) : ''}</span>
                 {tool.url && (
-                  <a href={tool.url} target="_blank" rel="noopener" style={{ color: 'var(--color-blue)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <a href={tool.url} target="_blank" rel="noopener noreferrer">
                     바로가기 <i className="ti ti-external-link" style={{ fontSize: 10 }} />
                   </a>
                 )}
-              </div>
-            </div>
+              </footer>
+            </article>
           )
         })}
         {filtered.length === 0 && (
-          <div style={{ color: 'var(--color-text-3)', fontFamily: 'var(--font-mono)', fontSize: 12, gridColumn: '1/-1' }}>
+          <div className="archive-empty">
             아직 등록된 툴이 없습니다.
           </div>
         )}
